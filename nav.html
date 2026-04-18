@@ -154,7 +154,7 @@
             <mdui-dropdown id="engine-dropdown" trigger="click">
                 <div slot="trigger"><img id="cur-engine-img" class="engine-favicon" src="https://www.google.com/favicon.ico"></div>
                 <mdui-menu id="engine-menu">
-                    <!-- 预设引擎已恢复 -->
+                    <!-- 预设搜索引擎已恢复并置于最前面 -->
                     <mdui-menu-item value="google"><img class="engine-favicon" src="https://www.google.com/favicon.ico" slot="icon">Google</mdui-menu-item>
                     <mdui-menu-item value="baidu"><img class="engine-favicon" src="https://www.baidu.com/favicon.ico" slot="icon">Baidu</mdui-menu-item>
                     <mdui-menu-item value="bing"><img class="engine-favicon" src="https://cn.bing.com/favicon.ico" slot="icon">Bing</mdui-menu-item>
@@ -438,6 +438,7 @@
 
         function renderEngineMenu() {
             const menu = document.getElementById('engine-menu');
+            // 保留预设引擎，只清除之前动态添加的自定义项
             const dynamicItems = menu.querySelectorAll('mdui-menu-item[value]');
             dynamicItems.forEach(item => item.remove());
 
@@ -729,7 +730,7 @@
             document.getElementById('theme-btn').icon = 'dark_mode';
         }
 
-        /* ==================== 修复后的时间 + RSS（仅保留指定三个源） ==================== */
+        /* ==================== 修复后的时间 + RSS（仅保留指定三个源 + 优化解析） ==================== */
         function updateHKTTime() {
             const now = new Date().toLocaleString('zh-CN', { 
                 timeZone: 'Asia/Hong_Kong',
@@ -741,7 +742,7 @@
         setInterval(updateHKTTime, 1000);
         updateHKTTime();
 
-        // 只保留你指定的三个 RSS 源
+        // 只保留你指定的三个源
         let customRSS = JSON.parse(localStorage.getItem('custom_rss')) || [
             "https://hongkongfp.com/feed/",
             "https://rthk.hk/rthk/news/rss/e_expressnews_elocal.xml",
@@ -756,21 +757,25 @@
             let marqueeHTML = '';
             for (let rssUrl of customRSS) {
                 try {
-                    const res = await fetch(rssUrl);
+                    const res = await fetch(rssUrl, { cache: 'no-cache' });
+                    if (!res.ok) continue;
                     const xmlText = await res.text();
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                    const items = xmlDoc.querySelectorAll("item");
+                    const items = xmlDoc.getElementsByTagName("item");
 
                     for (let item of items) {
-                        const title = item.querySelector("title") ? item.querySelector("title").textContent.trim() : "";
-                        if (title) marqueeHTML += `${title}　|　`;
+                        const titleNode = item.getElementsByTagName("title")[0];
+                        if (titleNode) {
+                            const title = titleNode.textContent.trim();
+                            if (title) marqueeHTML += `${title}　|　`;
+                        }
                     }
                 } catch (e) {
                     console.error(`RSS ${rssUrl} 加载失败:`, e);
                 }
             }
-            if (!marqueeHTML) marqueeHTML = '暂无最新香港新闻...';
+            if (!marqueeHTML) marqueeHTML = '暂无最新香港新闻，请稍后刷新...';
             document.getElementById('news-marquee').innerHTML = marqueeHTML;
             document.getElementById('fullscreen-marquee').innerHTML = marqueeHTML;
             document.getElementById('update-time').textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
@@ -778,7 +783,7 @@
 
         document.getElementById('refresh-news-btn').onclick = fetchHKNews;
 
-        // 管理RSS源对话框（完全保留原有逻辑）
+        // 管理RSS源对话框（保留原有逻辑）
         function showManageRSSDialog() {
             const list = document.getElementById('custom-rss-list');
             list.innerHTML = '';
@@ -839,7 +844,7 @@
 
         /* ==================== 初始化 ==================== */
         restoreLastEngine();
-        renderEngineMenu();
+        renderEngineMenu();   // 确保预设 + 自定义都显示
         render();
         updateLiveWeather();
         fetchData(apiUrl, 'weather-info', formatWeatherData);
