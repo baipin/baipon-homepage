@@ -776,54 +776,64 @@
         }
 
         async function fetchHKNews() {
-    try {
-        //  并发请求所有 RSS
-        const requests = customRSS.map(url => {
-            const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=20`;
-            return fetch(api).then(res => res.json()).catch(() => null);
-        });
+    try async function fetchHKNews() {
+    let allTitles = [];
 
-        const results = await Promise.all(requests);
+    for (let rssUrl of customRSS) {
+        try {
+            const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=10`;
 
-        let allTitles = [];
+            const res = await fetch(api);
+            const data = await res.json();
 
-        results.forEach(data => {
-            if (data && data.items) {
+            // ⭐ 防止接口返回错误
+            if (data.status !== 'ok') {
+                console.warn('RSS失败:', rssUrl, data);
+                continue;
+            }
+
+            if (data.items && data.items.length) {
                 data.items.forEach(item => {
                     if (item.title) {
                         allTitles.push(item.title.trim());
                     }
                 });
             }
-        });
 
-        //  去重（防止重复新闻）
-        allTitles = [...new Set(allTitles)];
+            //  防止请求过快（避免被封）
+            await new Promise(r => setTimeout(r, 300));
 
-        let marqueeHTML = allTitles.join('　|　');
-
-        if (!marqueeHTML) {
-            marqueeHTML = '暂无最新香港新闻，请稍后刷新...';
+        } catch (e) {
+            console.error('RSS异常:', rssUrl, e);
         }
-
-        //  普通滚动区
-        const marquee = document.getElementById('news-marquee');
-        if (marquee) marquee.innerHTML = marqueeHTML;
-
-        //  全屏滚动区（带动画 span）
-        const full = document.getElementById('fullscreen-marquee');
-        if (full) full.innerHTML = `<span>${marqueeHTML}</span>`;
-
-        // 更新时间
-        const timeEl = document.getElementById('update-time');
-        if (timeEl) {
-            timeEl.textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
-        }
-
-    } catch (e) {
-        console.error('RSS加载失败:', e);
     }
-            }
+
+    //  去重
+    allTitles = [...new Set(allTitles)];
+
+    //  限制最大数量（防止过长卡死）
+    allTitles = allTitles.slice(0, 50);
+
+    let marqueeHTML = allTitles.join('　|　');
+
+    if (!marqueeHTML) {
+        marqueeHTML = '⚠️ RSS加载失败（可能被限流），请稍后刷新';
+    }
+
+    // 普通
+    const marquee = document.getElementById('news-marquee');
+    if (marquee) marquee.innerHTML = marqueeHTML;
+
+    // 全屏
+    const full = document.getElementById('fullscreen-marquee');
+    if (full) full.innerHTML = `<span>${marqueeHTML}</span>`;
+
+    // 时间
+    const timeEl = document.getElementById('update-time');
+    if (timeEl) {
+        timeEl.textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
+    }
+                    }
 
         document.getElementById('refresh-news-btn').onclick = fetchHKNews;
 
