@@ -44,6 +44,15 @@
         .engine-favicon { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; display: block; }
         .search-container mdui-dropdown { margin-right: 8px; }
 
+        /* 移动端优化：搜索框不贴边 */
+        @media (max-width: 900px) {
+            .search-container {
+                width: 95%;
+                margin: 0 auto;
+                padding: 8px 16px;
+            }
+        }
+
         /* 搜索联想下拉菜单 */
         .suggestions-dropdown {
             position: absolute;
@@ -76,17 +85,22 @@
             background: rgba(255, 255, 255, 0.12);
         }
 
-        /* 书签排序箭头样式 */
+        /* 书签排序箭头样式 - 修复被 edit 图标覆盖问题 */
         .sort-btn {
             position: absolute;
-            right: 8px;
-            font-size: 18px;
+            right: 12px;
+            font-size: 20px;
             color: var(--text-main);
-            opacity: 0.6;
+            opacity: 0.7;
             cursor: pointer;
+            z-index: 10;
+            width: 24px;
+            text-align: center;
         }
-        .sort-btn:hover { opacity: 1; }
-        .edit-active .link-item { padding-right: 50px; }
+        .sort-up   { top: 12px; }
+        .sort-down { top: 38px; }
+        .sort-btn:hover { opacity: 1; transform: scale(1.1); }
+        .edit-active .link-item { padding-right: 58px; }   /* 增加右边距防止覆盖 */
 
         .content-layout { max-width: 1240px; margin: 0 auto 80px; display: grid; grid-template-columns: 1fr 360px; gap: 32px; padding: 0 20px; }
         .card-glass { border-radius: 28px; background: var(--glass-bg); backdrop-filter: blur(20px); padding: 32px; border: 1px solid var(--glass-border); color: var(--text-main); }
@@ -97,13 +111,27 @@
         }
         .link-item:hover { transform: translateY(-5px); background: rgba(128,128,128,0.15); }
         .link-item img, .link-item mdui-icon { width: 32px; height: 32px; margin-bottom: 12px; border-radius: 6px; color: var(--text-main) !important; }
-        .edit-active .link-item::after { content: "edit"; font-family: 'Material Icons'; position: absolute; top: 8px; right: 8px; font-size: 10px; background: #0081ff; color: white; border-radius: 50%; padding: 4px; }
+        .edit-active .link-item::after { 
+            content: "edit"; 
+            font-family: 'Material Icons'; 
+            position: absolute; 
+            top: 8px; 
+            right: 38px;   /* 右移，避免覆盖箭头 */
+            font-size: 10px; 
+            background: #0081ff; 
+            color: white; 
+            border-radius: 50%; 
+            padding: 4px; 
+        }
         .weather-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding: 15px; background: rgba(128,128,128,0.05); border-radius: 20px; }
         #weather-icon-img { width: 56px; height: 56px; }
         .temp-display { font-size: 2.2rem; font-weight: 900; }
         .hum-display { font-size: 0.85rem; opacity: 0.8; }
         .weather-details p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; }
-        @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .side-stack { order: -1; } }
+        @media (max-width: 900px) { 
+            .content-layout { grid-template-columns: 1fr; } 
+            .side-stack { order: -1; } 
+        }
     </style>
 </head>
 <body class="mdui-theme-auto">
@@ -118,7 +146,7 @@
     </header>
     <section class="hero-space">
         <div class="search-container">
-            <mdui-dropdown id="engine-dropdown">
+            <mdui-dropdown id="engine-dropdown" trigger="click">
                 <div slot="trigger"><img id="cur-engine-img" class="engine-favicon" src="https://www.google.com/favicon.ico"></div>
                 <mdui-menu id="engine-menu">
                     <mdui-menu-item value="google"><img class="engine-favicon" src="https://www.google.com/favicon.ico" slot="icon">Google</mdui-menu-item>
@@ -180,7 +208,7 @@
         <mdui-button slot="action" variant="tonal" id="act-save">保存</mdui-button>
     </mdui-dialog>
 
-    <!-- 新增：添加搜索引擎对话框 -->
+    <!-- 添加搜索引擎对话框 -->
     <mdui-dialog id="add-engine-dialog" close-on-overlay-click>
         <span slot="headline">添加自定义搜索引擎</span>
         <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
@@ -215,7 +243,6 @@
         let bookmarks = JSON.parse(localStorage.getItem('bp_v7')) || initLinks;
         let isEdit = false, curIdx = null;
 
-        // 自定义搜索引擎（默认 + 用户添加的）
         let customEngines = JSON.parse(localStorage.getItem('custom_engines')) || {};
         let engines = {
             google: 'https://www.google.com/search?q=',
@@ -241,17 +268,14 @@
                 el.innerHTML = `${iconHtml}<span>${item.name}</span>`;
 
                 if (isEdit) {
-                    // 添加排序按钮
                     const up = document.createElement('span');
-                    up.className = 'sort-btn';
+                    up.className = 'sort-btn sort-up';
                     up.innerHTML = '↑';
-                    up.style.top = '8px';
                     up.onclick = (e) => { e.stopImmediatePropagation(); moveBookmark(i, -1); };
 
                     const down = document.createElement('span');
-                    down.className = 'sort-btn';
+                    down.className = 'sort-btn sort-down';
                     down.innerHTML = '↓';
-                    down.style.top = '32px';
                     down.onclick = (e) => { e.stopImmediatePropagation(); moveBookmark(i, 1); };
 
                     el.appendChild(up);
@@ -309,7 +333,6 @@
             customEngines[key] = url;
             engines[key] = url;
 
-            // 添加到菜单（动态创建）
             const menu = document.getElementById('engine-menu');
             const newItem = document.createElement('mdui-menu-item');
             newItem.value = key;
@@ -319,7 +342,6 @@
             localStorage.setItem('custom_engines', JSON.stringify(customEngines));
             document.getElementById('add-engine-dialog').open = false;
 
-            // 清空输入
             document.getElementById('engine-name').value = '';
             document.getElementById('engine-url').value = '';
             document.getElementById('engine-icon').value = '';
@@ -329,7 +351,7 @@
             document.getElementById('add-engine-dialog').open = false;
         };
 
-        /* 实时搜索联想（稳定版） */
+        /* 实时搜索联想 */
         const searchInput = document.getElementById('search-input');
         const suggestionsContainer = document.getElementById('suggestions');
         let debounceTimer = null;
