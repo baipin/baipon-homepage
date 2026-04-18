@@ -15,7 +15,6 @@
             --nav-height: 64px;
         }
 
-        /* 修复白边关键：全局禁止水平溢出 */
         html, body {
             margin: 0;
             padding: 0;
@@ -25,11 +24,8 @@
             font-family: "Product Sans", system-ui, -apple-system, sans-serif;
         }
 
-        body {
-            padding-top: var(--nav-height);
-        }
+        body { padding-top: var(--nav-height); }
 
-        /* 修复后的导航栏 */
         .custom-app-bar {
             height: var(--nav-height) !important;
             background-color: rgba(255, 255, 255, 0.85) !important;
@@ -39,32 +35,44 @@
             display: flex;
             align-items: center;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 1000;
             box-sizing: border-box;
         }
 
-        .nav-logo {
-            height: 28px;
-            cursor: pointer;
-            margin-left: 8px;
-        }
-
-        .nav-links-container {
-            display: flex;
-            gap: 4px;
-            margin-left: 12px;
-        }
+        .nav-logo { height: 28px; cursor: pointer; }
 
         /* Hero Section */
         .hero-section {
             width: 100%;
-            height: 70vh;
+            height: 80vh;
             background: url('/home.jpg') center/cover no-repeat;
             position: relative;
+            display: flex;
+            align-items: flex-end; /* 容器置于底部 */
+            justify-content: center;
         }
+
+        /* 图片信息悬浮窗 */
+        .photo-info-box {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 140px; /* 留出空间给下方的浮动卡片 */
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .photo-text h4 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+        .photo-text p { margin: 4px 0 0; font-size: 0.85rem; opacity: 0.8; }
 
         /* 浮动容器 */
         .floating-container {
@@ -84,7 +92,6 @@
             padding: 40px;
             border-radius: 16px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.08);
-            box-sizing: border-box;
         }
 
         .sidebar-card {
@@ -94,7 +101,6 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.03);
             height: fit-content;
             text-align: center;
-            box-sizing: border-box;
         }
 
         .rss-item {
@@ -114,24 +120,16 @@
             color: #777;
             padding: 40px 20px;
             text-align: center;
-            width: 100%;
-            box-sizing: border-box;
         }
 
-        /* 移动端适配逻辑 */
+        /* 移动端逻辑 */
         @media (max-width: 900px) {
-            .nav-links-container { display: none; } /* 隐藏顶部链接 */
-            .mobile-menu-btn { display: inline-flex !important; } /* 显示汉堡按钮 */
-            
-            .floating-container { 
-                grid-template-columns: 1fr; 
-                margin-top: -60px;
-                padding: 0 16px;
-            }
-            .main-card { padding: 32px 20px; }
+            .nav-links-container { display: none; }
+            .mobile-menu-btn { display: inline-flex !important; }
+            .floating-container { grid-template-columns: 1fr; margin-top: -60px; }
             .sidebar-card { order: -1; }
-            
-            h1 { font-size: 1.8rem !important; } /* 防止标题撑开宽度 */
+            h1 { font-size: 1.8rem !important; }
+            .photo-info-box { margin-bottom: 80px; width: 85%; }
         }
 
         .mobile-menu-btn { display: none; }
@@ -139,24 +137,22 @@
 </head>
 <body>
 
-    <mdui-navigation-drawer id="drawer" close-on-overlay-click>
+    <mdui-navigation-drawer id="drawer" placement="right" close-on-overlay-click>
         <div style="padding: 24px;">
-            <h2 style="margin: 0; font-weight: 900;">MENU</h2>
+            <h2 style="margin: 0; font-weight: 900;">导航菜单</h2>
         </div>
         <mdui-list>
-            <mdui-list-item icon="home" href="#" data-i18n="nav_home">首页</mdui-list-item>
-            <mdui-list-item icon="auto_stories" href="https://baipin.pw" data-i18n="nav_blog">博客</mdui-list-item>
-            <mdui-list-item icon="terminal" href="#projects" data-i18n="nav_projects">项目</mdui-list-item>
-            <mdui-list-item icon="account_circle" href="https://baipin.pw/about" data-i18n="nav_about">关于</mdui-list-item>
+            <mdui-list-item icon="home" href="#">首页</mdui-list-item>
+            <mdui-list-item icon="auto_stories" href="https://baipin.pw">博客</mdui-list-item>
+            <mdui-list-item icon="terminal" href="#projects">项目</mdui-list-item>
+            <mdui-list-item icon="account_circle" href="https://baipin.pw/about">关于</mdui-list-item>
         </mdui-list>
     </mdui-navigation-drawer>
 
     <header class="custom-app-bar">
-        <mdui-button-icon icon="menu" class="mobile-menu-btn" onclick="document.getElementById('drawer').open = true"></mdui-button-icon>
-        
         <img src="/logo.png" alt="Logo" class="nav-logo" onclick="window.location.href='#'">
         
-        <div class="nav-links-container">
+        <div class="nav-links-container" style="margin-left: 20px; display: flex; gap: 8px;">
             <mdui-button variant="text" href="#" data-i18n="nav_home">首页</mdui-button>
             <mdui-button variant="text" href="https://baipin.pw" data-i18n="nav_blog">博客</mdui-button>
             <mdui-button variant="text" href="#projects" data-i18n="nav_projects">项目</mdui-button>
@@ -164,23 +160,33 @@
         </div>
 
         <div style="flex-grow: 1"></div>
+        
         <mdui-button-icon icon="translate" id="lang-btn"></mdui-button-icon>
+        <mdui-button-icon icon="menu" class="mobile-menu-btn" onclick="document.getElementById('drawer').open = true"></mdui-button-icon>
     </header>
 
-    <section class="hero-section"></section>
+    <section class="hero-section">
+        <div class="photo-info-box">
+            <div class="photo-text">
+                <h4 data-i18n="photo_title">浙江丽水 · 云和梯田</h4>
+                <p data-i18n="photo_desc">2023年暑期旅行时拍摄</p>
+            </div>
+            <mdui-button-icon icon="arrow_forward" style="background: rgba(255,255,255,0.1)"></mdui-button-icon>
+        </div>
+    </section>
 
     <div class="floating-container">
         <main class="main-card">
             <h1 style="font-size: 2.5rem; margin: 0 0 20px 0; font-weight: 800; line-height: 1.2;" data-i18n="hero_title">
-               图片/浙江丽水云和梯田
+                我欲穿花寻路，直入白云深处。
             </h1>
             <p style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
-                这里是 百品 (Baipin) 的入口。记录技术、生活与思考的点滴。
+                这里是 百品 (Baipin) 的入口。欢迎来到我的个人主页，这里记录着我对技术与生活的热爱。
             </p>
             
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <mdui-button variant="filled" href="https://baipin.pw" data-i18n="nav_blog">进入博客</mdui-button>
-                <mdui-button variant="outlined" href="https://baipin.pw/about" data-i18n="nav_about">关于我</mdui-button>
+                <mdui-button variant="filled" href="https://baipin.pw">进入博客</mdui-button>
+                <mdui-button variant="outlined" href="https://baipin.pw/about">关于我</mdui-button>
             </div>
 
             <mdui-divider style="margin: 40px 0;"></mdui-divider>
@@ -225,14 +231,16 @@
         const i18n = {
             'zh-CN': {
                 nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
-                hero_title: '图片/浙江丽水云和梯田',
-                hero_desc: '这里是 百品 (Baipin) 的入口。记录技术、生活与思考的点滴。',
+                hero_title: '我欲穿花寻路，直入白云深处。',
+                hero_desc: '这里是 百品 (Baipin) 的入口。欢迎来到我的个人主页，这里记录着我对技术与生活的热爱。',
+                photo_title: '浙江丽水 · 云和梯田', photo_desc: '中国最美梯田，层叠的时光印记。',
                 news_title: '最新文章', bio: '学生', btn_follow: '关于我'
             },
             'en': {
                 nav_home: 'Home', nav_blog: 'Blog', nav_projects: 'Projects', nav_about: 'About',
                 hero_title: 'Seeking paths through flowers, straight into the clouds.',
-                hero_desc: 'Welcome to Baipin. Documenting tech, life, and thoughts.',
+                hero_desc: 'Welcome to Baipin. This is my portal where I document my passion for tech and life.',
+                photo_title: 'Yunhe Terraces · Lishui', photo_desc: 'The most beautiful rice terraces in China.',
                 news_title: 'Latest Posts', bio: 'Student', btn_follow: 'About Me'
             }
         };
@@ -257,10 +265,7 @@
                     el.className = 'rss-item';
                     el.href = item.link;
                     el.target = '_blank';
-                    el.innerHTML = `
-                        <div style="font-weight: 700;">${item.title}</div>
-                        <div style="font-size: 0.8rem; color: #999; margin-top: 4px;">${new Date(item.pubDate).toLocaleDateString()}</div>
-                    `;
+                    el.innerHTML = `<div style="font-weight: 700;">${item.title}</div><div style="font-size: 0.8rem; color: #999; margin-top: 4px;">${new Date(item.pubDate).toLocaleDateString()}</div>`;
                     container.appendChild(el);
                 });
             } catch (e) {
