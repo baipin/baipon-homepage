@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>百品 - 入口网站</title>
+    <title>百品 - 个人主页</title>
     
     <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -18,22 +18,26 @@
         body {
             background-color: var(--mdui-color-background);
             margin: 0;
+            padding-top: var(--nav-height);
             font-family: "Product Sans", system-ui, -apple-system, sans-serif;
+            overflow-x: hidden; /* 彻底防止水平溢出 */
         }
 
-        /* 修复后的导航栏 */
+        /* 修复后的导航栏：使用 left/right:0 替代 width:100% 避免 Padding 导致的溢出 */
         .custom-app-bar {
             height: var(--nav-height) !important;
-            background-color: rgba(255, 255, 255, 0.8) !important;
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.08);
             padding: 0 5%;
             display: flex;
             align-items: center;
             position: fixed;
             top: 0;
-            width: 100%;
+            left: 0;
+            right: 0;
             z-index: 1000;
+            box-sizing: border-box;
         }
 
         .nav-logo {
@@ -43,18 +47,19 @@
 
         .nav-links-container {
             display: flex;
-            gap: 12px;
-            margin-left: 24px;
+            gap: 8px;
+            margin-left: 20px;
         }
 
-        /* Hero Section */
+        /* Hero Section - CityU 风格大图 */
         .hero-section {
             width: 100%;
-            height: 70vh;
-            background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2000') center/cover no-repeat;
+            height: 65vh;
+            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), 
+                        url('https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?q=80&w=2000') center/cover no-repeat;
         }
 
-        /* 浮动容器 */
+        /* 浮动容器布局 */
         .floating-container {
             max-width: 1200px;
             margin: -120px auto 60px;
@@ -68,47 +73,49 @@
 
         .main-card {
             background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            padding: 48px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);
         }
 
         .sidebar-card {
-            background: #fcfcfc;
-            padding: 32px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            background: #fafafa;
+            padding: 40px 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
             height: fit-content;
             text-align: center;
         }
 
-        /* RSS 动态列表样式 */
-        #rss-feed-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+        /* RSS 列表 */
         .rss-item {
-            padding: 16px;
-            border-radius: 8px;
-            background: #f9f9f9;
-            transition: 0.2s;
+            display: block;
+            padding: 18px;
+            border-radius: 12px;
+            background: #fcfcfc;
+            border: 1px solid #f0f0f0;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
             text-decoration: none;
             color: inherit;
         }
-        .rss-item:hover { background: #f0f0f0; }
+        .rss-item:hover {
+            background: white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+            transform: translateY(-2px);
+        }
 
-        /* 页脚 */
         footer {
-            background: #1a1a1a;
-            color: #ccc;
-            padding: 60px 5% 30px;
+            background: #121212;
+            color: #777;
+            padding: 60px 5% 40px;
             text-align: center;
         }
 
         @media (max-width: 900px) {
-            .floating-container { grid-template-columns: 1fr; margin-top: -60px; }
+            .floating-container { grid-template-columns: 1fr; margin-top: -80px; }
             .sidebar-card { order: -1; }
+            .nav-links-container { display: none; }
         }
     </style>
 </head>
@@ -117,36 +124,54 @@
     <header class="custom-app-bar">
         <img src="/logo.png" alt="Logo" class="nav-logo" onclick="window.location.href='#'">
         
-        <div style="flex-grow: 1"></div>
-        
-        <div class="nav-links-container mdui-hidden-sm-down">
-            <mdui-button variant="text" href="#" data-i18n="nav_home">首页</mdui-button>
-            <mdui-button variant="text" href="https://baipin.pw" data-i18n="nav_blog">博客</mdui-button>
-            <mdui-button variant="text" href="#projects" data-i18n="nav_projects">项目</mdui-button>
-            <mdui-button variant="text" href="https://baipin.pw/about" data-i18n="nav_about">关于</mdui-button>
+        <div class="nav-links-container">
+            <mdui-button variant="text" href="#">
+                <mdui-icon slot="icon" name="home"></mdui-icon>
+                <span data-i18n="nav_home">首页</span>
+            </mdui-button>
+            <mdui-button variant="text" href="https://baipin.pw">
+                <mdui-icon slot="icon" name="auto_stories"></mdui-icon>
+                <span data-i18n="nav_blog">博客</span>
+            </mdui-button>
+            <mdui-button variant="text" href="#projects">
+                <mdui-icon slot="icon" name="terminal"></mdui-icon>
+                <span data-i18n="nav_projects">项目</span>
+            </mdui-button>
+            <mdui-button variant="text" href="https://baipin.pw/about">
+                <mdui-icon slot="icon" name="account_circle"></mdui-icon>
+                <span data-i18n="nav_about">关于</span>
+            </mdui-button>
         </div>
 
-        <mdui-button-icon icon="language" id="lang-btn" style="margin-left: 16px;"></mdui-button-icon>
+        <div style="flex-grow: 1"></div>
+        <mdui-button-icon icon="translate" id="lang-btn"></mdui-button-icon>
     </header>
 
     <section class="hero-section"></section>
 
     <div class="floating-container">
         <main class="main-card">
-            <h1 style="font-size: 2.5rem; margin: 0 0 24px 0;" data-i18n="hero_title">我欲穿花寻路，直入白云深处，<br>浩气展虹霓。</h1>
-            <p style="color: #666; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
-                欢迎来到 百品 的世界。
+            <h1 style="font-size: 2.8rem; margin: 0 0 20px 0; font-weight: 800;" data-i18n="hero_title">
+                我欲穿花寻路，<br>直入白云深处。
+            </h1>
+            <p style="color: #555; font-size: 1.15rem; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
+                这里是 百品 (Baipin) 的入口。我是一名学生，热爱技术与文字，目前致力于探索更有趣的 Web 体验。
             </p>
             
-            <div style="display: flex; gap: 12px;">
-                <mdui-button variant="filled" href="#projects" data-i18n="btn_explore">浏览作品</mdui-button>
-                <mdui-button variant="outlined" href="#about" data-i18n="btn_contact">关于我</mdui-button>
+            <div style="display: flex; gap: 16px;">
+                <mdui-button variant="filled" href="https://baipin.pw" style="height: 48px; padding: 0 24px;">
+                    进入博客
+                </mdui-button>
+                <mdui-button variant="outlined" href="https://baipin.pw/about" style="height: 48px; padding: 0 24px;">
+                    关于我
+                </mdui-button>
             </div>
 
-            <mdui-divider style="margin: 40px 0;"></mdui-divider>
+            <mdui-divider style="margin: 48px 0;"></mdui-divider>
 
-            <h3 style="display: flex; align-items: center; gap: 8px;">
-                <mdui-icon name="rss_feed"></mdui-icon> <span data-i18n="news_title">最新动态</span>
+            <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
+                <mdui-icon name="rss_feed" style="color: #f26522;"></mdui-icon> 
+                <span data-i18n="news_title">最新文章</span>
             </h3>
             <div id="rss-feed-container">
                 <div style="padding: 20px; text-align: center;"><mdui-circular-progress></mdui-circular-progress></div>
@@ -154,50 +179,50 @@
         </main>
 
         <aside class="sidebar-card">
-            <img src="https://api.dicebear.com/7.x/micah/svg?seed=Felix" style="width: 120px; border-radius: 50%; background: #eee; margin-bottom: 16px;">
-            <h2 style="margin: 0;">Felix</h2>
-            <p style="color: #888; font-size: 0.9rem;" data-i18n="bio">Web Developer & Designer</p>
+            <img src="https://github.com/baipin.png" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; box-shadow: 0 8px 16px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <h2 style="margin: 0; font-weight: 700;">Baipin</h2>
+            <p style="color: #888; margin-top: 8px; font-size: 0.95rem;" data-i18n="bio">CityU Student / Volunteer @Travellings</p>
             
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 24px 0;">
-                <mdui-button-icon icon="facebook" title="Facebook"></mdui-button-icon>
-                <mdui-button-icon icon="twitter" title="Twitter"></mdui-button-icon>
-                <mdui-button-icon icon="telegram" title="Telegram"></mdui-button-icon>
-                <mdui-button-icon icon="instagram" title="Instagram"></mdui-button-icon>
-                <mdui-button-icon icon="linkedin" title="LinkedIn"></mdui-button-icon>
-                <mdui-button-icon icon="github" title="GitHub"></mdui-button-icon>
-                <mdui-button-icon icon="wechat" title="WeChat"></mdui-button-icon>
-                <mdui-button-icon icon="email" title="Email"></mdui-button-icon>
+            <mdui-divider style="margin: 24px 0;"></mdui-divider>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px;">
+                <mdui-button-icon icon="github" href="https://github.com/baipin" title="GitHub"></mdui-button-icon>
+                <mdui-button-icon icon="telegram" href="https://t.me/baipin_pw" title="Telegram"></mdui-button-icon>
+                <mdui-button-icon icon="mail_outline" href="mailto:root@baipin.pw" title="Email"></mdui-button-icon>
+                <mdui-button-icon icon="rss_feed" href="https://baipin.pw/feed" title="RSS"></mdui-button-icon>
+                <mdui-button-icon icon="twitter" href="#" title="X (Twitter)"></mdui-button-icon>
+                <mdui-button-icon icon="camera_alt" href="#" title="Instagram"></mdui-button-icon>
+                <mdui-button-icon icon="link" href="https://baipin.pw" title="Website"></mdui-button-icon>
             </div>
 
-            <mdui-button variant="tonal" full-width data-i18n="btn_follow">关注我</mdui-button>
+            <mdui-button variant="tonal" full-width style="border-radius: 12px;" href="https://baipin.pw/about" data-i18n="btn_follow">
+                关于我
+            </mdui-button>
         </aside>
     </div>
 
     <footer>
         <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="font-weight: 900; font-size: 1.5rem; color: #fff; margin-bottom: 20px;">Baipon.com</div>
-            <p style="font-size: 0.9rem;">&copy; 2026 Baipon.com. All rights reserved.</p>
-            <div style="margin-top: 20px;">
-                <mdui-button variant="text" href="#" style="color: #888;">Privacy</mdui-button>
-                <mdui-button variant="text" href="#" style="color: #888;">Terms</mdui-button>
-            </div>
+            <div style="font-weight: 900; font-size: 1.4rem; color: #fff; margin-bottom: 12px; letter-spacing: 2px;">BAIPIN.PW</div>
+            <p style="font-size: 0.85rem;">&copy; 2026 百品. Built with MDUI 3 & Love.</p>
+            <p style="font-size: 0.8rem; margin-top: 8px;">基于香港城市大学风格布局设计</p>
         </div>
     </footer>
 
     <script>
-        // 1. 多语言配置
+        // 1. 多语言
         const i18n = {
             'zh-CN': {
                 nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
-                hero_title: '致力于创造有温度的代码', hero_desc: '这里是我的个人实验室，记录关于技术、生活与思考的点滴。',
-                btn_explore: '浏览作品', btn_contact: '关于我', news_title: '最新动态 (RSS)',
-                bio: '开发者 & 设计师', btn_follow: '关注我'
+                hero_title: '我欲穿花寻路，直入白云深处。',
+                hero_desc: '这里是 百品 (Baipin) 的入口。欢迎访问相关页面。',
+                news_title: '最新文章', bio: '学生', btn_follow: '关于我'
             },
             'en': {
                 nav_home: 'Home', nav_blog: 'Blog', nav_projects: 'Projects', nav_about: 'About',
-                hero_title: 'Crafting Code with Warmth', hero_desc: 'This is my personal lab, documenting snippets of technology, life, and thoughts.',
-                btn_explore: 'Explore', btn_contact: 'Contact', news_title: 'Latest Updates',
-                bio: 'Developer & Designer', btn_follow: 'Follow'
+                hero_title: 'Seeking paths through flowers, straight into the deep clouds.',
+                hero_desc: 'Welcome to Baipin. I am a student, passionate about tech and writing.',
+                news_title: 'Latest Posts', bio: 'Student', btn_follow: 'About Me'
             }
         };
 
@@ -210,7 +235,7 @@
             });
         });
 
-        // 2. RSS 获取逻辑
+        // 2. RSS (只负责动态部分)
         const RSS_URL = 'https://baipin.pw/feed';
         const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
 
@@ -221,22 +246,21 @@
                 const container = document.getElementById('rss-feed-container');
                 container.innerHTML = '';
                 
-                data.items.slice(0, 10).forEach(item => {
+                data.items.slice(0, 6).forEach(item => {
                     const el = document.createElement('a');
                     el.className = 'rss-item';
                     el.href = item.link;
                     el.target = '_blank';
                     el.innerHTML = `
-                        <div style="font-weight: 700; margin-bottom: 4px;">${item.title}</div>
-                        <div style="font-size: 0.8rem; color: #888;">${new Date(item.pubDate).toLocaleDateString()}</div>
+                        <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 6px;">${item.title}</div>
+                        <div style="font-size: 0.85rem; color: #999;">${new Date(item.pubDate).toLocaleDateString()}</div>
                     `;
                     container.appendChild(el);
                 });
             } catch (e) {
-                document.getElementById('rss-feed-container').innerHTML = '<p>无法加载动态</p>';
+                document.getElementById('rss-feed-container').innerHTML = '<p>无法连接至博客 Feed</p>';
             }
         }
-        
         fetchRSS();
     </script>
 </body>
