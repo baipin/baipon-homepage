@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="mdui-theme-light">
+<html lang="zh-CN" class="mdui-theme-auto">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,16 +11,45 @@
     
     <style>
         :root {
-            --mdui-color-background: #ffffff;
             --nav-height: 64px;
         }
+
+        /* 全局背景逻辑 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/home.jpg') center/cover no-repeat;
+            z-index: -1;
+            transition: filter 0.5s ease;
+        }
+
+        /* 夜间模式样式逻辑 (适配手动和系统) */
+        .mdui-theme-dark body::before,
+        @media (prefers-color-scheme: dark) {
+            :root:not(.mdui-theme-light) body::before {
+                filter: brightness(0.5) contrast(1.1);
+            }
+        }
+
+        /* 强制深色模式下的组件微调 */
+        .mdui-theme-dark .custom-app-bar {
+            background-color: rgba(28, 27, 31, 0.85) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .mdui-theme-dark .main-card { background: #1c1b1f !important; color: #e6e1e5; }
+        .mdui-theme-dark .sidebar-card { background: #2b2930 !important; }
+        .mdui-theme-dark .rss-item { background: #2b2930; border-color: #49454f; }
 
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
-            overflow-x: hidden; 
-            background-color: var(--mdui-color-background);
+            overflow-x: hidden;
+            background-color: transparent;
             font-family: "Product Sans", system-ui, -apple-system, sans-serif;
         }
 
@@ -28,8 +57,9 @@
 
         .custom-app-bar {
             height: var(--nav-height) !important;
-            background-color: rgba(255, 255, 255, 0.85) !important;
+            background-color: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(0,0,0,0.08);
             padding: 0 5%;
             display: flex;
@@ -42,12 +72,10 @@
 
         .nav-logo { height: 28px; cursor: pointer; }
 
-        /* Hero Section - 背景固定逻辑 */
         .hero-section {
             width: 100%;
             height: 80vh;
-            background: url('/home.jpg') center/cover no-repeat;
-            background-attachment: fixed; /* 核心：背景始终固定 */
+            background: transparent;
             position: relative;
             display: flex;
             align-items: flex-end; 
@@ -55,7 +83,7 @@
         }
 
         .photo-info-box {
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.35);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -68,7 +96,7 @@
             align-items: center;
             justify-content: space-between;
             color: white;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
             z-index: 20;
             box-sizing: border-box;
         }
@@ -91,14 +119,14 @@
         .main-card {
             background: white;
             padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
         }
 
         .sidebar-card {
             background: #fafafa;
             padding: 40px 24px;
-            border-radius: 20px;
+            border-radius: 24px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.03);
             height: fit-content;
             text-align: center;
@@ -115,12 +143,12 @@
             text-decoration: none;
             color: inherit;
         }
-        .rss-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: #ddd; }
+        .rss-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
         footer {
             background: #121212;
             color: #777;
-            padding: 50px 20px;
+            padding: 60px 20px;
             text-align: center;
         }
 
@@ -130,14 +158,10 @@
             .floating-container { grid-template-columns: 1fr; margin-top: -60px; }
             .sidebar-card { order: -1; }
             .photo-info-box { margin-bottom: 85px; padding: 16px 20px; }
-            /* 移动端建议禁用固定背景以提高性能，如果需要开启可删除下面一行 */
-            /* .hero-section { background-attachment: scroll; }  */
         }
-
-        .mobile-menu-btn { display: none; }
     </style>
 </head>
-<body>
+<body class="mdui-theme-auto">
 
     <mdui-navigation-drawer id="drawer" placement="right" close-on-overlay-click close-on-nav-item-click>
         <div style="padding: 24px;">
@@ -175,6 +199,7 @@
 
         <div style="flex-grow: 1"></div>
         
+        <mdui-button-icon id="theme-toggle" icon="light_mode"></mdui-button-icon>
         <mdui-button-icon icon="translate" id="lang-btn"></mdui-button-icon>
         <mdui-button-icon icon="menu" class="mobile-menu-btn" onclick="document.getElementById('drawer').open = true"></mdui-button-icon>
     </header>
@@ -183,9 +208,9 @@
         <div class="photo-info-box">
             <div class="photo-text">
                 <h4 data-i18n="photo_title">浙江丽水 · 云和梯田</h4>
-                <p data-i18n="photo_desc">2023年旅行时拍摄</p>
+                <p data-i18n="photo_desc">中国最美梯田，层叠的时光印记。</p>
             </div>
-            <mdui-button variant="tonal" style="color: white; --mdui-color-secondary-container: rgba(255,255,255,0.2)">
+            <mdui-button variant="tonal" style="color: white; --mdui-color-secondary-container: rgba(255,255,255,0.15)">
                 <mdui-icon slot="icon" name="arrow_forward"></mdui-icon>
             </mdui-button>
         </div>
@@ -196,8 +221,8 @@
             <h1 style="font-size: 2.5rem; margin: 0 0 20px 0; font-weight: 800; line-height: 1.2;" data-i18n="hero_title">
                 我欲穿花寻路，直入白云深处。
             </h1>
-            <p style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
-                这里是 百品 (Baipin) 的入口。这里记录着我对技术与生活的热爱。
+            <p style="color: var(--mdui-color-on-surface-variant); font-size: 1.1rem; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
+                这里是 百品 (Baipin) 的入口。欢迎来到我的个人主页，这里记录着我对技术与生活的热爱。
             </p>
             
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
@@ -238,25 +263,51 @@
 
     <footer>
         <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="font-weight: 900; font-size: 1.2rem; color: #fff; margin-bottom: 8px; letter-spacing: 1px;">BAIPON.COM/BAIPIN.PW</div>
+            <div style="font-weight: 900; font-size: 1.2rem; color: #fff; margin-bottom: 8px; letter-spacing: 1px;">BAIPIN.PW</div>
             <p style="font-size: 0.8rem;">&copy; 2026 百品. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
+        // 1. 主题切换逻辑
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        // 初始化主题
+        const savedTheme = localStorage.getItem('theme') || 'auto';
+        applyTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.classList.contains('mdui-theme-dark') ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            localStorage.setItem('theme', currentTheme);
+        });
+
+        function applyTheme(theme) {
+            html.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
+            if (theme === 'auto') {
+                html.classList.add('mdui-theme-auto');
+                themeToggle.icon = 'brightness_auto';
+            } else {
+                html.classList.add(`mdui-theme-${theme}`);
+                themeToggle.icon = theme === 'dark' ? 'dark_mode' : 'light_mode';
+            }
+        }
+
+        // 2. 国际化与数据拉取逻辑（保持不变）
         const i18n = {
             'zh-CN': {
                 nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
                 hero_title: '我欲穿花寻路，直入白云深处。',
-                hero_desc: '这里是 百品 (Baipin) 的入口。这里记录着我对技术与生活的热爱。',
-                photo_title: '浙江丽水 · 云和梯田', photo_desc: '2023年旅行时拍摄。',
+                hero_desc: '这里是 百品 (Baipin) 的入口。欢迎来到我的个人主页，这里记录着我对技术与生活的热爱。',
+                photo_title: '浙江丽水 · 云和梯田', photo_desc: '中国最美梯田，层叠的时光印记。',
                 news_title: '最新文章', bio: '学生', btn_follow: '关于我'
             },
             'en': {
                 nav_home: 'Home', nav_blog: 'Blog', nav_projects: 'Projects', nav_about: 'About',
                 hero_title: 'Seeking paths through flowers, straight into the clouds.',
                 hero_desc: 'Welcome to Baipin. This is my portal where I document my passion for tech and life.',
-                photo_title: 'Yunhe Terraces · Lishui', photo_desc: 'Shot by me during travelling in 2023.',
+                photo_title: 'Yunhe Terraces · Lishui', photo_desc: 'The most beautiful rice terraces in China.',
                 news_title: 'Latest Posts', bio: 'Student', btn_follow: 'About Me'
             }
         };
