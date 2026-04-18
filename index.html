@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="mdui-theme-light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百品 - 入口网站</title></title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        :root {
+            --mdui-color-background: #ffffff;
+            --mdui-color-primary: #000000; 
+        }
+
+        body {
+            background-color: var(--mdui-color-background);
+            margin: 0;
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        }
+
+        /* 顶部导航：完全透明背景，滚动后由 MDUI 处理 */
+        mdui-top-app-bar {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(15px);
+            padding: 0 5%;
+        }
+
+        /* Hero Section：大气横屏大图 */
+        .hero-section {
+            width: 100%;
+            height: 85vh; /* 占据屏幕高度的 85% */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* 建议使用高质量的横向风景或建筑图 */
+            background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2000');
+            background-position: center;
+        }
+
+        /* 悬浮白色容器 */
+        .floating-container {
+            max-width: 1200px;
+            margin: -100px auto 40px; /* 向上偏移，压在图片上 */
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 24px;
+            padding: 0 24px;
+        }
+
+        .main-card {
+            background: white;
+            padding: 48px;
+            border-radius: 4px; /* ，微圆角 */
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-card {
+            background: #f8f9fa;
+            padding: 32px;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+
+        /* 文字样式 */
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 0 0 16px 0;
+            color: #1a1a1a;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 32px;
+            max-width: 600px;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 900px) {
+            .hero-section { height: 60vh; }
+            .floating-container {
+                grid-template-columns: 1fr;
+                margin-top: -60px;
+            }
+            .hero-title { font-size: 2rem; }
+            .main-card { padding: 32px 24px; }
+        }
+
+        .nav-link {
+            font-weight: 600;
+            margin-left: 16px;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <mdui-top-app-bar scroll-behavior="elevate">
+        <mdui-top-app-bar-title style="font-weight: 900; font-size: 1.5rem;">LOGO</mdui-top-app-bar-title>
+        <div style="flex-grow: 1"></div>
+        <div class="mdui-hidden-sm-down">
+            <mdui-button variant="text" class="nav-link">首页</mdui-button>
+            <mdui-button variant="text" class="nav-link">博客</mdui-button>
+            <mdui-button variant="text" class="nav-link">项目</mdui-button>
+            <mdui-button variant="text" class="nav-link">关于</mdui-button>
+        </div>
+        <mdui-button-icon icon="language" style="margin-left: 16px;"></mdui-button-icon>
+    </mdui-top-app-bar>
+
+    <section class="hero-section">
+        <div class="hero-image"></div>
+    </section>
+
+    <div class="floating-container">
+        
+        <main class="main-card">
+            <h1 class="hero-title">探索未来<br>构建科技与艺术的桥梁</h1>
+            <p class="hero-subtitle">
+                欢迎来到我的个人空间。这里展示了我在计算机科学、人工智能以及现代网页设计方面的探索与实践。
+            </p>
+            <div style="display: flex; gap: 16px;">
+                <mdui-button variant="filled" style="height: 48px; padding: 0 32px; border-radius: 8px;">
+                    查看我的项目
+                </mdui-button>
+                <mdui-button variant="outlined" style="height: 48px; padding: 0 32px; border-radius: 8px;">
+                    联系我
+                </mdui-button>
+            </div>
+
+            <mdui-divider style="margin: 48px 0;"></mdui-divider>
+
+            <h3 style="margin-bottom: 24px;">最新动态</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px;">
+                <div style="padding: 16px; border-left: 4px solid #000; background: #fafafa;">
+                    <h4 style="margin: 0 0 8px 0;">研究更新</h4>
+                    <p style="font-size: 0.9rem; margin: 0;">测试测试。</p>
+                </div>
+                <div style="padding: 16px; border-left: 4px solid #666; background: #fafafa;">
+                    <h4 style="margin: 0 0 8px 0;">博客发布</h4>
+                    <p style="font-size: 0.9rem; margin: 0;">深入浅出：从零开始理解 Convex Optimization 的数学之美。</p>
+                </div>
+            </div>
+        </main>
+
+        <aside class="sidebar-card">
+            <div style="text-align: center;">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" style="width: 100px; height: 100px; border-radius: 50%; background: #eee; margin-bottom: 16px;">
+                <h3 style="margin: 0;">你的名字</h3>
+                <p style="font-size: 0.9rem; color: #888;">测试</p>
+            </div>
+            
+            <mdui-list style="margin-top: 24px; background: transparent;">
+                <mdui-list-item non-clickable headline="📍 所在地" description="上海, 中国"></mdui-list-item>
+                <mdui-list-item non-clickable headline="🎓 研究方向" description="AI & Robotics"></mdui-list-item>
+                <mdui-list-item non-clickable headline="📧 电子邮件" description="hello@example.com"></mdui-list-item>
+            </mdui-list>
+
+            <div style="display: flex; justify-content: space-around; margin-top: 24px;">
+                <mdui-button-icon icon="github"></mdui-button-icon>
+                <mdui-button-icon icon="facebook"></mdui-button-icon>
+                <mdui-button-icon icon="camera_alt"></mdui-button-icon>
+            </div>
+        </aside>
+
+    </div>
+
+    <script src="https://unpkg.com/mdui@2.0.3/mdui.global.js"></script>
+</body>
+</html>
