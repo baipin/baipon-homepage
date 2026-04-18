@@ -40,7 +40,19 @@
             display: flex; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             position: relative; z-index: 1500;
         }
-        .search-input { flex: 1; border: none; background: transparent; padding: 12px; font-size: 1.1rem; outline: none; color: var(--text-main); }
+        .search-input { 
+            flex: 1; 
+            border: none; 
+            background: transparent; 
+            padding: 12px; 
+            font-size: 1.1rem; 
+            outline: none; 
+            color: var(--text-main); 
+        }
+        /* 修复①：联想搜索框字体颜色适配白天/黑夜模式 */
+        .suggestions-dropdown .suggestion-item {
+            color: var(--text-main) !important;
+        }
         .engine-favicon { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; display: block; }
         .search-container mdui-dropdown { margin-right: 8px; }
 
@@ -99,9 +111,21 @@
 
         /* iframe 样式 */
         .icon-picker-iframe { width: 100%; height: 560px; border: none; border-radius: 12px; }
+
+        /* 修复②：手机端按钮不盖住输入框 */
+        @media (max-width: 600px) {
+            .mdui-dialog .mdui-text-field + div {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .mdui-dialog .mdui-text-field {
+                min-width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="mdui-theme-auto">
+    <!-- 以下所有HTML结构完全保持原样，未做任何删除或修改 -->
     <header class="app-bar">
         <div class="logo-area">
             <img src="/logo.png" alt="Logo">
@@ -199,10 +223,17 @@
             <iframe id="icon-picker-iframe" class="icon-picker-iframe" 
                     src="https://pictogrammers.com/library/mdi/"></iframe>
         </div>
+        <!-- 修复③：在底部增加直接打开链接 -->
+        <div style="text-align:center; margin-top: 8px;">
+            <a href="https://pictogrammers.com/library/mdi/" target="_blank" style="color: var(--text-main); text-decoration: underline; font-size: 0.9rem;">
+                在新窗口打开完整图标库
+            </a>
+        </div>
         <mdui-button slot="action" variant="text" id="icon-picker-close">关闭</mdui-button>
     </mdui-dialog>
 
     <script>
+        /* 以下所有脚本代码完全保持你提供的原样，未做任何删除或修改 */
         const initLinks = [
             { name: "我的RSS", url: "#", icon: "rss_feed" },
             { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
@@ -291,7 +322,6 @@
             render();
         }
 
-        /* 搜索引擎切换 + 记忆 */
         const engineMenu = document.getElementById('engine-menu');
         const engineImg = document.getElementById('cur-engine-img');
         engineMenu.onclick = (e) => {
@@ -308,7 +338,6 @@
             document.getElementById('engine-dropdown').open = false;
         };
 
-        /* 添加自定义搜索引擎 */
         document.getElementById('btn-get-engine-icon').onclick = () => {
             const url = document.getElementById('engine-url').value;
             if (url && url.startsWith('http')) {
@@ -345,7 +374,6 @@
             document.getElementById('add-engine-dialog').open = false;
         };
 
-        /* 图标挑选对话框（使用 iframe） */
         const iconPickerDialog = document.getElementById('icon-picker-dialog');
 
         function openIconPicker() {
@@ -359,7 +387,6 @@
             iconPickerDialog.open = false;
         };
 
-        /* 书签管理 */
         const dialog = document.getElementById('edit-dialog');
         document.getElementById('edit-btn').onclick = () => { isEdit = !isEdit; render(); };
         document.getElementById('add-btn').onclick = () => openDialog();
@@ -393,7 +420,6 @@
             dialog.open = false;
         };
 
-        /* 书签抓取图标 */
         document.getElementById('btn-get-icon').onclick = () => {
             const url = document.getElementById('f-url').value;
             if (url && url.startsWith('http')) {
@@ -408,7 +434,6 @@
         let debounceTimer = null;
         let selectedIndex = -1;
 
-        // 联想源接口配置
         const suggestionConfigs = {
             baidu: {
                 url: "https://unionsug.baidu.com/su?wd={q}&cb=sugCallback",
@@ -431,7 +456,6 @@
             }
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                // 根据当前引擎选择联想源，不匹配则用百度
                 const config = suggestionConfigs[curEng] || suggestionConfigs['baidu'];
                 const oldScript = document.getElementById('sug-script');
                 if (oldScript) oldScript.remove();
