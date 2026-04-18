@@ -42,18 +42,18 @@
 
         .nav-logo { height: 28px; cursor: pointer; }
 
-        /* Hero Section */
+        /* Hero Section - 背景固定逻辑 */
         .hero-section {
             width: 100%;
             height: 80vh;
             background: url('/home.jpg') center/cover no-repeat;
+            background-attachment: fixed; /* 核心：背景始终固定 */
             position: relative;
             display: flex;
             align-items: flex-end; 
             justify-content: center;
         }
 
-        /* 图片介绍框 - 已放大并适配横跨下方两个容器 */
         .photo-info-box {
             background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(15px);
@@ -63,7 +63,7 @@
             padding: 24px 32px;
             margin-bottom: 130px; 
             width: 90%;
-            max-width: 1160px; /* 横跨下方左右容器的总宽度 */
+            max-width: 1160px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -76,7 +76,6 @@
         .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; }
         .photo-text p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.85; }
 
-        /* 浮动内容容器 */
         .floating-container {
             max-width: 1200px;
             margin: -100px auto 60px;
@@ -131,7 +130,8 @@
             .floating-container { grid-template-columns: 1fr; margin-top: -60px; }
             .sidebar-card { order: -1; }
             .photo-info-box { margin-bottom: 85px; padding: 16px 20px; }
-            .photo-text h4 { font-size: 1.1rem; }
+            /* 移动端建议禁用固定背景以提高性能，如果需要开启可删除下面一行 */
+            /* .hero-section { background-attachment: scroll; }  */
         }
 
         .mobile-menu-btn { display: none; }
@@ -183,10 +183,10 @@
         <div class="photo-info-box">
             <div class="photo-text">
                 <h4 data-i18n="photo_title">浙江丽水 · 云和梯田</h4>
-                <p data-i18n="photo_desc">2023年暑期旅行拍摄。</p>
+                <p data-i18n="photo_desc">2023年旅行时拍摄</p>
             </div>
             <mdui-button variant="tonal" style="color: white; --mdui-color-secondary-container: rgba(255,255,255,0.2)">
-                <mdui-icon slot="end-icon" name="arrow_forward"></mdui-icon>
+                <mdui-icon slot="icon" name="arrow_forward"></mdui-icon>
             </mdui-button>
         </div>
     </section>
@@ -197,7 +197,7 @@
                 我欲穿花寻路，直入白云深处。
             </h1>
             <p style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
-                这里是 百品 (Baipin) 的入口。欢迎来到我的个人主页，这里记录着我对技术与生活的热爱。
+                这里是 百品 (Baipin) 的入口。这里记录着我对技术与生活的热爱。
             </p>
             
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
@@ -238,26 +238,25 @@
 
     <footer>
         <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="font-weight: 900; font-size: 1.2rem; color: #fff; margin-bottom: 8px; letter-spacing: 1px;">BAIPIN.PW</div>
+            <div style="font-weight: 900; font-size: 1.2rem; color: #fff; margin-bottom: 8px; letter-spacing: 1px;">BAIPON.COM/BAIPIN.PW</div>
             <p style="font-size: 0.8rem;">&copy; 2026 百品. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
-        // 1. 多语言配置
         const i18n = {
             'zh-CN': {
                 nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
                 hero_title: '我欲穿花寻路，直入白云深处。',
-                hero_desc: '这里是 百品 (Baipin) 的入口。欢迎来到我的个人主页，这里记录着我对技术与生活的热爱。',
-                photo_title: '浙江丽水 · 云和梯田', photo_desc: '中国最美梯田，层叠的时光印记。2023年暑期旅行拍摄于白银谷。',
+                hero_desc: '这里是 百品 (Baipin) 的入口。这里记录着我对技术与生活的热爱。',
+                photo_title: '浙江丽水 · 云和梯田', photo_desc: '2023年旅行时拍摄。',
                 news_title: '最新文章', bio: '学生', btn_follow: '关于我'
             },
             'en': {
                 nav_home: 'Home', nav_blog: 'Blog', nav_projects: 'Projects', nav_about: 'About',
                 hero_title: 'Seeking paths through flowers, straight into the clouds.',
                 hero_desc: 'Welcome to Baipin. This is my portal where I document my passion for tech and life.',
-                photo_title: 'Yunhe Terraces · Lishui', photo_desc: 'The most beautiful rice terraces in China. Shot in 2023.',
+                photo_title: 'Yunhe Terraces · Lishui', photo_desc: 'Shot by me during travelling in 2023.',
                 news_title: 'Latest Posts', bio: 'Student', btn_follow: 'About Me'
             }
         };
@@ -271,7 +270,6 @@
             });
         });
 
-        // 2. RSS 获取
         async function fetchRSS() {
             try {
                 const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://baipin.pw/feed')}`);
