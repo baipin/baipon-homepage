@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>百品导航 - 123</title>
+    <title>百品导航 - 概念版</title>
    
     <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -97,8 +97,8 @@
         .weather-details p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; }
         @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .side-stack { order: -1; } }
 
-        /* iframe 对话框样式 */
-        .icon-picker-iframe { width: 100%; height: 520px; border: none; border-radius: 12px; }
+        /* iframe 样式 */
+        .icon-picker-iframe { width: 100%; height: 560px; border: none; border-radius: 12px; }
     </style>
 </head>
 <body class="mdui-theme-auto">
@@ -173,11 +173,11 @@
             </div>
             <mdui-text-field label="显示名称" id="f-name"></mdui-text-field>
         </div>
+        <mdui-button slot="action" variant="text" id="act-cancel">取消</mdui-button>
         <mdui-button slot="action" variant="text" id="act-del" style="color:red">删除</mdui-button>
         <mdui-button slot="action" variant="tonal" id="act-save">保存</mdui-button>
     </mdui-dialog>
 
-    <!-- 添加搜索引擎对话框（增加抓取图标 + 挑选图标按钮） -->
     <mdui-dialog id="add-engine-dialog" close-on-overlay-click>
         <span slot="headline">添加自定义搜索引擎</span>
         <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
@@ -193,18 +193,19 @@
         <mdui-button slot="action" variant="tonal" id="engine-save">添加</mdui-button>
     </mdui-dialog>
 
-    <!-- 图标挑选对话框（带 iframe） -->
+    <!-- 图标挑选对话框（使用 iframe，指向 pictogrammers） -->
     <mdui-dialog id="icon-picker-dialog" close-on-overlay-click>
-        <span slot="headline">挑选图标（Material Symbols）</span>
+        <span slot="headline">挑选 Material Design Icons</span>
         <div style="padding: 10px 0;">
-            <iframe id="icon-picker-iframe" class="icon-picker-iframe" src="https://fonts.google.com/icons?icon.set=Material+Symbols"></iframe>
+            <iframe id="icon-picker-iframe" class="icon-picker-iframe" 
+                    src="https://pictogrammers.com/library/mdi/"></iframe>
         </div>
         <mdui-button slot="action" variant="text" id="icon-picker-close">关闭</mdui-button>
     </mdui-dialog>
 
     <script>
-        const initLinks = [ /* ... 你的原始 initLinks 保持完全不变 ... */ 
-            { name: "我的RSS", url: "https://123.baipin.pw/o", icon: "rss_feed" },
+        const initLinks = [
+            { name: "我的RSS", url: "#", icon: "rss_feed" },
             { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
             { name: "酷安", url: "https://www.coolapk.com", icon: "https://www.coolapk.com/favicon.ico" },
             { name: "知乎", url: "https://www.zhihu.com", icon: "https://www.zhihu.com/favicon.ico" },
@@ -225,8 +226,6 @@
         let bookmarks = JSON.parse(localStorage.getItem('bp_v7')) || initLinks;
         let isEdit = false, curIdx = null;
 
-        // 记忆最后选择的搜索引擎
-        let curEng = localStorage.getItem('last_engine') || 'google';
         let customEngines = JSON.parse(localStorage.getItem('custom_engines')) || {};
         let engines = {
             google: 'https://www.google.com/search?q=',
@@ -239,10 +238,10 @@
         };
         Object.assign(engines, customEngines);
 
-        // 恢复上次选择的引擎图标
+        let curEng = localStorage.getItem('last_engine') || 'google';
+
         function restoreLastEngine() {
             const img = document.getElementById('cur-engine-img');
-            // 简单处理：如果当前引擎有对应菜单项则更新图标
             const menuItems = document.querySelectorAll('#engine-menu mdui-menu-item');
             for (let item of menuItems) {
                 if (item.value === curEng) {
@@ -253,7 +252,6 @@
         }
 
         function render() {
-            // ... 你的原始 render 函数保持不变，仅增加排序箭头逻辑 ...
             const wrapper = document.getElementById('links-wrapper');
             wrapper.innerHTML = '';
             bookmarks.forEach((item, i) => {
@@ -305,13 +303,13 @@
                 return;
             }
             curEng = item.value;
-            localStorage.setItem('last_engine', curEng);   // 记忆
+            localStorage.setItem('last_engine', curEng);
             const iconSrc = item.querySelector('img').src;
             engineImg.src = iconSrc;
             document.getElementById('engine-dropdown').open = false;
         };
 
-        /* 添加自定义搜索引擎（支持抓取图标） */
+        /* 添加自定义搜索引擎 */
         document.getElementById('btn-get-engine-icon').onclick = () => {
             const url = document.getElementById('engine-url').value;
             if (url && url.startsWith('http')) {
@@ -324,7 +322,6 @@
             const name = document.getElementById('engine-name').value.trim();
             let url = document.getElementById('engine-url').value.trim();
             const icon = document.getElementById('engine-icon').value.trim();
-
             if (!name || !url) { alert('名称和搜索 URL 不能为空'); return; }
             if (!url.includes('{q}')) { alert('搜索 URL 必须包含 {q}'); return; }
 
@@ -345,35 +342,29 @@
             document.getElementById('engine-icon').value = '';
         };
 
-        /* 图标挑选对话框（公用） */
-        const iconPickerDialog = document.getElementById('icon-picker-dialog');
-        let currentIconField = null;   // 记录当前要填入的 input id
+        document.getElementById('engine-cancel').onclick = () => {
+            document.getElementById('add-engine-dialog').open = false;
+        };
 
-        function openIconPicker(fieldId) {
-            currentIconField = fieldId;
+        /* 图标挑选对话框（使用 iframe） */
+        const iconPickerDialog = document.getElementById('icon-picker-dialog');
+
+        function openIconPicker() {
             iconPickerDialog.open = true;
         }
 
-        document.getElementById('btn-pick-icon-bookmark').onclick = () => openIconPicker('f-icon');
-        document.getElementById('btn-pick-icon-engine').onclick = () => openIconPicker('engine-icon');
+        document.getElementById('btn-pick-icon-bookmark').onclick = openIconPicker;
+        document.getElementById('btn-pick-icon-engine').onclick = openIconPicker;
 
         document.getElementById('icon-picker-close').onclick = () => {
             iconPickerDialog.open = false;
-        };
-
-        // 书签抓取图标（原有）
-        document.getElementById('btn-get-icon').onclick = () => {
-            const url = document.getElementById('f-url').value;
-            if (url && url.startsWith('http')) {
-                const domain = new URL(url).origin;
-                document.getElementById('f-icon').value = `${domain}/favicon.ico`;
-            }
         };
 
         /* 书签管理 */
         const dialog = document.getElementById('edit-dialog');
         document.getElementById('edit-btn').onclick = () => { isEdit = !isEdit; render(); };
         document.getElementById('add-btn').onclick = () => openDialog();
+
         function openDialog(idx = null) {
             curIdx = idx;
             document.getElementById('f-name').value = idx !== null ? bookmarks[idx].name : '';
@@ -382,29 +373,4 @@
             document.getElementById('act-del').style.display = idx !== null ? 'block' : 'none';
             dialog.open = true;
         }
-        document.getElementById('act-save').onclick = () => {
-            const data = { name: document.getElementById('f-name').value || '未命名', url: document.getElementById('f-url').value || '#', icon: document.getElementById('f-icon').value || 'link' };
-            if(curIdx !== null) bookmarks[curIdx] = data; else bookmarks.push(data);
-            localStorage.setItem('bp_v7', JSON.stringify(bookmarks));
-            dialog.open = false; render();
-        };
-        document.getElementById('act-del').onclick = () => { 
-            if(curIdx !== null) { 
-                bookmarks.splice(curIdx, 1); 
-                localStorage.setItem('bp_v7', JSON.stringify(bookmarks)); 
-                dialog.open = false; 
-                render(); 
-            } 
-        };
 
-        /* 实时搜索联想、天气等原有逻辑保持完全不变（此处省略以节省篇幅，实际代码中请保留你上一个版本中的对应部分） */
-        // ...（搜索联想、天气 updateLiveWeather、fetchData、format 函数、主题控制等全部保持原样）...
-
-        // 初始化恢复上次引擎 + 渲染
-        restoreLastEngine();
-        render();
-        updateLiveWeather();   // 你的天气函数
-        // fetchData 等调用保持不变
-    </script>
-</body>
-</html>
