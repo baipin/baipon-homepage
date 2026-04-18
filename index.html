@@ -15,7 +15,7 @@
             --content-max-width: 1200px;
         }
 
-        /* --- 1. 全局背景与底色逻辑 --- */
+        /* --- 1. 背景与全局色彩逻辑 --- */
         html {
             background-color: #fff;
             transition: background-color 0.3s;
@@ -41,7 +41,7 @@
         }
         .mdui-theme-dark body::before { filter: brightness(0.6) contrast(1.1); }
 
-        /* --- 2. 导航栏适配 (Flex 布局锁定) --- */
+        /* --- 2. 导航栏与菜单底色适配 --- */
         .custom-app-bar {
             height: var(--nav-height) !important;
             background-color: rgba(255, 255, 255, 0.85) !important;
@@ -53,24 +53,31 @@
             position: fixed; top: 0; left: 0; right: 0;
             z-index: 1000;
             box-sizing: border-box;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color 0.3s;
         }
         .mdui-theme-dark .custom-app-bar {
             background-color: rgba(28, 27, 31, 0.85) !important;
             border-bottom-color: rgba(255,255,255,0.1);
         }
 
+        /* 修复菜单底色：显式定义 MDUI 变量 */
+        mdui-navigation-drawer {
+            --mdui-color-surface-container: #ffffff;
+        }
+        .mdui-theme-dark mdui-navigation-drawer {
+            --mdui-color-surface-container: #1c1b1f;
+        }
+
         .nav-logo { height: 28px; width: auto; cursor: pointer; flex-shrink: 0; }
         .nav-links-container { margin-left: 20px; display: flex; gap: 4px; }
 
-        /* --- 3. 容器与内容卡片 --- */
+        /* --- 3. 图片简介样式还原 --- */
         .hero-section {
             width: 100%; height: 80vh;
             display: flex; align-items: flex-end; justify-content: center;
         }
-
         .photo-info-box {
-            background: rgba(0, 0, 0, 0.45);
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -84,7 +91,10 @@
             z-index: 20;
             box-sizing: border-box;
         }
+        .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; color: white !important; }
+        .photo-text p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.85; color: white !important; }
 
+        /* --- 4. 容器与卡片（修复个人简介空白与颜色） --- */
         .floating-container {
             max-width: var(--content-max-width);
             margin: -100px auto 60px;
@@ -99,26 +109,28 @@
 
         .main-card {
             background-color: #ffffff !important;
-            color: rgba(0,0,0,0.87) !important;
+            color: var(--mdui-color-on-surface) !important;
             padding: 40px; border-radius: 24px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+            transition: background 0.3s;
         }
         .mdui-theme-dark .main-card {
             background-color: #1c1b1f !important;
-            color: #e6e1e5 !important;
         }
 
         .sidebar-card {
             background-color: #fafafa !important;
-            padding: 40px 24px; border-radius: 24px;
+            color: var(--mdui-color-on-surface) !important;
+            padding: 40px 24px; 
+            border-radius: 24px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.03);
             text-align: center;
-            transition: all 0.3s ease;
+            height: fit-content; /* 修复白色空白：高度随内容自适应 */
+            transition: background 0.3s;
+            box-sizing: border-box;
         }
         .mdui-theme-dark .sidebar-card {
             background-color: #2b2930 !important;
-            color: #e6e1e5 !important;
         }
 
         .rss-item {
@@ -126,9 +138,8 @@
             background: rgba(128,128,128,0.05); border: 1px solid rgba(128,128,128,0.1); 
             margin-bottom: 12px; transition: all 0.3s; text-decoration: none; color: inherit;
         }
-        .rss-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
-        /* --- 4. 移动端与功能性组件 --- */
+        /* --- 5. 响应式与杂项 --- */
         @media (max-width: 900px) {
             .nav-links-container { display: none; }
             .mobile-menu-btn { display: inline-flex !important; }
@@ -140,9 +151,8 @@
         .mobile-menu-btn { display: none; }
         footer { background: #121212; color: #777; padding: 60px 20px; text-align: center; }
 
-        /* 强制修复图标在模式切换时的颜色 */
-        .mdui-theme-light mdui-icon, .mdui-theme-light mdui-button-icon { color: rgba(0,0,0,0.7); }
-        .mdui-theme-dark mdui-icon, .mdui-theme-dark mdui-button-icon { color: #e6e1e5; }
+        /* 图标颜色同步 */
+        mdui-icon, mdui-button-icon { color: var(--mdui-color-on-surface-variant); }
         .photo-info-box mdui-icon { color: white !important; }
     </style>
 </head>
@@ -240,7 +250,6 @@
         const html = document.documentElement;
         const drawer = document.getElementById('drawer');
 
-        // 1. 主题控制
         function updateIcon() {
             const isDark = html.classList.contains('mdui-theme-dark') || 
                           (html.classList.contains('mdui-theme-auto') && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -259,12 +268,10 @@
             localStorage.setItem('theme', currentTheme);
         });
 
-        // 2. 导航抽屉点击项自动关闭
         document.getElementById('drawer-list').addEventListener('click', () => {
             drawer.open = false;
         });
 
-        // 3. 多语言逻辑 (i18n)
         const i18n = {
             'zh-CN': {
                 nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
@@ -291,7 +298,6 @@
             });
         });
 
-        // 4. RSS 获取
         async function fetchRSS() {
             try {
                 const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://baipin.pw/feed')}`);
@@ -311,7 +317,6 @@
             }
         }
 
-        // 初始化
         const savedTheme = localStorage.getItem('theme') || 'auto';
         applyTheme(savedTheme);
         fetchRSS();
