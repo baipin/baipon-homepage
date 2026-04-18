@@ -776,37 +776,54 @@
         }
 
         async function fetchHKNews() {
-    let marqueeHTML = '';
+    try {
+        //  并发请求所有 RSS
+        const requests = customRSS.map(url => {
+            const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=20`;
+            return fetch(api).then(res => res.json()).catch(() => null);
+        });
 
-    for (let rssUrl of customRSS) {
-        try {
-            // 使用 RSS 转 JSON 服务（解决 CORS）
-            const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+        const results = await Promise.all(requests);
 
-            const res = await fetch(api);
-            const data = await res.json();
+        let allTitles = [];
 
-            if (data.items && data.items.length) {
+        results.forEach(data => {
+            if (data && data.items) {
                 data.items.forEach(item => {
                     if (item.title) {
-                        marqueeHTML += `${item.title}　|　`;
+                        allTitles.push(item.title.trim());
                     }
                 });
             }
+        });
 
-        } catch (e) {
-            console.error(`RSS失败: ${rssUrl}`, e);
+        //  去重（防止重复新闻）
+        allTitles = [...new Set(allTitles)];
+
+        let marqueeHTML = allTitles.join('　|　');
+
+        if (!marqueeHTML) {
+            marqueeHTML = '暂无最新香港新闻，请稍后刷新...';
         }
+
+        //  普通滚动区
+        const marquee = document.getElementById('news-marquee');
+        if (marquee) marquee.innerHTML = marqueeHTML;
+
+        //  全屏滚动区（带动画 span）
+        const full = document.getElementById('fullscreen-marquee');
+        if (full) full.innerHTML = `<span>${marqueeHTML}</span>`;
+
+        // 更新时间
+        const timeEl = document.getElementById('update-time');
+        if (timeEl) {
+            timeEl.textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
+        }
+
+    } catch (e) {
+        console.error('RSS加载失败:', e);
     }
-
-    if (!marqueeHTML) marqueeHTML = '暂无最新新闻，请稍后刷新...';
-
-    document.getElementById('news-marquee').innerHTML = marqueeHTML;
-    document.getElementById('fullscreen-marquee').innerHTML =
-    `<span>${marqueeHTML}</span>`;
-    document.getElementById('update-time').textContent =
-        `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
-        }
+            }
 
         document.getElementById('refresh-news-btn').onclick = fetchHKNews;
 
@@ -863,7 +880,9 @@
         const fullscreenMarket = document.getElementById('fullscreen-market');
         document.getElementById('fullscreen-btn').onclick = () => {
             fullscreenMarket.style.display = 'flex';
-            fetchHKNews();
+            document.addEventListener('DOMContentLoaded', () => {
+    fetchHKNews();
+});
         };
         document.getElementById('exit-fullscreen-btn').onclick = () => {
             fullscreenMarket.style.display = 'none';
@@ -877,7 +896,9 @@
         fetchData(apiUrl, 'weather-info', formatWeatherData);
         fetchData(warningApiUrl, 'warning-info', formatWarningData);
         fetchData(iUrl, 'i-info', formatSpecialWeatherData);
-        fetchHKNews();
+        document.addEventListener('DOMContentLoaded', () => {
+    fetchHKNews();
+});
         setInterval(fetchHKNews, 180000);
         setInterval(updateHKTTime, 1000);
     </script>
