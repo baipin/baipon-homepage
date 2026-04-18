@@ -748,9 +748,9 @@
 
         // 只保留你指定的三个源
         let customRSS = JSON.parse(localStorage.getItem('custom_rss')) || [
-            "https://hongkongfp.com/feed/",
-            "https://rthk.hk/rthk/news/rss/e_expressnews_elocal.xml",
-            "https://rthk.hk/rthk/news/rss/e_expressnews_efinance.xml"
+            "https://hk.news.yahoo.com/rss/hong-kong",
+            "https://rthk.hk/rthk/news/rss/c_expressnews_elocal.xml",
+            "https://rthk.hk/rthk/news/rss/c_expressnews_efinance.xml"
         ];
 
         function saveCustomRSS() {
@@ -781,7 +781,7 @@
         }
     }
 
-    if (!marqueeHTML) marqueeHTML = '暂无最新香港新闻，请稍后刷新...';
+    if (!marqueeHTML) marqueeHTML = '暂无最新新闻，请稍后刷新...';
 
     document.getElementById('news-marquee').innerHTML = marqueeHTML;
     document.getElementById('fullscreen-marquee').innerHTML = marqueeHTML;
