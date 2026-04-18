@@ -2,8 +2,8 @@
 <html lang="zh-CN" class="mdui-theme-light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>百品 - 个人主页</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>百品 - 入口网站</title>
     
     <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -15,21 +15,27 @@
             --nav-height: 64px;
         }
 
-        body {
-            background-color: var(--mdui-color-background);
+        /* 修复白边关键：全局禁止水平溢出 */
+        html, body {
             margin: 0;
-            padding-top: var(--nav-height);
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden; 
+            background-color: var(--mdui-color-background);
             font-family: "Product Sans", system-ui, -apple-system, sans-serif;
-            overflow-x: hidden; /* 彻底防止水平溢出 */
         }
 
-        /* 修复后的导航栏：使用 left/right:0 替代 width:100% 避免 Padding 导致的溢出 */
+        body {
+            padding-top: var(--nav-height);
+        }
+
+        /* 修复后的导航栏 */
         .custom-app-bar {
             height: var(--nav-height) !important;
             background-color: rgba(255, 255, 255, 0.85) !important;
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(0,0,0,0.08);
-            padding: 0 5%;
+            padding: 0 16px;
             display: flex;
             align-items: center;
             position: fixed;
@@ -41,40 +47,44 @@
         }
 
         .nav-logo {
-            height: 32px;
+            height: 28px;
             cursor: pointer;
+            margin-left: 8px;
         }
 
         .nav-links-container {
             display: flex;
-            gap: 8px;
-            margin-left: 20px;
+            gap: 4px;
+            margin-left: 12px;
         }
 
-        /* Hero Section - 风格大图 */
+        /* Hero Section */
         .hero-section {
             width: 100%;
-            height: 80vh;
+            height: 70vh;
             background: url('/home.jpg') center/cover no-repeat;
+            position: relative;
         }
 
-        /* 浮动容器布局 */
+        /* 浮动容器 */
         .floating-container {
             max-width: 1200px;
-            margin: -120px auto 60px;
+            margin: -100px auto 60px;
             position: relative;
             z-index: 10;
             display: grid;
             grid-template-columns: 1fr 350px;
             gap: 32px;
             padding: 0 20px;
+            box-sizing: border-box;
         }
 
         .main-card {
             background: white;
-            padding: 48px;
+            padding: 40px;
             border-radius: 16px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+            box-sizing: border-box;
         }
 
         .sidebar-card {
@@ -84,12 +94,12 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.03);
             height: fit-content;
             text-align: center;
+            box-sizing: border-box;
         }
 
-        /* RSS 列表 */
         .rss-item {
             display: block;
-            padding: 18px;
+            padding: 16px;
             border-radius: 12px;
             background: #fcfcfc;
             border: 1px solid #f0f0f0;
@@ -98,48 +108,59 @@
             text-decoration: none;
             color: inherit;
         }
-        .rss-item:hover {
-            background: white;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
-            transform: translateY(-2px);
-        }
 
         footer {
             background: #121212;
             color: #777;
-            padding: 60px 5% 40px;
+            padding: 40px 20px;
             text-align: center;
+            width: 100%;
+            box-sizing: border-box;
         }
 
+        /* 移动端适配逻辑 */
         @media (max-width: 900px) {
-            .floating-container { grid-template-columns: 1fr; margin-top: -80px; }
+            .nav-links-container { display: none; } /* 隐藏顶部链接 */
+            .mobile-menu-btn { display: inline-flex !important; } /* 显示汉堡按钮 */
+            
+            .floating-container { 
+                grid-template-columns: 1fr; 
+                margin-top: -60px;
+                padding: 0 16px;
+            }
+            .main-card { padding: 32px 20px; }
             .sidebar-card { order: -1; }
-            .nav-links-container { display: none; }
+            
+            h1 { font-size: 1.8rem !important; } /* 防止标题撑开宽度 */
         }
+
+        .mobile-menu-btn { display: none; }
     </style>
 </head>
 <body>
 
+    <mdui-navigation-drawer id="drawer" close-on-overlay-click>
+        <div style="padding: 24px;">
+            <h2 style="margin: 0; font-weight: 900;">MENU</h2>
+        </div>
+        <mdui-list>
+            <mdui-list-item icon="home" href="#" data-i18n="nav_home">首页</mdui-list-item>
+            <mdui-list-item icon="auto_stories" href="https://baipin.pw" data-i18n="nav_blog">博客</mdui-list-item>
+            <mdui-list-item icon="terminal" href="#projects" data-i18n="nav_projects">项目</mdui-list-item>
+            <mdui-list-item icon="account_circle" href="https://baipin.pw/about" data-i18n="nav_about">关于</mdui-list-item>
+        </mdui-list>
+    </mdui-navigation-drawer>
+
     <header class="custom-app-bar">
+        <mdui-button-icon icon="menu" class="mobile-menu-btn" onclick="document.getElementById('drawer').open = true"></mdui-button-icon>
+        
         <img src="/logo.png" alt="Logo" class="nav-logo" onclick="window.location.href='#'">
         
         <div class="nav-links-container">
-            <mdui-button variant="text" href="#">
-                <mdui-icon slot="icon" name="home"></mdui-icon>
-                <span data-i18n="nav_home">首页</span>
-            </mdui-button>
-            <mdui-button variant="text" href="https://baipin.pw">
-                <mdui-icon slot="icon" name="auto_stories"></mdui-icon>
-                <span data-i18n="nav_blog">博客</span>
-            </mdui-button>
-            <mdui-button variant="text" href="#projects">
-                <mdui-icon slot="icon" name="terminal"></mdui-icon>
-                <span data-i18n="nav_projects">项目</span>
-            </mdui-button>
-            <mdui-button variant="text" href="https://baipin.pw/about">
-                <mdui-icon slot="icon" name="account_circle"></mdui-icon>
-                <span data-i18n="nav_about">关于</span>
-            </mdui-button>
+            <mdui-button variant="text" href="#" data-i18n="nav_home">首页</mdui-button>
+            <mdui-button variant="text" href="https://baipin.pw" data-i18n="nav_blog">博客</mdui-button>
+            <mdui-button variant="text" href="#projects" data-i18n="nav_projects">项目</mdui-button>
+            <mdui-button variant="text" href="https://baipin.pw/about" data-i18n="nav_about">关于</mdui-button>
         </div>
 
         <div style="flex-grow: 1"></div>
@@ -150,23 +171,19 @@
 
     <div class="floating-container">
         <main class="main-card">
-            <h1 style="font-size: 2.8rem; margin: 0 0 20px 0; font-weight: 800;" data-i18n="hero_title">
-                图片/浙江丽水云和梯田
+            <h1 style="font-size: 2.5rem; margin: 0 0 20px 0; font-weight: 800; line-height: 1.2;" data-i18n="hero_title">
+               图片/浙江丽水云和梯田
             </h1>
-            <p style="color: #555; font-size: 1.15rem; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
-                这里是 百品 (Baipin) 的入口。我是一名学生，热爱技术与文字，目前致力于探索更有趣的 Web 体验。
+            <p style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
+                这里是 百品 (Baipin) 的入口。记录技术、生活与思考的点滴。
             </p>
             
-            <div style="display: flex; gap: 16px;">
-                <mdui-button variant="filled" href="https://baipin.pw" style="height: 48px; padding: 0 24px;" data-i18n="nav_blog">
-                    进入博客
-                </mdui-button>
-                <mdui-button variant="outlined" href="https://baipin.pw/about" style="height: 48px; padding: 0 24px;" data-i18n="nav_about">
-                    关于我
-                </mdui-button>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <mdui-button variant="filled" href="https://baipin.pw" data-i18n="nav_blog">进入博客</mdui-button>
+                <mdui-button variant="outlined" href="https://baipin.pw/about" data-i18n="nav_about">关于我</mdui-button>
             </div>
 
-            <mdui-divider style="margin: 48px 0;"></mdui-divider>
+            <mdui-divider style="margin: 40px 0;"></mdui-divider>
 
             <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
                 <mdui-icon name="rss_feed" style="color: #f26522;"></mdui-icon> 
@@ -178,21 +195,20 @@
         </main>
 
         <aside class="sidebar-card">
-            <img src="https://github.com/baipin.png" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; box-shadow: 0 8px 16px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <img src="https://github.com/baipin.png" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 16px;">
             <h2 style="margin: 0; font-weight: 700;">Baipin</h2>
-            <p style="color: #888; margin-top: 8px; font-size: 0.95rem;" data-i18n="bio">Student / Dennis</p>
+            <p style="color: #888; font-size: 0.9rem;" data-i18n="bio">Student / Dennis</p>
             
-            <mdui-divider style="margin: 24px 0;"></mdui-divider>
+            <mdui-divider style="margin: 20px 0;"></mdui-divider>
 
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px;">
-                <mdui-button-icon icon="code_xml" href="https://github.com/baipin" title="GitHub"></mdui-button-icon>
-                <mdui-button-icon icon="telegram" href="https://t.me/baipin_pw" title="Telegram"></mdui-button-icon>
-                <mdui-button-icon icon="mail_outline" href="mailto:root@baipin.pw" title="Email"></mdui-button-icon>
-                <mdui-button-icon icon="rss_feed" href="https://baipin.pw/feed" title="RSS"></mdui-button-icon>
-                <mdui-button-icon icon="link" href="https://baipin.pw" title="Website"></mdui-button-icon>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px;">
+                <mdui-button-icon icon="terminal" href="https://github.com/baipin"></mdui-button-icon>
+                <mdui-button-icon icon="send" href="https://t.me/baipin_pw"></mdui-button-icon>
+                <mdui-button-icon icon="mail_outline" href="mailto:root@baipin.pw"></mdui-button-icon>
+                <mdui-button-icon icon="rss_feed" href="https://baipin.pw/feed"></mdui-button-icon>
             </div>
 
-            <mdui-button variant="tonal" full-width style="border-radius: 12px;" href="https://baipin.pw/about" data-i18n="btn_follow">
+            <mdui-button variant="tonal" full-width style="border-radius: 8px;" href="https://baipin.pw/about" data-i18n="btn_follow">
                 关于我
             </mdui-button>
         </aside>
@@ -200,24 +216,23 @@
 
     <footer>
         <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="font-weight: 900; font-size: 1.4rem; color: #fff; margin-bottom: 12px; letter-spacing: 2px;">BAIPIN.PW</div>
-            <p style="font-size: 0.85rem;">&copy; 2026 百品.</p>
+            <div style="font-weight: 900; font-size: 1.2rem; color: #fff; margin-bottom: 8px;">BAIPIN.PW</div>
+            <p style="font-size: 0.8rem;">&copy; 2026 百品. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
-        // 1. 多语言
         const i18n = {
             'zh-CN': {
                 nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
-                hero_title: '我欲穿花寻路，直入白云深处。',
-                hero_desc: '这里是 百品 (Baipin) 的入口。欢迎访问相关页面。',
+                hero_title: '图片/浙江丽水云和梯田',
+                hero_desc: '这里是 百品 (Baipin) 的入口。记录技术、生活与思考的点滴。',
                 news_title: '最新文章', bio: '学生', btn_follow: '关于我'
             },
             'en': {
                 nav_home: 'Home', nav_blog: 'Blog', nav_projects: 'Projects', nav_about: 'About',
-                hero_title: 'Seeking paths through flowers, straight into the deep clouds.',
-                hero_desc: 'Welcome to Baipin. I am a student, passionate about tech and writing.',
+                hero_title: 'Seeking paths through flowers, straight into the clouds.',
+                hero_desc: 'Welcome to Baipin. Documenting tech, life, and thoughts.',
                 news_title: 'Latest Posts', bio: 'Student', btn_follow: 'About Me'
             }
         };
@@ -231,30 +246,25 @@
             });
         });
 
-        // 2. RSS (只负责动态部分)
-        const RSS_URL = 'https://baipin.pw/feed';
-        const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
-
         async function fetchRSS() {
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://baipin.pw/feed')}`);
                 const data = await response.json();
                 const container = document.getElementById('rss-feed-container');
                 container.innerHTML = '';
-                
-                data.items.slice(0, 6).forEach(item => {
+                data.items.slice(0, 5).forEach(item => {
                     const el = document.createElement('a');
                     el.className = 'rss-item';
                     el.href = item.link;
                     el.target = '_blank';
                     el.innerHTML = `
-                        <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 6px;">${item.title}</div>
-                        <div style="font-size: 0.85rem; color: #999;">${new Date(item.pubDate).toLocaleDateString()}</div>
+                        <div style="font-weight: 700;">${item.title}</div>
+                        <div style="font-size: 0.8rem; color: #999; margin-top: 4px;">${new Date(item.pubDate).toLocaleDateString()}</div>
                     `;
                     container.appendChild(el);
                 });
             } catch (e) {
-                document.getElementById('rss-feed-container').innerHTML = '<p>无法连接至博客 Feed</p>';
+                document.getElementById('rss-feed-container').innerHTML = '<p>Feed 加载失败</p>';
             }
         }
         fetchRSS();
