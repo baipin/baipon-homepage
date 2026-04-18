@@ -137,6 +137,24 @@
                 width: 100%;
             }
         }
+        .fullscreen-marquee {
+    font-size: 2rem;
+    width: 95%;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+}
+
+.fullscreen-marquee span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marqueeScroll 25s linear infinite;
+}
+
+@keyframes marqueeScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
     </style>
 </head>
 <body class="mdui-theme-auto">
@@ -229,8 +247,8 @@
     <!-- 全屏模式 -->
     <div id="fullscreen-market">
         <div id="fullscreen-time" style="font-size: 7rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 60px;">--:--:--</div>
-        <div id="fullscreen-marquee" style="font-size: 2rem; width: 95%; text-align: center; overflow: hidden; white-space: nowrap;">
-            正在加载香港新闻...
+        <div id="fullscreen-marquee" class="fullscreen-marquee">
+            正在加载新闻...
         </div>
         <mdui-button variant="tonal" id="exit-fullscreen-btn" style="margin-top: 80px;" icon="fullscreen_exit">退出全屏模式</mdui-button>
     </div>
@@ -784,7 +802,8 @@
     if (!marqueeHTML) marqueeHTML = '暂无最新新闻，请稍后刷新...';
 
     document.getElementById('news-marquee').innerHTML = marqueeHTML;
-    document.getElementById('fullscreen-marquee').innerHTML = marqueeHTML;
+    document.getElementById('fullscreen-marquee').innerHTML =
+    `<span>${marqueeHTML}</span>`;
     document.getElementById('update-time').textContent =
         `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
         }
