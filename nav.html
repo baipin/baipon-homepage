@@ -13,60 +13,65 @@
     <style>
         :root { 
             --nav-height: 64px; 
-            --hero-height: 45vh; 
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(255, 255, 255, 0.3);
-            --text-color: #212121;
+            --hero-height: 40vh; 
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-primary: #1c1b1f;
         }
 
         .mdui-theme-dark {
-            --glass-bg: rgba(45, 45, 50, 0.75);
+            --glass-bg: rgba(30, 30, 35, 0.8);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --text-color: #ffffff;
+            --text-primary: #e6e1e5;
         }
 
-        html, body { margin: 0; padding: 0; min-height: 100vh; background-color: transparent !important; color: var(--text-color); }
+        html, body { margin: 0; padding: 0; min-height: 100vh; background-color: transparent !important; color: var(--text-primary); }
         body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('/home.jpg') center/cover no-repeat; z-index: -2; }
 
         /* --- 导航栏 --- */
         .app-bar {
             position: fixed; top: 0; left: 0; right: 0; height: var(--nav-height);
-            z-index: 1200; display: flex; align-items: center; padding: 0 5%;
-            background: var(--glass-bg) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            z-index: 2000; display: flex; align-items: center; padding: 0 5%;
+            background: var(--glass-bg) !important; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border);
-            color: var(--text-color);
         }
-        .logo-area { display: flex; align-items: center; gap: 12px; font-weight: 900; font-size: 1.2rem; }
+        .logo-area { display: flex; align-items: center; gap: 12px; font-weight: 900; font-size: 1.25rem; text-decoration: none; color: inherit; }
         .logo-area img { height: 32px; }
 
-        /* --- 搜索区 (解决遮挡) --- */
+        /* --- 搜索区 (修复 Dropdown 被遮挡) --- */
         .hero-space { height: var(--hero-height); display: flex; align-items: center; justify-content: center; padding-top: var(--nav-height); }
         .search-container {
             width: 90%; max-width: 650px; 
-            background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            background: var(--glass-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
             border: 1px solid var(--glass-border); border-radius: 50px; padding: 6px 16px; 
-            display: flex; align-items: center; overflow: visible; position: relative;
+            display: flex; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            /* 注意：此处不再设置 position: relative 以防止层级塌陷 */
         }
-        .search-input { flex: 1; border: none; background: transparent; padding: 12px; font-size: 1.1rem; outline: none; color: inherit; }
-        .engine-favicon { width: 24px; height: 24px; border-radius: 4px; }
+        .search-input { flex: 1; border: none; background: transparent; padding: 12px; font-size: 1.15rem; outline: none; color: inherit; }
+        .engine-icon-btn { cursor: pointer; padding: 8px; transition: opacity 0.2s; display: flex; align-items: center; }
+        .engine-favicon { width: 26px; height: 26px; border-radius: 4px; }
 
         /* --- 布局 --- */
-        .content-layout { max-width: 1240px; margin: 0 auto 80px; display: grid; grid-template-columns: 1fr 360px; gap: 32px; padding: 0 20px; }
-        .card-glass { border-radius: 28px; background: var(--glass-bg); backdrop-filter: blur(20px); padding: 32px; border: 1px solid var(--glass-border); color: var(--text-color); }
+        .content-layout { max-width: 1240px; margin: 0 auto 80px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; padding: 0 20px; }
+        .card-glass { border-radius: 28px; background: var(--glass-bg); backdrop-filter: blur(20px); padding: 32px; border: 1px solid var(--glass-border); }
         
-        /* --- 书签 --- */
-        .links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 18px; margin-top: 24px; }
+        /* --- 书签网格 --- */
+        .links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 20px; margin-top: 24px; }
         .link-item {
-            position: relative; display: flex; flex-direction: column; align-items: center; padding: 20px 10px; 
-            border-radius: 20px; background: rgba(128,128,128,0.1); text-decoration: none; color: inherit; transition: all 0.2s;
+            position: relative; display: flex; flex-direction: column; align-items: center; padding: 22px 10px; 
+            border-radius: 24px; background: rgba(128,128,128,0.1); text-decoration: none; color: inherit; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .link-item:hover { transform: translateY(-5px); background: rgba(128,128,128,0.2); }
-        .link-item img, .link-item mdui-icon { width: 32px; height: 32px; font-size: 32px; margin-bottom: 12px; border-radius: 6px; }
+        .link-item:hover { transform: translateY(-6px); background: rgba(128,128,128,0.18); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .link-item img, .link-item mdui-icon { width: 34px; height: 34px; font-size: 34px; margin-bottom: 12px; border-radius: 8px; }
         .edit-active .link-item::after { content: "edit"; font-family: 'Material Icons'; position: absolute; top: 8px; right: 8px; font-size: 10px; background: #2196f3; color: white; border-radius: 50%; padding: 4px; }
 
-        /* 天气相关 */
-        .weather-info p { margin: 8px 0; font-size: 0.9rem; }
-        .alert { margin-bottom: 20px; }
+        /* --- 可视化天气组件 --- */
+        .weather-visual { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; padding: 15px; background: rgba(128,128,128,0.05); border-radius: 20px; }
+        .weather-icon-img { width: 64px; height: 64px; }
+        .weather-stats { display: flex; flex-direction: column; gap: 4px; }
+        .temp-val { font-size: 2rem; font-weight: 900; line-height: 1; }
+        .hum-val { font-size: 0.9rem; opacity: 0.7; }
+        .weather-info-text p { margin: 10px 0; font-size: 0.95rem; line-height: 1.6; }
 
         @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .side-stack { order: -1; } }
     </style>
@@ -74,19 +79,19 @@
 <body class="mdui-theme-auto">
 
     <header class="app-bar">
-        <div class="logo-area">
+        <a href="/" class="logo-area">
             <img src="/logo.png" alt="Logo">
             <span>导航</span>
-        </div>
+        </a>
         <div style="flex-grow: 1"></div>
-        <mdui-button-icon id="theme-btn" icon="light_mode" style="color: inherit;"></mdui-button-icon>
-        <mdui-button-icon id="edit-btn" icon="edit_note" style="color: inherit;"></mdui-button-icon>
+        <mdui-button-icon id="theme-btn" icon="light_mode"></mdui-button-icon>
+        <mdui-button-icon id="edit-btn" icon="edit_note"></mdui-button-icon>
     </header>
 
     <section class="hero-space">
         <div class="search-container">
-            <mdui-dropdown id="engine-dropdown">
-                <div slot="trigger" style="cursor:pointer; padding: 8px;">
+            <mdui-dropdown placement="bottom-start">
+                <div slot="trigger" class="engine-icon-btn">
                     <img id="cur-engine-img" class="engine-favicon" src="https://www.google.com/favicon.ico">
                 </div>
                 <mdui-menu id="engine-menu">
@@ -103,27 +108,32 @@
     <div class="content-layout">
         <main class="card-glass" id="main-container">
             <div style="display:flex; align-items:center; justify-content:space-between;">
-                <div style="font-size: 1.3rem; font-weight: 900;">快捷访问</div>
+                <div style="font-size: 1.3rem; font-weight: 900; letter-spacing: 1px;">快捷访问</div>
                 <mdui-button-icon id="add-btn" icon="add" style="display:none"></mdui-button-icon>
             </div>
             <div class="links-grid" id="links-wrapper"></div>
         </main>
 
         <aside class="side-stack" style="display:flex; flex-direction:column; gap:24px;">
-            <div class="card-glass" style="padding:24px;">
-                <div id="alert" class="alert" role="alert">
-                    <div style="font-size:0.7rem; opacity:0.5; font-weight:bold; margin-bottom:12px;">拾遗</div>
-                    <strong><span id="jinrishici-sentence">正在加载....</span></strong> 
-                </div>
+            <div class="card-glass" style="padding:28px;">
+                <div style="font-size:0.75rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">拾遗</div>
+                <strong><span id="jinrishici-sentence">正在加载诗词....</span></strong> 
             </div>
 
-            <div class="card-glass" style="padding:24px;">
-                <div id="alert2" class="alert" role="alert">
-                    <div style="font-size:0.7rem; opacity:0.5; font-weight:bold; margin-bottom:12px;">本港天气</div>
-                    <div id="weather-info">正在从香港天文台获取天气预报…</div>
-                    <div id="warning-info">正在加载警告信息…</div>
-                    <div id="i-info">正在加载特别天气提示…</div>
+            <div class="card-glass" style="padding:28px;">
+                <div style="font-size:0.75rem; opacity:0.6; font-weight:bold; margin-bottom:15px; letter-spacing:1px;">本港天气预报</div>
+                
+                <div id="weather-now" class="weather-visual">
+                    <div id="weather-icon-container"></div>
+                    <div class="weather-stats">
+                        <div class="temp-val"><span id="curr-temp">--</span>°C</div>
+                        <div class="hum-val">相对湿度: <span id="curr-hum">--</span>%</div>
+                    </div>
                 </div>
+
+                <div id="weather-info" class="weather-info-text">正在从香港天文台获取...</div>
+                <div id="warning-info" style="color:#ff5252; font-weight:bold; font-size:0.9rem; margin-top:12px;"></div>
+                <div id="i-info" style="font-size:0.85rem; opacity:0.8; border-top: 1px solid rgba(128,128,128,0.2); margin-top:12px; padding-top:12px;"></div>
             </div>
         </aside>
     </div>
@@ -131,10 +141,10 @@
     <mdui-dialog id="edit-dialog" close-on-overlay-click>
         <span slot="headline">管理书签</span>
         <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
-            <mdui-text-field label="链接 (URL)" id="f-url" placeholder="https://example.com"></mdui-text-field>
+            <mdui-text-field label="链接 (URL)" id="f-url" placeholder="https://"></mdui-text-field>
             <div style="display:flex; gap:10px; align-items:flex-end;">
-                <mdui-text-field label="图标 (MDUI名或URL)" id="f-icon" style="flex:1"></mdui-text-field>
-                <mdui-button variant="tonal" id="btn-get-icon">抓取图标</mdui-button>
+                <mdui-text-field label="图标 (URL/MDUI名)" id="f-icon" style="flex:1"></mdui-text-field>
+                <mdui-button variant="tonal" id="btn-get-icon">抓取</mdui-button>
             </div>
             <mdui-text-field label="名称" id="f-name"></mdui-text-field>
         </div>
@@ -143,7 +153,7 @@
     </mdui-dialog>
 
     <script>
-        /* --- 1. 数据 --- */
+        /* --- 1. 数据逻辑 --- */
         const initLinks = [
             { name: "我的RSS", url: "#", icon: "rss_feed" },
             { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
@@ -157,16 +167,15 @@
             { name: "CSDN", url: "https://www.csdn.net", icon: "https://www.csdn.net/favicon.ico" },
             { name: "XDA", url: "https://www.xda-developers.com", icon: "developer_mode" },
             { name: "百品博客", url: "https://baipin.pw", icon: "article" },
-            { name: "AIMS", url: "#", icon: "school" },
-            { name: "学校邮箱", url: "#", icon: "mail" },
-            { name: "Canvas", url: "#", icon: "dashboard" },
-            { name: "应用面板", url: "#", icon: "apps" },
+            { name: "AIMS", url: "https://banweb.cityu.edu.hk/", icon: "school" },
+            { name: "学校邮箱", url: "https://mail.office365.com/my.cityu.edu.hk", icon: "mail" },
+            { name: "Canvas", url: "https://canvas.cityu.edu.hk/", icon: "dashboard" },
+            { name: "应用面板", url: "https://auth.cityu.edu.hk/", icon: "apps" },
             { name: "Github", url: "https://github.com", icon: "code" }
         ];
 
-        let bookmarks = JSON.parse(localStorage.getItem('bp_v4')) || initLinks;
-        let editMode = false, curIdx = null;
-
+        let bookmarks = JSON.parse(localStorage.getItem('bp_v5')) || initLinks;
+        let isEdit = false, curIdx = null;
         const wrapper = document.getElementById('links-wrapper');
         const dialog = document.getElementById('edit-dialog');
 
@@ -175,33 +184,26 @@
             bookmarks.forEach((item, i) => {
                 const el = document.createElement('a');
                 el.className = 'link-item';
-                el.href = editMode ? 'javascript:void(0)' : item.url;
-                if(!editMode) el.target = "_blank";
+                el.href = isEdit ? 'javascript:void(0)' : item.url;
+                if(!isEdit) el.target = "_blank";
                 const isImg = item.icon.includes('http') || item.icon.includes('.');
-                const iconHtml = isImg ? `<img src="${item.icon}">` : `<mdui-icon name="${item.icon}"></mdui-icon>`;
-                el.innerHTML = `${iconHtml}<span>${item.name}</span>`;
-                el.onclick = () => { if(editMode) openDialog(i); };
+                el.innerHTML = (isImg ? `<img src="${item.icon}">` : `<mdui-icon name="${item.icon}"></mdui-icon>`) + `<span>${item.name}</span>`;
+                el.onclick = () => { if(isEdit) openDialog(i); };
                 wrapper.appendChild(el);
             });
-            document.getElementById('main-container').classList.toggle('edit-active', editMode);
-            document.getElementById('add-btn').style.display = editMode ? 'inline-block' : 'none';
+            document.getElementById('main-container').classList.toggle('edit-active', isEdit);
+            document.getElementById('add-btn').style.display = isEdit ? 'inline-block' : 'none';
         }
 
         /* --- 2. 管理功能 --- */
-        document.getElementById('edit-btn').onclick = () => { editMode = !editMode; render(); };
+        document.getElementById('edit-btn').onclick = () => { isEdit = !isEdit; render(); };
         document.getElementById('add-btn').onclick = () => openDialog();
-        
-        // 自动获取图标逻辑
         document.getElementById('btn-get-icon').onclick = () => {
             const url = document.getElementById('f-url').value;
             if (url && url.startsWith('http')) {
-                try {
-                    const domain = new URL(url).origin;
-                    document.getElementById('f-icon').value = `${domain}/favicon.ico`;
-                } catch(e) { 
-                    alert("URL 格式不正确");
-                }
-            } else { alert("请输入包含 http 的完整 URL"); }
+                const domain = new URL(url).origin;
+                document.getElementById('f-icon').value = `${domain}/favicon.ico`;
+            }
         };
 
         function openDialog(idx = null) {
@@ -216,59 +218,68 @@
         document.getElementById('act-save').onclick = () => {
             const data = { name: document.getElementById('f-name').value || '未命名', url: document.getElementById('f-url').value || '#', icon: document.getElementById('f-icon').value || 'link' };
             if(curIdx !== null) bookmarks[curIdx] = data; else bookmarks.push(data);
-            localStorage.setItem('bp_v4', JSON.stringify(bookmarks));
+            localStorage.setItem('bp_v5', JSON.stringify(bookmarks));
             dialog.open = false; render();
         };
 
-        document.getElementById('act-del').onclick = () => { if(curIdx !== null) { bookmarks.splice(curIdx, 1); localStorage.setItem('bp_v4', JSON.stringify(bookmarks)); dialog.open = false; render(); } };
+        document.getElementById('act-del').onclick = () => { if(curIdx !== null) { bookmarks.splice(curIdx, 1); localStorage.setItem('bp_v5', JSON.stringify(bookmarks)); dialog.open = false; render(); } };
 
-        /* --- 3. 搜索与引擎 --- */
-        let curEng = 'google';
+        /* --- 3. 搜索切换逻辑 --- */
+        let activeEng = 'google';
         const engines = { google: 'https://www.google.com/search?q=', baidu: 'https://www.baidu.com/s?wd=', bing: 'https://cn.bing.com/search?q=', github: 'https://github.com/search?q=' };
-        document.getElementById('engine-menu').onchange = (e) => {
-            curEng = e.target.value;
-            document.getElementById('cur-engine-img').src = `https://${curEng === 'bing' ? 'cn.bing.com' : (curEng === 'baidu' ? 'www.baidu.com' : (curEng === 'google' ? 'www.google.com' : 'github.com'))}/favicon.ico`;
+        document.getElementById('engine-menu').onclick = (e) => {
+            const item = e.target.closest('mdui-menu-item');
+            if (!item) return;
+            activeEng = item.value;
+            document.getElementById('cur-engine-img').src = item.querySelector('img').src;
         };
-        document.getElementById('search-input').onkeypress = (e) => { if(e.key === 'Enter') window.open(engines[curEng] + encodeURIComponent(e.target.value), '_blank'); };
+        document.getElementById('search-input').onkeypress = (e) => { if(e.key === 'Enter') window.open(engines[activeEng] + encodeURIComponent(e.target.value), '_blank'); };
 
-        /* --- 4. 香港天文台代码 (完全遵循原文逻辑) --- */
-        const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
-        const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
-        const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
-
-        async function fetchData(url, elementId, formatData) {
-            const element = document.getElementById(elementId);
+        /* --- 4. 香港天文台全功能代码 --- */
+        const weatherRoot = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php';
+        
+        async function updateWeather() {
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('网络响应不正常');
-                const data = await response.json();
-                element.innerHTML = formatData(data);
-            } catch (error) { element.innerHTML = `无法加载数据：${error.message}`; }
-        }
+                // 获取当前温度/湿度/图标
+                const rRes = await fetch(`${weatherRoot}?dataType=rth&lang=sc`);
+                const rData = await rRes.json();
+                if(rData.temperature && rData.temperature.data.length > 0) {
+                    document.getElementById('curr-temp').innerText = rData.temperature.data[0].value;
+                }
+                if(rData.humidity && rData.humidity.data.length > 0) {
+                    document.getElementById('curr-hum').innerText = rData.humidity.data[0].value;
+                }
+                if(rData.icon && rData.icon.length > 0) {
+                    document.getElementById('weather-icon-container').innerHTML = `<img class="weather-icon-img" src="https://www.hko.gov.hk/images/HKO_logo.png" data-src="https://www.hko.gov.hk/images/wxicon/pic${rData.icon[0]}.png" onload="this.src=this.dataset.src">`;
+                }
 
-        function formatWeatherData(data) {
-            let html = `<p><strong>总体情况：</strong>${data.generalSituation}</p>
-                        <p><strong>天气预测：</strong>${data.forecastDesc}</p>
-                        <p><strong>展望：</strong>${data.outlook}</p>
-                        <p><strong>更新时间：</strong>${data.updateTime}</p>`;
-            if (data.tcInfo && data.tcInfo.length !== 0) html += `<p><strong>热带气旋资讯：</strong>${data.tcInfo}</p>`;
-            return html;
-        }
+                // 获取天气预报
+                const fRes = await fetch(`${weatherRoot}?dataType=flw&lang=sc`);
+                const fData = await fRes.json();
+                document.getElementById('weather-info').innerHTML = `
+                    <p><strong>总体情况：</strong>${fData.generalSituation}</p>
+                    <p><strong>天气预测：</strong>${fData.forecastDesc}</p>
+                    <p><strong>展望：</strong>${fData.outlook}</p>
+                    <p style="font-size:0.7rem; opacity:0.5;">更新时间: ${fData.updateTime}</p>
+                `;
 
-        function formatWarningData(data) {
-            if (!data.details || data.details.length === 0) return '现时没有警告生效。';
-            return data.details.map(detail => `
-                <p><strong>天气警告 ${detail.warningStatementCode}：</strong>${detail.contents.join(' ')}</p>
-                <p><strong>警告更新时间：</strong>${detail.updateTime}</p>
-            `).join('');
-        }
+                // 警告信息
+                const wRes = await fetch(`${weatherRoot}?dataType=warningInfo&lang=tc`);
+                const wData = await wRes.json();
+                const wEl = document.getElementById('warning-info');
+                if (wData.details && wData.details.length > 0) {
+                    wEl.innerHTML = wData.details.map(d => `<p>⚠️ ${d.contents.join(' ')}</p>`).join('');
+                } else { wEl.innerHTML = '现时没有警告生效。'; }
 
-        function formatSpecialWeatherData(data) {
-            if (!data.swt || data.swt.length === 0) return '现时没有特别天气提示。';
-            return data.swt.map(item => `
-                <p><strong>特别天气提示：</strong>${item.desc}</p>
-                <p><strong>天气提示更新时间：</strong>${item.updateTime}</p>
-            `).join('');
+                // 特别天气提示
+                const sRes = await fetch(`${weatherRoot}?dataType=swt&lang=sc`);
+                const sData = await sRes.json();
+                const iEl = document.getElementById('i-info');
+                if (sData.swt && sData.swt.length > 0) {
+                    iEl.innerHTML = sData.swt.map(s => `<p>ℹ️ ${s.desc}</p>`).join('');
+                } else { iEl.innerHTML = '现时没有特别天气提示。'; }
+
+            } catch (err) { console.error("天文台 API 加载失败", err); }
         }
 
         /* --- 5. 初始化 --- */
@@ -279,9 +290,7 @@
         };
 
         render();
-        fetchData(apiUrl, 'weather-info', formatWeatherData);
-        fetchData(warningApiUrl, 'warning-info', formatWarningData);
-        fetchData(iUrl, 'i-info', formatSpecialWeatherData);
+        updateWeather();
     </script>
 </body>
 </html>
