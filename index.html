@@ -28,7 +28,6 @@
             font-family: "Product Sans", system-ui, -apple-system, sans-serif;
             background-color: transparent !important;
             padding-top: var(--nav-height);
-            /* 移除 body 全局强制白色的逻辑，允许 MDUI 自动管理 */
         }
 
         body::before {
@@ -61,18 +60,13 @@
             border-bottom-color: rgba(255,255,255,0.1);
         }
 
-        /* 菜单底色显式跟随主题 */
-        mdui-navigation-drawer {
-            --mdui-color-surface-container: #ffffff;
-        }
-        .mdui-theme-dark mdui-navigation-drawer {
-            --mdui-color-surface-container: #1c1b1f;
-        }
+        mdui-navigation-drawer { --mdui-color-surface-container: #ffffff; }
+        .mdui-theme-dark mdui-navigation-drawer { --mdui-color-surface-container: #1c1b1f; }
 
         .nav-logo { height: 28px; width: auto; cursor: pointer; flex-shrink: 0; }
         .nav-links-container { margin-left: 20px; display: flex; gap: 4px; }
 
-        /* --- 3. 图片简介样式 (强制白色不受模式影响) --- */
+        /* --- 3. 图片简介样式 (强制白色) --- */
         .hero-section {
             width: 100%; height: 80vh;
             display: flex; align-items: flex-end; justify-content: center;
@@ -92,10 +86,14 @@
             z-index: 20;
             box-sizing: border-box;
         }
+        /* 仅在 info-box 内强制 Icon 为白色 */
+        .photo-info-box mdui-icon, 
+        .photo-info-box mdui-button { color: white !important; }
+
         .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; color: white !important; }
         .photo-text p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.85; color: white !important; }
 
-        /* --- 4. 核心卡片样式 (自动配色) --- */
+        /* --- 4. 核心卡片样式 --- */
         .floating-container {
             max-width: var(--content-max-width);
             margin: -100px auto 60px;
@@ -110,14 +108,11 @@
 
         .main-card {
             background-color: #ffffff !important;
-            /* 移除固定颜色定义，让 MDUI 处理 */
             padding: 40px; border-radius: 24px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.1);
             transition: background 0.3s;
         }
-        .mdui-theme-dark .main-card {
-            background-color: #1c1b1f !important;
-        }
+        .mdui-theme-dark .main-card { background-color: #1c1b1f !important; }
 
         .sidebar-card {
             background-color: #fafafa !important;
@@ -129,37 +124,34 @@
             transition: background 0.3s;
             box-sizing: border-box;
         }
-        .mdui-theme-dark .sidebar-card {
-            background-color: #2b2930 !important;
-        }
+        .mdui-theme-dark .sidebar-card { background-color: #2b2930 !important; }
 
-        /* RSS 链接颜色 */
         .rss-item {
             display: block; padding: 16px; border-radius: 12px; 
             background: rgba(128,128,128,0.05); border: 1px solid rgba(128,128,128,0.1); 
-            margin-bottom: 12px; transition: all 0.3s; text-decoration: none;
-            color: inherit;
+            margin-bottom: 12px; transition: all 0.3s; text-decoration: none; color: inherit;
         }
 
-        /* --- 5. 文字与图标色彩全局控制 --- */
-        
-        /* 默认白天模式（使用深灰色） */
-        .mdui-theme-light body, 
-        .mdui-theme-light .main-card, 
+        /* --- 5. 图标与文字颜色修正 --- */
+        /* 白天模式 */
+        .mdui-theme-light mdui-icon, 
+        .mdui-theme-light mdui-button-icon,
+        .mdui-theme-light .main-card,
         .mdui-theme-light .sidebar-card,
         .mdui-theme-light .custom-app-bar {
-            color: rgba(0, 0, 0, 0.87);
+            color: rgba(0, 0, 0, 0.75) !important;
         }
 
-        /* 暗黑模式（使用浅灰色/白色） */
-        .mdui-theme-dark body,
+        /* 暗黑模式 */
+        .mdui-theme-dark mdui-icon, 
+        .mdui-theme-dark mdui-button-icon,
         .mdui-theme-dark .main-card,
         .mdui-theme-dark .sidebar-card,
         .mdui-theme-dark .custom-app-bar {
-            color: #e6e1e5;
+            color: #e6e1e5 !important;
         }
 
-        /* 响应式 */
+        /* 移动端适配 */
         @media (max-width: 900px) {
             .nav-links-container { display: none; }
             .mobile-menu-btn { display: inline-flex !important; }
@@ -175,7 +167,7 @@
 <body class="mdui-theme-auto">
 
     <mdui-navigation-drawer id="drawer" placement="right" close-on-overlay-click>
-        <div style="padding: 24px;"><h2 style="margin:0; font-weight:900; color:var(--mdui-color-primary);">MENU</h2></div>
+        <div style="padding: 24px;"><h2 style="margin:0; font-weight:900;">MENU</h2></div>
         <mdui-list id="drawer-list">
             <mdui-list-item icon="home" href="#">首页</mdui-list-item>
             <mdui-list-item icon="auto_stories" href="https://baipin.pw">博客</mdui-list-item>
@@ -207,7 +199,7 @@
                 <h4 data-i18n="photo_title">浙江丽水 · 云和梯田</h4>
                 <p data-i18n="photo_desc">摄于2023年旅行时。</p>
             </div>
-            <mdui-button variant="tonal" style="color: white; --mdui-color-secondary-container: rgba(255,255,255,0.15)" href="https://baipin.pw/">
+            <mdui-button variant="tonal" href="https://baipin.pw/">
                 <mdui-icon slot="icon" name="arrow_forward"></mdui-icon>
             </mdui-button>
         </div>
@@ -228,7 +220,7 @@
             <mdui-divider style="margin: 40px 0;"></mdui-divider>
 
             <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
-                <mdui-icon name="rss_feed" style="color: #f26522;"></mdui-icon> 
+                <mdui-icon name="rss_feed" style="color: #f26522 !important;"></mdui-icon> 
                 <span data-i18n="news_title">最新文章</span>
             </h3>
             <div id="rss-feed-container">
@@ -284,9 +276,7 @@
             localStorage.setItem('theme', currentTheme);
         });
 
-        document.getElementById('drawer-list').addEventListener('click', () => {
-            drawer.open = false;
-        });
+        document.getElementById('drawer-list').addEventListener('click', () => { drawer.open = false; });
 
         const i18n = {
             'zh-CN': {
