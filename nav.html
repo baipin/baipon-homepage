@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>百品导航 - 123</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/mdui@2.0.3/mdui.global.js"></script>
+    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+    
+    <style>
+        :root {
+            --nav-height: 64px;
+            --content-max-width: 1200px;
+        }
+
+        /* --- 1. 背景与全局逻辑 --- */
+        html { background-color: #fff; transition: background-color 0.3s; }
+        html.mdui-theme-dark { background-color: #121212; }
+
+        body {
+            margin: 0; padding: 0;
+            width: 100%; overflow-x: hidden;
+            font-family: "Product Sans", system-ui, -apple-system, sans-serif;
+            background-color: transparent !important;
+            padding-top: var(--nav-height);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url('/home.jpg') center/cover no-repeat;
+            z-index: -1;
+            transition: filter 0.5s ease;
+        }
+        .mdui-theme-dark body::before { filter: brightness(0.6) contrast(1.1); }
+
+        /* --- 2. 导航栏 --- */
+        .custom-app-bar {
+            height: var(--nav-height) !important;
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            padding: 0 5%; display: flex; align-items: center;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+        }
+        .mdui-theme-light .custom-app-bar {
+            --mdui-color-on-surface: 0, 0, 0;
+            --mdui-color-primary: 0, 0, 0;
+            color: #000;
+        }
+        .mdui-theme-dark .custom-app-bar {
+            background-color: rgba(28, 27, 31, 0.85) !important;
+            --mdui-color-on-surface: 230, 225, 229;
+            color: #e6e1e5;
+        }
+
+        /* --- 3. 布局 --- */
+        .main-layout {
+            max-width: var(--content-max-width);
+            margin: 40px auto 60px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 28px;
+            width: calc(100% - 40px);
+        }
+
+        .card-base {
+            border-radius: 28px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+        
+        .mdui-theme-light .card-base {
+            background-color: rgba(255, 255, 255, 0.88) !important;
+            --mdui-color-on-surface: 0, 0, 0;
+            --mdui-color-on-surface-variant: 40, 40, 40;
+            color: #000;
+        }
+        .mdui-theme-dark .card-base {
+            background-color: rgba(35, 34, 40, 0.85) !important;
+            color: #e6e1e5;
+        }
+
+        /* --- 4. 书签导航区 --- */
+        .section-title {
+            font-size: 1.3rem; font-weight: 900;
+            margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+        }
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 16px;
+        }
+        .bookmark-item {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px 10px; border-radius: 20px;
+            background: rgba(128,128,128,0.06);
+            border: 1px solid rgba(128,128,128,0.1);
+            text-decoration: none; color: inherit;
+            transition: all 0.2s ease;
+        }
+        .bookmark-item:hover {
+            transform: translateY(-5px);
+            background: rgba(128,128,128,0.12);
+        }
+        .bookmark-item mdui-icon, .bookmark-item img {
+            font-size: 32px; width: 32px; height: 32px; margin-bottom: 12px;
+        }
+        .bookmark-item span { font-size: 0.9rem; font-weight: 600; text-align: center; }
+
+        /* --- 5. 侧栏内容 --- */
+        .side-module { padding: 24px; margin-bottom: 24px; position: relative; }
+        .poem-text { font-family: "Noto Serif SC", serif; font-style: italic; line-height: 1.8; font-size: 1.15rem; }
+        
+        .weather-container { font-size: 0.9rem; line-height: 1.6; }
+        .weather-container p { margin: 8px 0; }
+        .weather-container strong { opacity: 0.7; font-size: 0.8rem; text-transform: uppercase; display: block; margin-top: 10px; }
+        
+        .status-tag { 
+            display: inline-block; padding: 2px 10px; border-radius: 6px; 
+            background: rgba(128,128,128,0.1); font-size: 0.7rem; font-weight: bold; margin-bottom: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .side-card { order: -1; }
+        }
+    </style>
+</head>
+<body class="mdui-theme-auto">
+
+    <header class="custom-app-bar">
+        <img src="/logo.png" alt="Logo" style="height:28px;">
+        <div style="flex-grow: 1"></div>
+        <mdui-button-icon id="theme-toggle" icon="light_mode"></mdui-button-icon>
+        <mdui-button-icon icon="translate"></mdui-button-icon>
+    </header>
+
+    <div class="main-layout">
+        <main class="card-base" style="padding: 32px;">
+            <div class="section-title"><mdui-icon name="bookmarks"></mdui-icon> 书签 / RSS</div>
+            <div class="link-grid">
+                <a href="#" class="bookmark-item"><mdui-icon name="rss_feed" style="color:#f26522"></mdui-icon><span>我的RSS</span></a>
+                <a href="https://www.hk01.com" class="bookmark-item"><img src="https://www.hk01.com/favicon.ico"><span>香港01</span></a>
+                <a href="https://www.coolapk.com" class="bookmark-item"><img src="https://www.coolapk.com/favicon.ico"><span>酷安</span></a>
+                <a href="https://www.zhihu.com" class="bookmark-item"><img src="https://www.zhihu.com/favicon.ico"><span>知乎</span></a>
+                <a href="#" class="bookmark-item"><mdui-icon name="newspaper"></mdui-icon><span>Now新闻</span></a>
+                <a href="https://unsplash.com" class="bookmark-item"><mdui-icon name="image"></mdui-icon><span>unsplash</span></a>
+                <a href="https://www.douban.com" class="bookmark-item"><img src="https://www.douban.com/favicon.ico"><span>豆瓣</span></a>
+                <a href="https://translate.google.com" class="bookmark-item"><mdui-icon name="translate"></mdui-icon><span>翻译</span></a>
+                <a href="https://www.douyu.com" class="bookmark-item"><img src="https://www.douyu.com/favicon.ico"><span>斗鱼</span></a>
+                <a href="https://www.csdn.net" class="bookmark-item"><img src="https://www.csdn.net/favicon.ico"><span>CSDN</span></a>
+                <a href="https://www.xda-developers.com" class="bookmark-item"><mdui-icon name="developer_mode"></mdui-icon><span>XDA</span></a>
+                <a href="https://baipin.pw" class="bookmark-item"><mdui-icon name="article"></mdui-icon><span>百品博客</span></a>
+                <a href="#" class="bookmark-item"><mdui-icon name="school"></mdui-icon><span>AIMS</span></a>
+                <a href="#" class="bookmark-item"><mdui-icon name="mail"></mdui-icon><span>学校邮箱</span></a>
+                <a href="#" class="bookmark-item"><mdui-icon name="dashboard"></mdui-icon><span>Canvas</span></a>
+                <a href="#" class="bookmark-item"><mdui-icon name="apps"></mdui-icon><span>应用面板</span></a>
+                <a href="https://github.com" class="bookmark-item"><mdui-icon name="code"></mdui-icon><span>Github</span></a>
+            </div>
+        </main>
+
+        <aside class="side-card">
+            <div class="card-base side-module">
+                <div style="font-size:0.75rem; opacity:0.5; margin-bottom:12px; font-weight:bold; letter-spacing:1px">拾遗</div>
+                <div class="poem-text" id="jinrishici-sentence">正在寻句...</div>
+            </div>
+
+            <div class="card-base side-module">
+                <div class="status-tag">香港天文台 · HKO</div>
+                <div class="weather-container">
+                    <div id="weather-info"><mdui-linear-progress></mdui-linear-progress></div>
+                    <mdui-divider style="margin: 16px 0; opacity: 0.2;"></mdui-divider>
+                    <div id="warning-info" style="font-size: 0.8rem; color: #f44336;"></div>
+                    <div id="i-info" style="font-size: 0.8rem; opacity: 0.8;"></div>
+                </div>
+            </div>
+
+            <div class="card-base side-module" style="text-align:center">
+                <img src="/person.png" style="width: 64px; height: 64px; border-radius: 50%; margin-bottom: 8px;">
+                <div style="font-weight:900">Baipin</div>
+                <div style="font-size:0.75rem; opacity:0.6">Student / Dennis</div>
+            </div>
+        </aside>
+    </div>
+
+    <footer style="text-align:center; padding: 40px; opacity:0.4; font-size:0.75rem;">
+        &copy; 2026 BAIPIN.PW · DATA FROM HKO
+    </footer>
+
+    <script>
+        /* --- 主题切换逻辑 --- */
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        function updateIcon() {
+            const isDark = html.classList.contains('mdui-theme-dark') || 
+                          (html.classList.contains('mdui-theme-auto') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            themeToggle.icon = isDark ? 'dark_mode' : 'light_mode';
+        }
+
+        function applyTheme(theme) {
+            html.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
+            html.classList.add(`mdui-theme-${theme}`);
+            updateIcon();
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isCurrentlyDark = html.classList.contains('mdui-theme-dark') || 
+                                   (html.classList.contains('mdui-theme-auto') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const nextTheme = isCurrentlyDark ? 'light' : 'dark';
+            applyTheme(nextTheme);
+            localStorage.setItem('theme', nextTheme);
+        });
+
+        applyTheme(localStorage.getItem('theme') || 'auto');
+
+        /* --- 天气 API 逻辑 --- */
+        const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
+        const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
+        const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
+
+        async function fetchData(url, elementId, formatData) {
+            const element = document.getElementById(elementId);
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('网络异常');
+                const data = await response.json();
+                element.innerHTML = formatData(data);
+            } catch (error) {
+                element.innerHTML = `<span style="font-size:0.7rem; color:red;">加载失败: ${error.message}</span>`;
+            }
+        }
+
+        function formatWeatherData(data) {
+            return `
+                <p><strong>总体情况</strong>${data.generalSituation}</p>
+                <p><strong>天气预测</strong>${data.forecastDesc}</p>
+                <p><strong>展望</strong>${data.outlook}</p>
+                <div style="font-size:0.7rem; opacity:0.4; margin-top:10px;">更新于: ${data.updateTime.substring(11, 16)}</div>
+            `;
+        }
+
+        function formatWarningData(data) {
+            if (!data.details || data.details.length === 0) return '<p style="opacity:0.5; margin:0;">现时没有警告生效</p>';
+            return data.details.map(detail => `
+                <p style="margin:4px 0;"><strong>⚠️ 警告:</strong> ${detail.contents.join(' ')}</p>
+            `).join('');
+        }
+
+        function formatSpecialWeatherData(data) {
+            if (!data.swt || data.swt.length === 0) return '';
+            return data.swt.map(item => `
+                <p style="margin:4px 0; border-left: 2px solid #2196f3; padding-left: 8px;"><strong>提示:</strong> ${item.desc}</p>
+            `).join('');
+        }
+
+        fetchData(apiUrl, 'weather-info', formatWeatherData);
+        fetchData(warningApiUrl, 'warning-info', formatWarningData);
+        fetchData(iUrl, 'i-info', formatSpecialWeatherData);
+    </script>
+</body>
+</html>
