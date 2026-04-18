@@ -71,6 +71,7 @@
             width: 100%; height: 80vh;
             display: flex; align-items: flex-end; justify-content: center;
         }
+                /* --- 修正后的图片简介样式 --- */
         .photo-info-box {
             background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(15px);
@@ -82,13 +83,22 @@
             width: calc(100% - 40px);
             max-width: var(--content-max-width);
             display: flex; align-items: center; justify-content: space-between;
-            color: white !important;
             z-index: 20;
             box-sizing: border-box;
         }
-        /* 仅在 info-box 内强制 Icon 为白色 */
-        .photo-info-box mdui-icon, 
-        .photo-info-box mdui-button { color: white !important; }
+        
+        /* 使用更强的选择器锁定白色，防止被白天模式覆盖 */
+        html .photo-info-box,
+        html .photo-info-box * { 
+            color: white !important; 
+        }
+        
+        /* 针对 MDUI 组件内部图标颜色变量的特殊处理 */
+        html .photo-info-box mdui-button,
+        html .photo-info-box mdui-icon {
+            --mdui-color-on-surface: 255, 255, 255;
+            --mdui-color-primary: 255, 255, 255;
+        }
 
         .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; color: white !important; }
         .photo-text p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.85; color: white !important; }
