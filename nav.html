@@ -120,6 +120,19 @@
             margin-top: 4px;
         }
 
+        /* 全屏市场模式 */
+        #fullscreen-market {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--glass-bg);
+            z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center;
+            backdrop-filter: blur(30px);
+        }
+        #fullscreen-time {
+            font-size: 7rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 60px;
+        }
+        #fullscreen-marquee {
+            font-size: 2rem; width: 95%; text-align: center; overflow: hidden; white-space: nowrap;
+        }
+
         /* iframe 样式 */
         .icon-picker-iframe { width: 100%; height: 560px; border: none; border-radius: 12px; }
 
@@ -194,8 +207,10 @@
                 </div>
             </div>
 
-            <!-- 侧栏容器：实时时间 + Google Finance 真实行情（带颜色） -->
-            <div class="card-glass">
+            <!-- 侧栏容器：实时时间 + Yahoo Finance 行情（全屏按钮在右上角） -->
+            <div class="card-glass" style="position:relative;">
+                <mdui-button-icon id="fullscreen-btn" icon="fullscreen" style="position:absolute; top:12px; right:12px; color:inherit; z-index:10;"></mdui-button-icon>
+                
                 <div style="font-size:0.7rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">全球市场</div>
                 
                 <div style="margin-bottom: 16px;">
@@ -225,6 +240,16 @@
         </aside>
     </div>
 
+    <!-- 全屏市场模式 -->
+    <div id="fullscreen-market">
+        <div id="fullscreen-time" style="font-size: 7rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 60px;">--:--:--</div>
+        <div id="fullscreen-marquee" style="font-size: 2rem; width: 95%; text-align: center; overflow: hidden; white-space: nowrap;">
+            <!-- 动态填充 -->
+        </div>
+        <mdui-button variant="tonal" id="exit-fullscreen-btn" style="margin-top: 80px;" icon="fullscreen_exit">退出全屏模式</mdui-button>
+    </div>
+
+    <!-- 原有对话框等结构完全保留 -->
     <mdui-dialog id="edit-dialog" close-on-overlay-click>
         <span slot="headline">管理书签</span>
         <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
@@ -271,6 +296,7 @@
     </mdui-dialog>
 
     <script>
+        /* ==================== 原有代码完全保留 ==================== */
         const initLinks = [
             { name: "我的RSS", url: "#", icon: "rss_feed" },
             { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
@@ -568,7 +594,7 @@
             }
         });
 
-        /* --- 天气代码逻辑（关键词匹配，保持原样） --- */
+        /* --- 天气代码逻辑（完全保留） --- */
         const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
         const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
         const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
@@ -652,60 +678,81 @@
             document.getElementById('theme-btn').icon = 'dark_mode';
         }
 
-        /* 新增侧栏：实时香港时间 + Google Finance 真实行情（带颜色） */
+        /* ==================== 修复后的 Yahoo Finance API + 全屏按钮 ==================== */
         function updateHKTTime() {
             const now = new Date().toLocaleString('zh-CN', { 
                 timeZone: 'Asia/Hong_Kong',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
             });
             document.getElementById('hkt-time').textContent = now;
         }
         setInterval(updateHKTTime, 1000);
         updateHKTTime();
 
-        // Google Finance 行情更新（真实数据 + 颜色）
+        const yahooSymbols = {
+            hsi: '^HSI',
+            sse: '000001.SS',
+            nasdaq: '^IXIC',
+            dj: '^DJI',
+            gold: 'GC=F',
+            hkd_cny: 'HKDCNY=X',
+            cny_usd: 'USDCNY=X',
+            ftse: '^FTSE',
+            dax: '^GDAXI'
+        };
+
         async function updateMarketData() {
-            const tickers = {
-                hsi: 'HSI:INDEXHANGSENG',
-                sse: '000001:SHA',
-                nasdaq: 'IXIC:INDEXNASDAQ',
-                dj: 'DJI:INDEXDJX',
-                gold: 'GC00:COMMODITY',
-                hkd_cny: 'HKDCNY',
-                cny_usd: 'USDCNY',
-                ftse: 'UKX:INDEXFTSE',
-                dax: 'GDAXI:INDEXDB'
-            };
+            let marqueeHTML = '';
 
-            try {
-                for (let [id, symbol] of Object.entries(tickers)) {
-                    // 使用 Google Finance 公开数据源（通过代理或直接 fetch，实际可优化为可靠后端）
-                    const res = await fetch(`https://www.google.com/finance/quote/${symbol}`);
-                    const html = await res.text();
-                    // 简单解析价格和变化（实际生产中建议使用专用 scraper 或后端代理）
-                    const priceMatch = html.match(/data-last-price="([^"]+)"/);
-                    const changeMatch = html.match(/data-change-percent="([^"]+)"/);
+            for (let [id, symbol] of Object.entries(yahooSymbols)) {
+                try {
+                    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}`;
+                    const res = await fetch(url, {
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36'
+                        }
+                    });
+                    const data = await res.json();
+                    const quote = data.quoteResponse?.result?.[0];
 
-                    const price = priceMatch ? parseFloat(priceMatch[1]).toFixed(2) : 'N/A';
-                    let change = changeMatch ? parseFloat(changeMatch[1]) : 0;
+                    if (!quote || !quote.regularMarketPrice) {
+                        document.getElementById(id).textContent = 'N/A';
+                        continue;
+                    }
+
+                    const price = quote.regularMarketPrice.toFixed(2);
+                    const changePercent = quote.regularMarketChangePercent ? quote.regularMarketChangePercent.toFixed(2) : 0;
 
                     let colorClass = 'flat';
-                    if (change > 0) colorClass = 'up';
-                    else if (change < 0) colorClass = 'down';
+                    if (changePercent > 0) colorClass = 'up';
+                    else if (changePercent < 0) colorClass = 'down';
 
-                    document.getElementById(id).innerHTML = `${price} <span class="${colorClass}">(${change > 0 ? '+' : ''}${change}%)</span>`;
+                    document.getElementById(id).innerHTML = 
+                        `${price} <span class="${colorClass}">(${changePercent > 0 ? '+' : ''}${changePercent}%)</span>`;
+
+                    marqueeHTML += `${id.toUpperCase()}: ${price} <span class="${colorClass}">(${changePercent > 0 ? '+' : ''}${changePercent}%)</span>　|　`;
+                } catch (e) {
+                    console.error(`行情 ${symbol} 获取失败:`, e);
+                    document.getElementById(id).textContent = 'N/A';
                 }
-                document.getElementById('update-time').textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
-            } catch (e) {
-                console.error('行情更新失败:', e);
-                document.getElementById('update-time').textContent = '更新失败，请稍后重试';
             }
+
+            document.getElementById('market-marquee').innerHTML = marqueeHTML || '行情加载中...';
+            document.getElementById('update-time').textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
+            document.getElementById('fullscreen-marquee').innerHTML = marqueeHTML || '行情加载中...';
         }
 
         document.getElementById('refresh-market-btn').onclick = updateMarketData;
+
+        // 全屏市场模式
+        const fullscreenMarket = document.getElementById('fullscreen-market');
+        document.getElementById('fullscreen-btn').onclick = () => {
+            fullscreenMarket.style.display = 'flex';
+            updateMarketData();
+        };
+        document.getElementById('exit-fullscreen-btn').onclick = () => {
+            fullscreenMarket.style.display = 'none';
+        };
 
         // 初始加载
         restoreLastEngine();
@@ -715,7 +762,7 @@
         fetchData(warningApiUrl, 'warning-info', formatWarningData);
         fetchData(iUrl, 'i-info', formatSpecialWeatherData);
         updateMarketData();
-        setInterval(updateMarketData, 30000); // 每30秒自动刷新
+        setInterval(updateMarketData, 30000);
     </script>
 </body>
 </html>
