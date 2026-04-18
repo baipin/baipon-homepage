@@ -12,10 +12,10 @@
     <style>
         :root {
             --nav-height: 64px;
-            --content-max-width: 1200px; /* 定义统一的对齐宽度 */
+            --content-max-width: 1200px;
         }
 
-        /* 修复：确保背景在暗黑模式下不全黑 */
+        /* 背景图层逻辑 */
         body::before {
             content: "";
             position: fixed;
@@ -26,34 +26,44 @@
             transition: filter 0.5s ease;
         }
 
-        /* 暗黑模式遮罩 */
+        /* 修复遮罩：暗黑模式下调整亮度 */
         .mdui-theme-dark body::before {
-            filter: brightness(0.8) contrast(1.1);
+            filter: brightness(0.7) contrast(1.1);
         }
         @media (prefers-color-scheme: dark) {
             .mdui-theme-auto body::before {
-                filter: brightness(0.8) contrast(1.1);
+                filter: brightness(0.7) contrast(1.1);
             }
         }
 
+        /* --- 核心修复：显式定义白天/暗黑模式的文字与卡片颜色 --- */
+        
+        /* 浅色模式强制重置 (解决手机端点击切换文字颜色不变的问题) */
+        .mdui-theme-light .main-card { background: white !important; color: rgba(0,0,0,0.87) !important; }
+        .mdui-theme-light .sidebar-card { background: #fafafa !important; color: rgba(0,0,0,0.87) !important; }
+        .mdui-theme-light .custom-app-bar { background-color: rgba(255, 255, 255, 0.85) !important; }
+
         /* 暗黑模式组件适配 */
         .mdui-theme-dark .custom-app-bar { background-color: rgba(28, 27, 31, 0.85) !important; }
-        .mdui-theme-dark .main-card { background: #1c1b1f !important; color: #e6e1e5; }
-        .mdui-theme-dark .sidebar-card { background: #2b2930 !important; }
+        .mdui-theme-dark .main-card { background: #1c1b1f !important; color: #e6e1e5 !important; }
+        .mdui-theme-dark .sidebar-card { background: #2b2930 !important; color: #e6e1e5 !important; }
         .mdui-theme-dark .rss-item { background: #2b2930; border-color: #49454f; }
 
         html, body {
             margin: 0; padding: 0;
             width: 100%; overflow-x: hidden;
-            background-color: #000; /* 仅作为极速加载前的底色 */
             font-family: "Product Sans", system-ui, -apple-system, sans-serif;
+            /* 修复：移除全局黑色兜底，防止白天模式透黑 */
+            background-color: white; 
         }
+
+        /* 暗黑模式下才允许 html/body 变黑 */
+        .mdui-theme-dark, .mdui-theme-dark body { background-color: #121212 !important; }
 
         body { padding-top: var(--nav-height); background-color: transparent !important; }
 
         .custom-app-bar {
             height: var(--nav-height) !important;
-            background-color: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(0,0,0,0.08);
@@ -62,6 +72,7 @@
             position: fixed; top: 0; left: 0; right: 0;
             z-index: 1000;
             box-sizing: border-box;
+            transition: background-color 0.3s;
         }
 
         .nav-logo { height: 28px; cursor: pointer; }
@@ -72,22 +83,22 @@
             display: flex; align-items: flex-end; justify-content: center;
         }
 
-        /* 修复：简介容器与下方容器对齐 */
+        /* 修复：简介容器对齐 */
         .photo-info-box {
-            background: rgba(0, 0, 0, 0.35);
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 20px;
             padding: 24px 32px;
             margin-bottom: 130px; 
-            width: calc(100% - 40px); /* 减去 margin 间距 */
+            width: calc(100% - 40px);
             max-width: var(--content-max-width);
             display: flex; align-items: center; justify-content: space-between;
             color: white;
             box-shadow: 0 12px 40px rgba(0,0,0,0.25);
             z-index: 20;
-            box-sizing: border-box; /* 关键：确保 padding 不增加宽度 */
+            box-sizing: border-box;
         }
 
         .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; }
@@ -102,16 +113,16 @@
             display: grid;
             grid-template-columns: 1fr 350px;
             gap: 32px; 
-            padding: 0; /* 移除 padding，由子元素或 max-width 控制 */
+            padding: 0;
             width: calc(100% - 40px);
             box-sizing: border-box;
         }
 
-        .main-card { background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
-        .sidebar-card { background: #fafafa; padding: 40px 24px; border-radius: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.03); height: fit-content; text-align: center; }
+        .main-card { padding: 40px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); transition: background 0.3s, color 0.3s; }
+        .sidebar-card { padding: 40px 24px; border-radius: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.03); height: fit-content; text-align: center; transition: background 0.3s; }
 
         .rss-item {
-            display: block; padding: 16px; border-radius: 12px; background: #fcfcfc; border: 1px solid #f0f0f0; margin-bottom: 12px;
+            display: block; padding: 16px; border-radius: 12px; background: rgba(128,128,128,0.05); border: 1px solid rgba(128,128,128,0.1); margin-bottom: 12px;
             transition: all 0.3s ease; text-decoration: none; color: inherit;
         }
         .rss-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -124,7 +135,7 @@
             .floating-container { 
                 grid-template-columns: 1fr; 
                 margin-top: -60px; 
-                width: calc(100% - 32px); /* 移动端稍窄一点的间距 */
+                width: calc(100% - 32px);
             }
             .photo-info-box { 
                 width: calc(100% - 32px); 
@@ -132,7 +143,6 @@
                 padding: 16px 20px; 
             }
             .sidebar-card { order: -1; }
-            /* 手机端背景不全黑的保障 */
             body::before { background-attachment: scroll; } 
         }
 
@@ -174,7 +184,7 @@
                 <h4 data-i18n="photo_title">浙江丽水 · 云和梯田</h4>
                 <p data-i18n="photo_desc">摄于2023年旅行时。</p>
             </div>
-            <mdui-button variant="tonal" style="color: white href="https://baipin.pw/"; --mdui-color-secondary-container: rgba(255,255,255,0.15)">
+            <mdui-button variant="tonal" style="color: white; --mdui-color-secondary-container: rgba(255,255,255,0.15)" href="https://baipin.pw/">
                 <mdui-icon slot="icon" name="arrow_forward"></mdui-icon>
             </mdui-button>
         </div>
@@ -183,7 +193,7 @@
     <div class="floating-container">
         <main class="main-card">
             <h1 style="font-size: 2.5rem; margin: 0 0 20px 0; font-weight: 800; line-height: 1.2;" data-i18n="hero_title">我欲穿花寻路，直入白云深处。</h1>
-            <p style="color: var(--mdui-color-on-surface-variant); font-size: 1.1rem; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
+            <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
                 这里是 百品 (Baipin) 的入口。欢迎来到我的个人主页，这里记录着我对技术与生活的热爱。
             </p>
             
@@ -206,7 +216,7 @@
         <aside class="sidebar-card">
             <img src="https://github.com/baipin.png" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 16px;">
             <h2 style="margin: 0; font-weight: 700;">Baipin</h2>
-            <p style="color: #888; font-size: 0.9rem;" data-i18n="bio">Student / Dennis</p>
+            <p style="font-size: 0.9rem;" data-i18n="bio">Student / Dennis</p>
             
             <mdui-divider style="margin: 20px 0;"></mdui-divider>
 
@@ -223,7 +233,7 @@
 
     <footer>
         <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="font-weight: 900; font-size: 1.2rem; color: #fff; margin-bottom: 8px; letter-spacing: 1px;">BAIPON.COM/BAIPIN.PW</div>
+            <div style="font-weight: 900; font-size: 1.2rem; color: #fff; margin-bottom: 8px; letter-spacing: 1px;">BAIPIN.PW</div>
             <p style="font-size: 0.8rem;">&copy; 2026 百品. All rights reserved.</p>
         </div>
     </footer>
@@ -257,6 +267,7 @@
         const savedTheme = localStorage.getItem('theme') || 'auto';
         applyTheme(savedTheme);
 
+        // --- 多语言与 RSS 逻辑保持不变 ---
         const i18n = {
             'zh-CN': {
                 nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
