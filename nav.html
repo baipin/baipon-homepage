@@ -76,6 +76,18 @@
             background: rgba(255, 255, 255, 0.12);
         }
 
+        /* 书签排序箭头样式 */
+        .sort-btn {
+            position: absolute;
+            right: 8px;
+            font-size: 18px;
+            color: var(--text-main);
+            opacity: 0.6;
+            cursor: pointer;
+        }
+        .sort-btn:hover { opacity: 1; }
+        .edit-active .link-item { padding-right: 50px; }
+
         .content-layout { max-width: 1240px; margin: 0 auto 80px; display: grid; grid-template-columns: 1fr 360px; gap: 32px; padding: 0 20px; }
         .card-glass { border-radius: 28px; background: var(--glass-bg); backdrop-filter: blur(20px); padding: 32px; border: 1px solid var(--glass-border); color: var(--text-main); }
         .links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 18px; margin-top: 24px; }
@@ -116,6 +128,8 @@
                     <mdui-menu-item value="yandex"><img class="engine-favicon" src="https://yandex.com/favicon.ico" slot="icon">Yandex</mdui-menu-item>
                     <mdui-menu-item value="brave"><img class="engine-favicon" src="https://brave.com/favicon.ico" slot="icon">Brave</mdui-menu-item>
                     <mdui-menu-item value="github"><img class="engine-favicon" src="https://github.com/favicon.ico" slot="icon">GitHub</mdui-menu-item>
+                    <mdui-divider></mdui-divider>
+                    <mdui-menu-item id="add-engine-btn"><mdui-icon name="add" slot="icon"></mdui-icon>添加搜索引擎</mdui-menu-item>
                 </mdui-menu>
             </mdui-dropdown>
             <input type="text" class="search-input" id="search-input" placeholder="键入内容并搜索...">
@@ -165,6 +179,19 @@
         <mdui-button slot="action" variant="text" id="act-del" style="color:red">删除</mdui-button>
         <mdui-button slot="action" variant="tonal" id="act-save">保存</mdui-button>
     </mdui-dialog>
+
+    <!-- 新增：添加搜索引擎对话框 -->
+    <mdui-dialog id="add-engine-dialog" close-on-overlay-click>
+        <span slot="headline">添加自定义搜索引擎</span>
+        <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
+            <mdui-text-field label="搜索引擎名称" id="engine-name"></mdui-text-field>
+            <mdui-text-field label="搜索 URL（用 {q} 代表关键词）" id="engine-url" placeholder="https://example.com/search?q={q}"></mdui-text-field>
+            <mdui-text-field label="图标 URL（可选）" id="engine-icon"></mdui-text-field>
+        </div>
+        <mdui-button slot="action" variant="text" id="engine-cancel">取消</mdui-button>
+        <mdui-button slot="action" variant="tonal" id="engine-save">添加</mdui-button>
+    </mdui-dialog>
+
     <script>
         const initLinks = [
             { name: "我的RSS", url: "#", icon: "rss_feed" },
@@ -187,6 +214,20 @@
         ];
         let bookmarks = JSON.parse(localStorage.getItem('bp_v7')) || initLinks;
         let isEdit = false, curIdx = null;
+
+        // 自定义搜索引擎（默认 + 用户添加的）
+        let customEngines = JSON.parse(localStorage.getItem('custom_engines')) || {};
+        let engines = {
+            google: 'https://www.google.com/search?q=',
+            baidu: 'https://www.baidu.com/s?wd=',
+            bing: 'https://cn.bing.com/search?q=',
+            duckduckgo: 'https://duckduckgo.com/?q=',
+            yandex: 'https://yandex.com/search/?text=',
+            brave: 'https://search.brave.com/search?q=',
+            github: 'https://github.com/search?q='
+        };
+        Object.assign(engines, customEngines);
+
         function render() {
             const wrapper = document.getElementById('links-wrapper');
             wrapper.innerHTML = '';
@@ -198,36 +239,97 @@
                 const isImg = item.icon.includes('http') || item.icon.includes('.');
                 const iconHtml = isImg ? `<img src="${item.icon}">` : `<mdui-icon name="${item.icon}"></mdui-icon>`;
                 el.innerHTML = `${iconHtml}<span>${item.name}</span>`;
-                el.onclick = () => { if(isEdit) openDialog(i); };
+
+                if (isEdit) {
+                    // 添加排序按钮
+                    const up = document.createElement('span');
+                    up.className = 'sort-btn';
+                    up.innerHTML = '↑';
+                    up.style.top = '8px';
+                    up.onclick = (e) => { e.stopImmediatePropagation(); moveBookmark(i, -1); };
+
+                    const down = document.createElement('span');
+                    down.className = 'sort-btn';
+                    down.innerHTML = '↓';
+                    down.style.top = '32px';
+                    down.onclick = (e) => { e.stopImmediatePropagation(); moveBookmark(i, 1); };
+
+                    el.appendChild(up);
+                    el.appendChild(down);
+                    el.onclick = () => openDialog(i);
+                }
+
                 wrapper.appendChild(el);
             });
             document.getElementById('main-container').classList.toggle('edit-active', isEdit);
             document.getElementById('add-btn').style.display = isEdit ? 'inline-block' : 'none';
         }
-        /* --- 搜索引擎配置（新增 DuckDuckGo、Yandex、Brave） --- */
+
+        function moveBookmark(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= bookmarks.length) return;
+            [bookmarks[index], bookmarks[newIndex]] = [bookmarks[newIndex], bookmarks[index]];
+            localStorage.setItem('bp_v7', JSON.stringify(bookmarks));
+            render();
+        }
+
+        /* --- 搜索切换 --- */
         let curEng = 'google';
-        const engines = {
-            google: 'https://www.google.com/search?q=',
-            baidu: 'https://www.baidu.com/s?wd=',
-            bing: 'https://cn.bing.com/search?q=',
-            duckduckgo: 'https://duckduckgo.com/?q=',
-            yandex: 'https://yandex.com/search/?text=',
-            brave: 'https://search.brave.com/search?q=',
-            github: 'https://github.com/search?q='
-        };
         const engineMenu = document.getElementById('engine-menu');
         const engineImg = document.getElementById('cur-engine-img');
         engineMenu.onclick = (e) => {
             const item = e.target.closest('mdui-menu-item');
-            if (item) {
-                curEng = item.value;
-                const iconSrc = item.querySelector('img').src;
-                engineImg.src = iconSrc;
-                document.getElementById('engine-dropdown').open = false;
+            if (!item) return;
+            if (item.id === 'add-engine-btn') {
+                document.getElementById('add-engine-dialog').open = true;
+                return;
             }
+            curEng = item.value;
+            const iconSrc = item.querySelector('img').src;
+            engineImg.src = iconSrc;
+            document.getElementById('engine-dropdown').open = false;
         };
 
-        /* 实时搜索联想（修复版 + 稳定引擎支持） */
+        /* 添加自定义搜索引擎 */
+        document.getElementById('engine-save').onclick = () => {
+            const name = document.getElementById('engine-name').value.trim();
+            let url = document.getElementById('engine-url').value.trim();
+            const icon = document.getElementById('engine-icon').value.trim();
+
+            if (!name || !url) {
+                alert('名称和搜索 URL 不能为空');
+                return;
+            }
+            if (!url.includes('{q}')) {
+                alert('搜索 URL 必须包含 {q} 占位符，例如：https://example.com/search?q={q}');
+                return;
+            }
+
+            const key = name.toLowerCase().replace(/\s+/g, '');
+            customEngines[key] = url;
+            engines[key] = url;
+
+            // 添加到菜单（动态创建）
+            const menu = document.getElementById('engine-menu');
+            const newItem = document.createElement('mdui-menu-item');
+            newItem.value = key;
+            newItem.innerHTML = `<img class="engine-favicon" src="${icon || 'https://www.google.com/favicon.ico'}" slot="icon">${name}`;
+            menu.insertBefore(newItem, document.getElementById('add-engine-btn'));
+
+            localStorage.setItem('custom_engines', JSON.stringify(customEngines));
+            document.getElementById('add-engine-dialog').open = false;
+
+            // 清空输入
+            document.getElementById('engine-name').value = '';
+            document.getElementById('engine-url').value = '';
+            document.getElementById('engine-icon').value = '';
+        };
+
+        document.getElementById('engine-cancel').onclick = () => {
+            document.getElementById('add-engine-dialog').open = false;
+        };
+
+        /* 实时搜索联想（稳定版） */
         const searchInput = document.getElementById('search-input');
         const suggestionsContainer = document.getElementById('suggestions');
         let debounceTimer = null;
@@ -241,24 +343,10 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(async () => {
                 try {
-                    let suggestions = [];
                     const q = encodeURIComponent(query);
-
-                    if (curEng === 'google' || curEng === 'duckduckgo' || curEng === 'brave' || curEng === 'yandex') {
-                        // 使用 Google Suggest（最稳定且支持 CORS）
-                        const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${q}`);
-                        const data = await res.json();
-                        suggestions = data[1] || [];
-                    } else if (curEng === 'bing') {
-                        const res = await fetch(`https://api.bing.com/osjson.aspx?query=${q}`);
-                        const data = await res.json();
-                        suggestions = data[1] || [];
-                    } else {
-                        // Baidu / GitHub 等使用 Google 作为可靠 fallback
-                        const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${q}`);
-                        const data = await res.json();
-                        suggestions = data[1] || [];
-                    }
+                    const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${q}`);
+                    const data = await res.json();
+                    const suggestions = data[1] || [];
 
                     suggestionsContainer.innerHTML = '';
                     if (suggestions.length === 0) {
@@ -280,7 +368,6 @@
                     suggestionsContainer.style.display = 'block';
                     selectedIndex = -1;
                 } catch (e) {
-                    console.error('联想获取失败，使用备用模式:', e);
                     suggestionsContainer.style.display = 'none';
                 }
             }, 250);
@@ -294,7 +381,6 @@
 
         searchInput.addEventListener('input', () => fetchSuggestions(searchInput.value.trim()));
 
-        // 键盘导航
         searchInput.addEventListener('keydown', (e) => {
             const items = suggestionsContainer.querySelectorAll('.suggestion-item');
             if (suggestionsContainer.style.display !== 'block' || items.length === 0) return;
@@ -340,7 +426,7 @@
             }
         };
 
-        /* --- 书签管理（完全不变） --- */
+        /* --- 书签管理 --- */
         const dialog = document.getElementById('edit-dialog');
         document.getElementById('edit-btn').onclick = () => { isEdit = !isEdit; render(); };
         document.getElementById('add-btn').onclick = () => openDialog();
@@ -365,9 +451,16 @@
             localStorage.setItem('bp_v7', JSON.stringify(bookmarks));
             dialog.open = false; render();
         };
-        document.getElementById('act-del').onclick = () => { if(curIdx !== null) { bookmarks.splice(curIdx, 1); localStorage.setItem('bp_v7', JSON.stringify(bookmarks)); dialog.open = false; render(); } };
+        document.getElementById('act-del').onclick = () => { 
+            if(curIdx !== null) { 
+                bookmarks.splice(curIdx, 1); 
+                localStorage.setItem('bp_v7', JSON.stringify(bookmarks)); 
+                dialog.open = false; 
+                render(); 
+            } 
+        };
 
-        /* --- 天气代码逻辑（完全不变） --- */
+        /* --- 天气代码逻辑 --- */
         const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
         const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
         const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
