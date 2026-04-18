@@ -11,26 +11,23 @@
     <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
     
     <style>
-        /* --- 变量定义：解决颜色和磨砂感 --- */
         :root { 
             --nav-height: 64px; 
             --hero-height: 40vh; 
             --glass-bg: rgba(255, 255, 255, 0.85);
             --glass-border: rgba(255, 255, 255, 0.4);
-            --text-main: #212121; /* 白天模式深色字 */
-            --accent-color: #0081ff;
+            --text-main: #212121;
         }
 
         .mdui-theme-dark {
-            --glass-bg: rgba(35, 35, 40, 0.85);
+            --glass-bg: rgba(30, 30, 35, 0.85);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #ffffff; /* 黑暗模式白色字 */
+            --text-main: #ffffff;
         }
 
-        html, body { margin: 0; padding: 0; min-height: 100vh; background: transparent !important; color: var(--text-main); transition: color 0.3s; }
+        html, body { margin: 0; padding: 0; min-height: 100vh; background: transparent !important; color: var(--text-main); }
         body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('/home.jpg') center/cover no-repeat; z-index: -2; }
 
-        /* --- 导航栏 --- */
         .app-bar {
             position: fixed; top: 0; left: 0; right: 0; height: var(--nav-height);
             z-index: 2000; display: flex; align-items: center; padding: 0 5%;
@@ -40,33 +37,28 @@
         .logo-area { display: flex; align-items: center; gap: 12px; font-weight: 900; font-size: 1.2rem; }
         .logo-area img { height: 32px; }
 
-        /* --- 搜索区（修复遮挡） --- */
         .hero-space { height: var(--hero-height); display: flex; align-items: center; justify-content: center; padding-top: var(--nav-height); }
         .search-container {
-            width: 90%; max-width: 650px; background: var(--glass-bg); 
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            width: 90%; max-width: 650px; background: var(--glass-bg); backdrop-filter: blur(25px);
             border: 1px solid var(--glass-border); border-radius: 50px; padding: 8px 20px; 
             display: flex; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             position: relative; z-index: 1500;
         }
         .search-input { flex: 1; border: none; background: transparent; padding: 12px; font-size: 1.1rem; outline: none; color: var(--text-main); }
-        .engine-favicon { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; }
+        .engine-favicon { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; display: block; }
 
-        /* --- 布局 --- */
         .content-layout { max-width: 1240px; margin: 0 auto 80px; display: grid; grid-template-columns: 1fr 360px; gap: 32px; padding: 0 20px; }
         .card-glass { border-radius: 28px; background: var(--glass-bg); backdrop-filter: blur(20px); padding: 32px; border: 1px solid var(--glass-border); color: var(--text-main); }
 
-        /* --- 书签网格 --- */
         .links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 18px; margin-top: 24px; }
         .link-item {
             position: relative; display: flex; flex-direction: column; align-items: center; padding: 20px 10px; 
-            border-radius: 22px; background: rgba(128,128,128,0.1); text-decoration: none; color: inherit; transition: all 0.2s;
+            border-radius: 22px; background: rgba(128,128,128,0.1); text-decoration: none; color: var(--text-main) !important; transition: all 0.2s;
         }
         .link-item:hover { transform: translateY(-5px); background: rgba(128,128,128,0.15); }
-        .link-item img, .link-item mdui-icon { width: 32px; height: 32px; margin-bottom: 12px; border-radius: 6px; color: var(--text-main); }
-        .edit-active .link-item::after { content: "edit"; font-family: 'Material Icons'; position: absolute; top: 8px; right: 8px; font-size: 10px; background: var(--accent-color); color: white; border-radius: 50%; padding: 4px; }
+        .link-item img, .link-item mdui-icon { width: 32px; height: 32px; margin-bottom: 12px; border-radius: 6px; color: var(--text-main) !important; }
+        .edit-active .link-item::after { content: "edit"; font-family: 'Material Icons'; position: absolute; top: 8px; right: 8px; font-size: 10px; background: #0081ff; color: white; border-radius: 50%; padding: 4px; }
 
-        /* --- 天气 UI 优化 --- */
         .weather-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding: 15px; background: rgba(128,128,128,0.05); border-radius: 20px; }
         #weather-icon-img { width: 56px; height: 56px; }
         .temp-display { font-size: 2.2rem; font-weight: 900; }
@@ -90,7 +82,7 @@
 
     <section class="hero-space">
         <div class="search-container">
-            <mdui-dropdown>
+            <mdui-dropdown id="engine-dropdown">
                 <div slot="trigger"><img id="cur-engine-img" class="engine-favicon" src="https://www.google.com/favicon.ico"></div>
                 <mdui-menu id="engine-menu">
                     <mdui-menu-item value="google"><img class="engine-favicon" src="https://www.google.com/favicon.ico" slot="icon">Google</mdui-menu-item>
@@ -117,10 +109,8 @@
                 <div style="font-size:0.7rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">拾遗</div>
                 <strong><span id="jinrishici-sentence">加载中...</span></strong>
             </div>
-
             <div class="card-glass">
                 <div style="font-size:0.7rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">本港天气</div>
-                
                 <div class="weather-header">
                     <img id="weather-icon-img" src="" style="display:none;">
                     <div>
@@ -128,7 +118,6 @@
                         <div class="hum-display">相对湿度: <span id="curr-hum">--</span>%</div>
                     </div>
                 </div>
-
                 <div class="weather-details">
                     <div id="weather-info">正在从香港天文台获取天气预报…</div>
                     <div id="warning-info" style="color:#ff5252; font-weight:bold; margin-top:10px;"></div>
@@ -153,7 +142,6 @@
     </mdui-dialog>
 
     <script>
-        /* --- 1. 数据与书签渲染 --- */
         const initLinks = [
             { name: "我的RSS", url: "#", icon: "rss_feed" },
             { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
@@ -163,10 +151,18 @@
             { name: "unsplash", url: "https://unsplash.com", icon: "image" },
             { name: "豆瓣", url: "https://www.douban.com", icon: "https://www.douban.com/favicon.ico" },
             { name: "翻译", url: "https://translate.google.com", icon: "translate" },
+            { name: "斗鱼", url: "https://www.douyu.com", icon: "https://www.douyu.com/favicon.ico" },
+            { name: "CSDN", url: "https://www.csdn.net", icon: "https://www.csdn.net/favicon.ico" },
+            { name: "XDA", url: "https://www.xda-developers.com", icon: "developer_mode" },
+            { name: "百品博客", url: "https://baipin.pw", icon: "article" },
+            { name: "AIMS", url: "https://banweb.cityu.edu.hk/", icon: "school" },
+            { name: "学校邮箱", url: "https://mail.office365.com/my.cityu.edu.hk", icon: "mail" },
+            { name: "Canvas", url: "https://canvas.cityu.edu.hk/", icon: "dashboard" },
+            { name: "应用面板", url: "https://auth.cityu.edu.hk/", icon: "apps" },
             { name: "Github", url: "https://github.com", icon: "code" }
         ];
 
-        let bookmarks = JSON.parse(localStorage.getItem('bp_v6')) || initLinks;
+        let bookmarks = JSON.parse(localStorage.getItem('bp_v7')) || initLinks;
         let isEdit = false, curIdx = null;
 
         function render() {
@@ -187,7 +183,36 @@
             document.getElementById('add-btn').style.display = isEdit ? 'inline-block' : 'none';
         }
 
-        /* --- 2. 编辑功能 --- */
+        /* --- 搜索切换核心修复 --- */
+        let curEng = 'google';
+        const engines = { 
+            google: 'https://www.google.com/search?q=', 
+            baidu: 'https://www.baidu.com/s?wd=', 
+            bing: 'https://cn.bing.com/search?q=', 
+            github: 'https://github.com/search?q=' 
+        };
+
+        const engineMenu = document.getElementById('engine-menu');
+        const engineImg = document.getElementById('cur-engine-img');
+
+        engineMenu.onclick = (e) => {
+            const item = e.target.closest('mdui-menu-item');
+            if (item) {
+                curEng = item.value;
+                const iconSrc = item.querySelector('img').src;
+                engineImg.src = iconSrc;
+                // 自动关闭下拉菜单
+                document.getElementById('engine-dropdown').open = false;
+            }
+        };
+
+        document.getElementById('search-input').onkeypress = (e) => {
+            if(e.key === 'Enter' && e.target.value.trim()) {
+                window.open(engines[curEng] + encodeURIComponent(e.target.value), '_blank');
+            }
+        };
+
+        /* --- 书签管理 --- */
         const dialog = document.getElementById('edit-dialog');
         document.getElementById('edit-btn').onclick = () => { isEdit = !isEdit; render(); };
         document.getElementById('add-btn').onclick = () => openDialog();
@@ -198,7 +223,6 @@
                 document.getElementById('f-icon').value = `${domain}/favicon.ico`;
             }
         };
-
         function openDialog(idx = null) {
             curIdx = idx;
             document.getElementById('f-name').value = idx !== null ? bookmarks[idx].name : '';
@@ -207,26 +231,15 @@
             document.getElementById('act-del').style.display = idx !== null ? 'block' : 'none';
             dialog.open = true;
         }
-
         document.getElementById('act-save').onclick = () => {
             const data = { name: document.getElementById('f-name').value || '未命名', url: document.getElementById('f-url').value || '#', icon: document.getElementById('f-icon').value || 'link' };
             if(curIdx !== null) bookmarks[curIdx] = data; else bookmarks.push(data);
-            localStorage.setItem('bp_v6', JSON.stringify(bookmarks));
+            localStorage.setItem('bp_v7', JSON.stringify(bookmarks));
             dialog.open = false; render();
         };
+        document.getElementById('act-del').onclick = () => { if(curIdx !== null) { bookmarks.splice(curIdx, 1); localStorage.setItem('bp_v7', JSON.stringify(bookmarks)); dialog.open = false; render(); } };
 
-        document.getElementById('act-del').onclick = () => { if(curIdx !== null) { bookmarks.splice(curIdx, 1); localStorage.setItem('bp_v6', JSON.stringify(bookmarks)); dialog.open = false; render(); } };
-
-        /* --- 3. 搜索与引擎 --- */
-        let curEng = 'google';
-        const engines = { google: 'https://www.google.com/search?q=', baidu: 'https://www.baidu.com/s?wd=', bing: 'https://cn.bing.com/search?q=', github: 'https://github.com/search?q=' };
-        document.getElementById('engine-menu').addEventListener('change', (e) => {
-            curEng = e.target.value;
-            document.getElementById('cur-engine-img').src = `https://${curEng === 'bing' ? 'cn.bing.com' : (curEng === 'baidu' ? 'www.baidu.com' : (curEng === 'google' ? 'www.google.com' : 'github.com'))}/favicon.ico`;
-        });
-        document.getElementById('search-input').onkeypress = (e) => { if(e.key === 'Enter') window.open(engines[curEng] + encodeURIComponent(e.target.value), '_blank'); };
-
-        /* --- 4. 香港天文台代码（严格保留原文逻辑） --- */
+        /* --- 天气代码逻辑 --- */
         const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
         const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
         const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
@@ -246,7 +259,7 @@
             return `<p><strong>总体情况：</strong>${data.generalSituation}</p>
                     <p><strong>天气预测：</strong>${data.forecastDesc}</p>
                     <p><strong>展望：</strong>${data.outlook}</p>
-                    <p><strong>更新时间：</strong>${data.updateTime}</p>`;
+                    <p style="font-size:0.8rem; opacity:0.6;">更新时间：${data.updateTime}</p>`;
         }
 
         function formatWarningData(data) {
@@ -259,7 +272,6 @@
             return data.swt.map(item => `<p>ℹ️ ${item.desc}</p>`).join('');
         }
 
-        // 异步更新实时温湿度
         async function updateLiveWeather() {
             try {
                 const res = await fetch(rthUrl);
@@ -274,7 +286,7 @@
             } catch(e) {}
         }
 
-        /* --- 5. 主题与启动 --- */
+        /* --- 主题控制 --- */
         document.getElementById('theme-btn').onclick = () => {
             const isDark = document.documentElement.classList.toggle('mdui-theme-dark');
             document.documentElement.classList.toggle('mdui-theme-light', !isDark);
