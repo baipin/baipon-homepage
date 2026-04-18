@@ -207,9 +207,9 @@
                 </div>
             </div>
 
-            <!-- 侧栏容器：实时时间 + Google Finance 真实行情（带颜色） -->
+            <!-- 侧栏容器：实时时间 + Yahoo Finance 行情（按钮在右上角） -->
             <div class="card-glass" style="position:relative;">
-                <mdui-button-icon id="fullscreen-btn" icon="fullscreen" style="position:absolute; top:12px; right:12px; color:inherit;"></mdui-button-icon>
+                <mdui-button-icon id="fullscreen-btn" icon="fullscreen" style="position:absolute; top:12px; right:12px; color:inherit; z-index:10;"></mdui-button-icon>
                 
                 <div style="font-size:0.7rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">全球市场</div>
                 
@@ -242,14 +242,14 @@
 
     <!-- 全屏市场模式 -->
     <div id="fullscreen-market">
-        <div id="fullscreen-time" style="font-size: 8rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 60px;">--:--:--</div>
+        <div id="fullscreen-time" style="font-size: 7rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 60px;">--:--:--</div>
         <div id="fullscreen-marquee" style="font-size: 2rem; width: 95%; text-align: center; overflow: hidden; white-space: nowrap;">
             <!-- 动态填充 -->
         </div>
         <mdui-button variant="tonal" id="exit-fullscreen-btn" style="margin-top: 80px;" icon="fullscreen_exit">退出全屏模式</mdui-button>
     </div>
 
-    <!-- 以下对话框等原有结构完全保留 -->
+    <!-- 以下为原有对话框等结构，完全未修改 -->
     <mdui-dialog id="edit-dialog" close-on-overlay-click>
         <span slot="headline">管理书签</span>
         <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
@@ -296,7 +296,7 @@
     </mdui-dialog>
 
     <script>
-        /* ==================== 原有代码全部保留（未做任何删除或修改） ==================== */
+        /* ==================== 原有全部代码（未做任何删除或修改） ==================== */
         const initLinks = [
             { name: "我的RSS", url: "#", icon: "rss_feed" },
             { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
@@ -678,7 +678,7 @@
             document.getElementById('theme-btn').icon = 'dark_mode';
         }
 
-        /* ==================== 新增/修改部分：Google Finance getprices API + 全屏按钮放在侧栏 ==================== */
+        /* ==================== 修改部分：Yahoo Finance API + 全屏按钮位置修复 ==================== */
         function updateHKTTime() {
             const now = new Date().toLocaleString('zh-CN', { 
                 timeZone: 'Asia/Hong_Kong',
@@ -689,57 +689,44 @@
         setInterval(updateHKTTime, 1000);
         updateHKTTime();
 
-        // Google Finance getprices 接口参数映射
-        const financeSymbols = {
-            hsi:     {q: 'HSI',     x: 'INDEXHANGSENG'},
-            sse:     {q: '000001',  x: 'SHA'},
-            nasdaq:  {q: 'IXIC',    x: 'INDEXNASDAQ'},
-            dj:      {q: 'DJI',     x: 'INDEXDJX'},
-            gold:    {q: 'XAUUSD',  x: 'COMMODITY'},
-            hkd_cny: {q: 'HKDCNY',  x: ''},
-            cny_usd: {q: 'USDCNY',  x: ''},
-            ftse:    {q: 'UKX',     x: 'INDEXFTSE'},
-            dax:     {q: 'GDAXI',   x: 'INDEXDB'}
+        // Yahoo Finance 行情（v7 quote + v8 chart 辅助）
+        const yahooSymbols = {
+            hsi: '^HSI',
+            sse: '000001.SS',
+            nasdaq: '^IXIC',
+            dj: '^DJI',
+            gold: 'GC=F',
+            hkd_cny: 'HKDCNY=X',
+            cny_usd: 'USDCNY=X',
+            ftse: '^FTSE',
+            dax: '^GDAXI'
         };
 
         async function updateMarketData() {
-            const base = 'https://www.google.com/finance/getprices';
             let marqueeHTML = '';
 
-            for (let [id, sym] of Object.entries(financeSymbols)) {
+            for (let [id, symbol] of Object.entries(yahooSymbols)) {
                 try {
-                    let url = `${base}?q=${sym.q}`;
-                    if (sym.x) url += `&x=${sym.x}`;
-                    url += `&i=60&p=1d&f=d,c`;   // 1分钟间隔，取最近价格和变化
+                    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}`;
+                    const res = await fetch(url, { 
+                        headers: { 'User-Agent': 'Mozilla/5.0' } 
+                    });
+                    const data = await res.json();
+                    const quote = data.quoteResponse.result[0];
 
-                    const res = await fetch(url);
-                    const text = await res.text();
+                    if (!quote) continue;
 
-                    // 解析 getprices 返回的文本格式（简单取最新一行）
-                    const lines = text.trim().split('\n');
-                    let price = 'N/A';
-                    let change = 0;
-
-                    for (let line of lines) {
-                        if (line.startsWith('a') || line.includes(',')) {
-                            const parts = line.split(',');
-                            if (parts.length >= 2) {
-                                price = parseFloat(parts[1]).toFixed(2);
-                                // 简单估算变化（实际可进一步解析）
-                                change = parseFloat(parts[2] || 0);
-                                break;
-                            }
-                        }
-                    }
+                    const price = quote.regularMarketPrice ? quote.regularMarketPrice.toFixed(2) : 'N/A';
+                    const changePercent = quote.regularMarketChangePercent ? quote.regularMarketChangePercent.toFixed(2) : 0;
 
                     let colorClass = 'flat';
-                    if (change > 0) colorClass = 'up';
-                    else if (change < 0) colorClass = 'down';
+                    if (changePercent > 0) colorClass = 'up';
+                    else if (changePercent < 0) colorClass = 'down';
 
                     document.getElementById(id).innerHTML = 
-                        `${price} <span class="${colorClass}">(${change > 0 ? '+' : ''}${change.toFixed(2)}%)</span>`;
+                        `${price} <span class="${colorClass}">(${changePercent > 0 ? '+' : ''}${changePercent}%)</span>`;
 
-                    marqueeHTML += `${id.toUpperCase()}: ${price} <span class="${colorClass}">(${change > 0 ? '+' : ''}${change.toFixed(2)}%)</span>　|　`;
+                    marqueeHTML += `${id.toUpperCase()}: ${price} <span class="${colorClass}">(${changePercent > 0 ? '+' : ''}${changePercent}%)</span>　|　`;
                 } catch (e) {
                     document.getElementById(id).textContent = 'N/A';
                 }
@@ -752,19 +739,15 @@
 
         document.getElementById('refresh-market-btn').onclick = updateMarketData;
 
-        // 全屏市场模式（按钮已移到侧栏右上角）
+        // 全屏市场模式（按钮已在侧栏右上角）
         const fullscreenMarket = document.getElementById('fullscreen-market');
         document.getElementById('fullscreen-btn').onclick = () => {
             fullscreenMarket.style.display = 'flex';
-            updateFullscreenMarket();
+            updateMarketData(); // 立即刷新
         };
         document.getElementById('exit-fullscreen-btn').onclick = () => {
             fullscreenMarket.style.display = 'none';
         };
-
-        function updateFullscreenMarket() {
-            updateMarketData();
-        }
 
         // 初始加载
         restoreLastEngine();
