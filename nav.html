@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>百品导航 - 123</title>
+    <title>百品导航 - 新概念版</title>
    
     <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -40,19 +40,7 @@
             display: flex; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             position: relative; z-index: 1500;
         }
-        .search-input { 
-            flex: 1; 
-            border: none; 
-            background: transparent; 
-            padding: 12px; 
-            font-size: 1.1rem; 
-            outline: none; 
-            color: var(--text-main); 
-        }
-        /* 修复①：联想搜索框字体颜色适配白天/黑夜模式 */
-        .suggestions-dropdown .suggestion-item {
-            color: var(--text-main) !important;
-        }
+        .search-input { flex: 1; border: none; background: transparent; padding: 12px; font-size: 1.1rem; outline: none; color: var(--text-main); }
         .engine-favicon { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; display: block; }
         .search-container mdui-dropdown { margin-right: 8px; }
 
@@ -69,6 +57,7 @@
         }
         .suggestion-item {
             padding: 12px 20px; font-size: 1.05rem; cursor: pointer; transition: all 0.2s;
+            color: var(--text-main) !important;
         }
         .suggestion-item:hover, .suggestion-item.selected {
             background: rgba(0, 0, 0, 0.08);
@@ -112,20 +101,19 @@
         /* iframe 样式 */
         .icon-picker-iframe { width: 100%; height: 560px; border: none; border-radius: 12px; }
 
-        /* 修复②：手机端按钮不盖住输入框 */
+        /* 按钮单独一行，避免手机端盖住输入框 */
         @media (max-width: 600px) {
-            .mdui-dialog .mdui-text-field + div {
-                flex-wrap: wrap;
-                gap: 8px;
+            .button-row {
+                flex-direction: column !important;
+                gap: 8px !important;
             }
-            .mdui-dialog .mdui-text-field {
-                min-width: 100%;
+            .button-row mdui-button {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body class="mdui-theme-auto">
-    <!-- 以下所有HTML结构完全保持原样，未做任何删除或修改 -->
     <header class="app-bar">
         <div class="logo-area">
             <img src="/logo.png" alt="Logo">
@@ -190,8 +178,8 @@
         <span slot="headline">管理书签</span>
         <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
             <mdui-text-field label="URL" id="f-url"></mdui-text-field>
-            <div style="display:flex; gap:10px; align-items:flex-end;">
-                <mdui-text-field label="图标 (MDUI名或URL)" id="f-icon" style="flex:1"></mdui-text-field>
+            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap: wrap;" class="button-row">
+                <mdui-text-field label="图标 (MDUI名或URL)" id="f-icon" style="flex:1; min-width: 200px;"></mdui-text-field>
                 <mdui-button variant="tonal" id="btn-get-icon">抓取图标</mdui-button>
                 <mdui-button variant="tonal" id="btn-pick-icon-bookmark">挑选图标</mdui-button>
             </div>
@@ -207,8 +195,8 @@
         <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
             <mdui-text-field label="搜索引擎名称" id="engine-name"></mdui-text-field>
             <mdui-text-field label="搜索 URL（用 {q} 代表关键词）" id="engine-url" placeholder="https://example.com/search?q={q}"></mdui-text-field>
-            <div style="display:flex; gap:10px; align-items:flex-end;">
-                <mdui-text-field label="图标 URL（可选）" id="engine-icon" style="flex:1"></mdui-text-field>
+            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap: wrap;" class="button-row">
+                <mdui-text-field label="图标 URL（可选）" id="engine-icon" style="flex:1; min-width: 200px;"></mdui-text-field>
                 <mdui-button variant="tonal" id="btn-get-engine-icon">抓取图标</mdui-button>
                 <mdui-button variant="tonal" id="btn-pick-icon-engine">挑选图标</mdui-button>
             </div>
@@ -223,9 +211,8 @@
             <iframe id="icon-picker-iframe" class="icon-picker-iframe" 
                     src="https://pictogrammers.com/library/mdi/"></iframe>
         </div>
-        <!-- 修复③：在底部增加直接打开链接 -->
-        <div style="text-align:center; margin-top: 8px;">
-            <a href="https://pictogrammers.com/library/mdi/" target="_blank" style="color: var(--text-main); text-decoration: underline; font-size: 0.9rem;">
+        <div style="text-align:center; margin: 12px 0;">
+            <a href="https://pictogrammers.com/library/mdi/" target="_blank" style="color: var(--text-main); text-decoration: underline;">
                 在新窗口打开完整图标库
             </a>
         </div>
@@ -233,7 +220,6 @@
     </mdui-dialog>
 
     <script>
-        /* 以下所有脚本代码完全保持你提供的原样，未做任何删除或修改 */
         const initLinks = [
             { name: "我的RSS", url: "#", icon: "rss_feed" },
             { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
@@ -428,25 +414,16 @@
             }
         };
 
-        /* ----------------------- 实时搜索联想适配逻辑 ----------------------- */
+        /* 实时搜索联想 */
         const searchInput = document.getElementById('search-input');
         const suggestionsContainer = document.getElementById('suggestions');
         let debounceTimer = null;
         let selectedIndex = -1;
 
         const suggestionConfigs = {
-            baidu: {
-                url: "https://unionsug.baidu.com/su?wd={q}&cb=sugCallback",
-                parse: (data) => data.s
-            },
-            google: {
-                url: "https://suggestqueries.google.com/complete/search?client=firefox&q={q}&callback=sugCallback",
-                parse: (data) => data[1]
-            },
-            bing: {
-                url: "https://api.bing.com/qsonhs.aspx?q={q}&cb=sugCallback",
-                parse: (data) => data.AS.Results[0].Suggests.map(item => item.Txt)
-            }
+            baidu: { url: "https://unionsug.baidu.com/su?wd={q}&cb=sugCallback", parse: (data) => data.s },
+            google: { url: "https://suggestqueries.google.com/complete/search?client=firefox&q={q}&callback=sugCallback", parse: (data) => data[1] },
+            bing: { url: "https://api.bing.com/qsonhs.aspx?q={q}&cb=sugCallback", parse: (data) => data.AS.Results[0].Suggests.map(item => item.Txt) }
         };
 
         function fetchSuggestions(query) {
@@ -540,7 +517,7 @@
             }
         });
 
-        /* --- 天气代码逻辑（完全未修改） --- */
+        /* --- 天气代码逻辑（恢复为原本的关键词匹配逻辑） --- */
         const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
         const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
         const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
@@ -610,12 +587,19 @@
             }
         }
 
-        /* --- 主题控制 --- */
+        /* --- 主题控制 + 记忆 --- */
         document.getElementById('theme-btn').onclick = () => {
             const isDark = document.documentElement.classList.toggle('mdui-theme-dark');
             document.documentElement.classList.toggle('mdui-theme-light', !isDark);
             document.getElementById('theme-btn').icon = isDark ? 'dark_mode' : 'light_mode';
+            localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
         };
+
+        const savedTheme = localStorage.getItem('theme_mode');
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('mdui-theme-dark');
+            document.getElementById('theme-btn').icon = 'dark_mode';
+        }
 
         restoreLastEngine();
         render();
