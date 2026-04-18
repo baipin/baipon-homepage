@@ -15,9 +15,9 @@
             --content-max-width: 1200px;
         }
 
-        /* --- 1. 背景与全局色彩逻辑 --- */
+        /* --- 1. 全局背景逻辑 --- */
         html {
-            background-color: #fff;
+            background-color: #ffffff;
             transition: background-color 0.3s;
         }
         html.mdui-theme-dark { background-color: #121212; }
@@ -41,7 +41,7 @@
         }
         .mdui-theme-dark body::before { filter: brightness(0.6) contrast(1.1); }
 
-        /* --- 2. 导航栏与菜单底色适配 --- */
+        /* --- 2. 导航栏适配 --- */
         .custom-app-bar {
             height: var(--nav-height) !important;
             background-color: rgba(255, 255, 255, 0.85) !important;
@@ -53,23 +53,28 @@
             position: fixed; top: 0; left: 0; right: 0;
             z-index: 1000;
             box-sizing: border-box;
-            transition: background-color 0.3s, color 0.3s;
-            color: rgba(0, 0, 0, 0.8); /* 默认白天模式文字色 */
+            transition: all 0.3s;
+        }
+
+        /* 重点：白天模式下的图标与文字颜色变量覆盖 */
+        .mdui-theme-light .custom-app-bar {
+            --mdui-color-on-surface: 0, 0, 0; 
+            --mdui-color-on-surface-variant: 0, 0, 0;
+            --mdui-color-primary: 0, 0, 0;
+            color: rgba(0, 0, 0, 0.9);
         }
         
         .mdui-theme-dark .custom-app-bar {
             background-color: rgba(28, 27, 31, 0.85) !important;
             border-bottom-color: rgba(255,255,255,0.1);
+            --mdui-color-on-surface: 230, 225, 229;
             color: #e6e1e5;
         }
-
-        mdui-navigation-drawer { --mdui-color-surface-container: #ffffff; }
-        .mdui-theme-dark mdui-navigation-drawer { --mdui-color-surface-container: #1c1b1f; }
 
         .nav-logo { height: 28px; width: auto; cursor: pointer; flex-shrink: 0; }
         .nav-links-container { margin-left: 20px; display: flex; gap: 4px; }
 
-        /* --- 3. 图片简介样式 (始终保持白色) --- */
+        /* --- 3. Hero 区域 (始终保持白色，因为在图片上) --- */
         .hero-section {
             width: 100%; height: 80vh;
             display: flex; align-items: flex-end; justify-content: center;
@@ -88,19 +93,18 @@
             display: flex; align-items: center; justify-content: space-between;
             z-index: 20;
             box-sizing: border-box;
-            color: white !important; /* 强制该盒子内文字始终为白色 */
+            color: white !important;
         }
         
-        /* 针对该区域内 MDUI 按钮图标颜色的特殊处理 */
         .photo-info-box mdui-button {
-            --mdui-color-primary: 255, 255, 255;
             --mdui-color-on-secondary-container: 255, 255, 255;
+            --mdui-color-primary: 255, 255, 255;
         }
 
-        .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; color: white !important; }
+        .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; color: white !important; }
         .photo-text p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.85; color: white !important; }
 
-        /* --- 4. 核心卡片样式 --- */
+        /* --- 4. 卡片容器 --- */
         .floating-container {
             max-width: var(--content-max-width);
             margin: -100px auto 60px;
@@ -113,38 +117,31 @@
             box-sizing: border-box;
         }
 
-        .main-card {
-            background-color: #ffffff !important;
-            padding: 40px; border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        .main-card, .sidebar-card {
             transition: background 0.3s, color 0.3s;
-            color: rgba(0, 0, 0, 0.87);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08);
         }
-        .mdui-theme-dark .main-card { background-color: #1c1b1f !important; color: #e6e1e5; }
 
-        .sidebar-card {
-            background-color: #fafafa !important;
-            padding: 40px 24px; 
-            border-radius: 24px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
-            text-align: center;
-            height: fit-content;
-            transition: background 0.3s, color 0.3s;
-            box-sizing: border-box;
+        /* 白天模式卡片内部文字与图标颜色 */
+        .mdui-theme-light .main-card,
+        .mdui-theme-light .sidebar-card {
+            background-color: #ffffff !important;
+            --mdui-color-on-surface: 0, 0, 0;
+            --mdui-color-on-surface-variant: 60, 60, 60;
             color: rgba(0, 0, 0, 0.87);
         }
+
+        .mdui-theme-dark .main-card { background-color: #1c1b1f !important; color: #e6e1e5; }
         .mdui-theme-dark .sidebar-card { background-color: #2b2930 !important; color: #e6e1e5; }
+
+        .main-card { padding: 40px; border-radius: 24px; }
+        .sidebar-card { padding: 40px 24px; border-radius: 24px; text-align: center; height: fit-content; }
 
         .rss-item {
             display: block; padding: 16px; border-radius: 12px; 
             background: rgba(128,128,128,0.05); border: 1px solid rgba(128,128,128,0.1); 
             margin-bottom: 12px; transition: all 0.3s; text-decoration: none; color: inherit;
         }
-
-        /* --- 5. 修复：不再强制覆盖 MDUI 内部 Icon 颜色，让框架自行处理 --- */
-        /* 只对非 MDUI 组件的普通文本做兜底 */
-        .mdui-theme-light body { color: rgba(0,0,0,0.87); }
-        .mdui-theme-dark body { color: #fff; }
 
         /* 移动端适配 */
         @media (max-width: 900px) {
@@ -266,7 +263,6 @@
         }
 
         themeToggle.addEventListener('click', () => {
-            // 切换逻辑：如果是暗色就切到亮色，否则切到暗色
             const isCurrentlyDark = html.classList.contains('mdui-theme-dark') || 
                                    (html.classList.contains('mdui-theme-auto') && window.matchMedia('(prefers-color-scheme: dark)').matches);
             const nextTheme = isCurrentlyDark ? 'light' : 'dark';
@@ -276,7 +272,6 @@
 
         document.getElementById('drawer-list').addEventListener('click', () => { drawer.open = false; });
 
-        // 语言包
         const i18n = {
             'zh-CN': {
                 nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
@@ -322,15 +317,9 @@
             }
         }
 
-        // 初始化
         const savedTheme = localStorage.getItem('theme') || 'auto';
         applyTheme(savedTheme);
         fetchRSS();
-        
-        // 监听系统主题变化
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            if (html.classList.contains('mdui-theme-auto')) updateIcon();
-        });
     </script>
 </body>
 </html>
