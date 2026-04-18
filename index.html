@@ -3,761 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>百品导航 - 123</title>
-   
+    <title>百品 - 入口网站</title>
+    
     <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://unpkg.com/mdui@2.0.3/mdui.global.js"></script>
-    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
-   
+    
     <style>
         :root {
             --nav-height: 64px;
-            --hero-height: 40vh;
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --text-main: #212121;
+            --content-max-width: 1200px;
         }
-        .mdui-theme-dark {
-            --glass-bg: rgba(30, 30, 35, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #ffffff;
-        }
-        html, body { margin: 0; padding: 0; min-height: 100vh; background: transparent !important; color: var(--text-main); }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('/home.jpg') center/cover no-repeat; z-index: -2; }
-        .app-bar {
-            position: fixed; top: 0; left: 0; right: 0; height: var(--nav-height);
-            z-index: 2000; display: flex; align-items: center; padding: 0 5%;
-            background: var(--glass-bg) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border); color: var(--text-main);
-        }
-        .logo-area { display: flex; align-items: center; gap: 12px; font-weight: 900; font-size: 1.2rem; }
-        .logo-area img { height: 32px; }
-        .hero-space { height: var(--hero-height); display: flex; align-items: center; justify-content: center; padding-top: var(--nav-height); }
-        .search-container {
-            width: 90%; max-width: 650px; background: var(--glass-bg); backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border); border-radius: 50px; padding: 8px 20px;
-            display: flex; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative; z-index: 1500;
-        }
-        .search-input { flex: 1; border: none; background: transparent; padding: 12px; font-size: 1.1rem; outline: none; color: var(--text-main); }
-        .engine-favicon { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; display: block; }
-        .search-container mdui-dropdown { margin-right: 8px; }
 
+        /* --- 1. 全局背景逻辑 --- */
+        html {
+            background-color: #ffffff;
+            transition: background-color 0.3s;
+        }
+        html.mdui-theme-dark { background-color: #121212; }
+
+        body {
+            margin: 0; padding: 0;
+            width: 100%; overflow-x: hidden;
+            font-family: "Product Sans", system-ui, -apple-system, sans-serif;
+            background-color: transparent !important;
+            padding-top: var(--nav-height);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url('/home.jpg') center/cover no-repeat;
+            z-index: -1;
+            transition: filter 0.5s ease;
+        }
+        .mdui-theme-dark body::before { filter: brightness(0.6) contrast(1.1); }
+
+        /* --- 2. 导航栏适配 --- */
+        .custom-app-bar {
+            height: var(--nav-height) !important;
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            padding: 0 5%;
+            display: flex; align-items: center;
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+
+        /* 重点：白天模式下的图标与文字颜色变量覆盖 */
+        .mdui-theme-light .custom-app-bar {
+            --mdui-color-on-surface: 0, 0, 0; 
+            --mdui-color-on-surface-variant: 0, 0, 0;
+            --mdui-color-primary: 0, 0, 0;
+            color: rgba(0, 0, 0, 0.9);
+        }
+        
+        .mdui-theme-dark .custom-app-bar {
+            background-color: rgba(28, 27, 31, 0.85) !important;
+            border-bottom-color: rgba(255,255,255,0.1);
+            --mdui-color-on-surface: 230, 225, 229;
+            color: #e6e1e5;
+        }
+
+        .nav-logo { height: 28px; width: auto; cursor: pointer; flex-shrink: 0; }
+        .nav-links-container { margin-left: 20px; display: flex; gap: 4px; }
+
+        /* --- 3. Hero 区域 (始终保持白色，因为在图片上) --- */
+        .hero-section {
+            width: 100%; height: 80vh;
+            display: flex; align-items: flex-end; justify-content: center;
+        }
+        
+        .photo-info-box {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 24px 32px;
+            margin-bottom: 130px; 
+            width: calc(100% - 40px);
+            max-width: var(--content-max-width);
+            display: flex; align-items: center; justify-content: space-between;
+            z-index: 20;
+            box-sizing: border-box;
+            color: white !important;
+        }
+        
+        .photo-info-box mdui-button {
+            --mdui-color-on-secondary-container: 255, 255, 255;
+            --mdui-color-primary: 255, 255, 255;
+        }
+
+        .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; color: white !important; }
+        .photo-text p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.85; color: white !important; }
+
+        /* --- 4. 卡片容器 --- */
+        .floating-container {
+            max-width: var(--content-max-width);
+            margin: -100px auto 60px;
+            position: relative;
+            z-index: 30;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 32px; 
+            width: calc(100% - 40px);
+            box-sizing: border-box;
+        }
+
+        .main-card, .sidebar-card {
+            transition: background 0.3s, color 0.3s;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+        }
+
+        /* 白天模式卡片内部文字与图标颜色 */
+        .mdui-theme-light .main-card,
+        .mdui-theme-light .sidebar-card {
+            background-color: #ffffff !important;
+            --mdui-color-on-surface: 0, 0, 0;
+            --mdui-color-on-surface-variant: 60, 60, 60;
+            color: rgba(0, 0, 0, 0.87);
+        }
+
+        .mdui-theme-dark .main-card { background-color: #1c1b1f !important; color: #e6e1e5; }
+        .mdui-theme-dark .sidebar-card { background-color: #2b2930 !important; color: #e6e1e5; }
+
+        .main-card { padding: 40px; border-radius: 24px; }
+        .sidebar-card { padding: 40px 24px; border-radius: 24px; text-align: center; height: fit-content; }
+
+        .rss-item {
+            display: block; padding: 16px; border-radius: 12px; 
+            background: rgba(128,128,128,0.05); border: 1px solid rgba(128,128,128,0.1); 
+            margin-bottom: 12px; transition: all 0.3s; text-decoration: none; color: inherit;
+        }
+
+        /* 移动端适配 */
         @media (max-width: 900px) {
-            .search-container { width: 95%; margin: 0 auto; padding: 8px 16px; }
+            .nav-links-container { display: none; }
+            .mobile-menu-btn { display: inline-flex !important; }
+            .floating-container { grid-template-columns: 1fr; margin-top: -60px; width: calc(100% - 32px); }
+            .photo-info-box { width: calc(100% - 32px); margin-bottom: 85px; padding: 16px 20px; }
+            .sidebar-card { order: -1; }
         }
 
-        .suggestions-dropdown {
-            position: absolute; top: 100%; left: 0; right: 0;
-            background: var(--glass-bg); backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border); border-radius: 20px;
-            margin-top: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            max-height: 320px; overflow-y: auto; z-index: 1600; display: none;
-        }
-        .suggestion-item {
-            padding: 12px 20px; font-size: 1.05rem; cursor: pointer; transition: all 0.2s;
-            color: var(--text-main) !important;
-        }
-        .suggestion-item:hover, .suggestion-item.selected {
-            background: rgba(0, 0, 0, 0.08);
-        }
-        .mdui-theme-dark .suggestion-item:hover, .mdui-theme-dark .suggestion-item.selected {
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .sort-btn {
-            position: absolute; right: 12px; font-size: 20px;
-            color: var(--text-main); opacity: 0.7; cursor: pointer; z-index: 10;
-            width: 24px; text-align: center;
-        }
-        .sort-up { top: 12px; }
-        .sort-down { top: 38px; }
-        .sort-btn:hover { opacity: 1; transform: scale(1.1); }
-        .edit-active .link-item { padding-right: 58px; }
-        .edit-active .link-item::after { 
-            content: "edit"; font-family: 'Material Icons'; 
-            position: absolute; top: 8px; right: 38px; 
-            font-size: 10px; background: #0081ff; color: white; 
-            border-radius: 50%; padding: 4px; 
-        }
-
-        .content-layout { max-width: 1240px; margin: 0 auto 80px; display: grid; grid-template-columns: 1fr 360px; gap: 32px; padding: 0 20px; }
-        .card-glass { border-radius: 28px; background: var(--glass-bg); backdrop-filter: blur(20px); padding: 32px; border: 1px solid var(--glass-border); color: var(--text-main); }
-        .links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 18px; margin-top: 24px; }
-        .link-item {
-            position: relative; display: flex; flex-direction: column; align-items: center; padding: 20px 10px;
-            border-radius: 22px; background: rgba(128,128,128,0.1); text-decoration: none; color: var(--text-main) !important; transition: all 0.2s;
-        }
-        .link-item:hover { transform: translateY(-5px); background: rgba(128,128,128,0.15); }
-        .link-item img, .link-item mdui-icon { width: 32px; height: 32px; margin-bottom: 12px; border-radius: 6px; color: var(--text-main) !important; }
-        .weather-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding: 15px; background: rgba(128,128,128,0.05); border-radius: 20px; }
-        #weather-icon-img { width: 56px; height: 56px; }
-        .temp-display { font-size: 2.2rem; font-weight: 900; }
-        .hum-display { font-size: 0.85rem; opacity: 0.8; }
-        .weather-details p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; }
-        @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .side-stack { order: -1; } }
-
-        /* 行情颜色样式 */
-        .up { color: #00c853; }
-        .down { color: #ff5252; }
-        .flat { color: #9e9e9e; }
-
-        /* 侧栏行情样式 */
-        .market-ticker {
-            font-size: 0.95rem;
-            line-height: 1.8;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        .refresh-btn {
-            font-size: 0.85rem;
-            margin-top: 8px;
-        }
-        .update-time {
-            font-size: 0.8rem;
-            opacity: 0.7;
-            margin-top: 4px;
-        }
-
-        /* 全屏市场模式 */
-        #fullscreen-market {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--glass-bg);
-            z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(30px);
-        }
-        #fullscreen-time {
-            font-size: 7rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 60px;
-        }
-        #fullscreen-marquee {
-            font-size: 2rem; width: 95%; text-align: center; overflow: hidden; white-space: nowrap;
-        }
-
-        /* iframe 样式 */
-        .icon-picker-iframe { width: 100%; height: 560px; border: none; border-radius: 12px; }
-
-        /* 按钮单独一行 */
-        @media (max-width: 600px) {
-            .button-row {
-                flex-direction: column !important;
-                gap: 8px !important;
-            }
-            .button-row mdui-button {
-                width: 100%;
-            }
-        }
+        .mobile-menu-btn { display: none; }
+        footer { background: #121212; color: #777; padding: 60px 20px; text-align: center; }
     </style>
 </head>
 <body class="mdui-theme-auto">
-    <header class="app-bar">
-        <div class="logo-area">
-            <img src="/logo.png" alt="Logo">
-            <span>导航</span>
+
+    <mdui-navigation-drawer id="drawer" placement="right" close-on-overlay-click>
+        <div style="padding: 24px;"><h2 style="margin:0; font-weight:900;">MENU</h2></div>
+        <mdui-list id="drawer-list">
+            <mdui-list-item icon="home" href="#">首页</mdui-list-item>
+            <mdui-list-item icon="auto_stories" href="https://baipin.pw">博客</mdui-list-item>
+            <mdui-list-item icon="terminal" href="#projects">项目</mdui-list-item>
+            <mdui-list-item icon="account_circle" href="https://baipin.pw/about">关于</mdui-list-item>
+        </mdui-list>
+    </mdui-navigation-drawer>
+
+    <header class="custom-app-bar">
+        <img src="/logo.png" alt="Logo" class="nav-logo" onclick="window.location.href='#'">
+        
+        <div class="nav-links-container">
+            <mdui-button variant="text" href="#"><mdui-icon slot="icon" name="home"></mdui-icon><span data-i18n="nav_home">首页</span></mdui-button>
+            <mdui-button variant="text" href="https://baipin.pw"><mdui-icon slot="icon" name="auto_stories"></mdui-icon><span data-i18n="nav_blog">博客</span></mdui-button>
+            <mdui-button variant="text" href="#projects"><mdui-icon slot="icon" name="terminal"></mdui-icon><span data-i18n="nav_projects">项目</span></mdui-button>
+            <mdui-button variant="text" href="https://baipin.pw/about"><mdui-icon slot="icon" name="account_circle"></mdui-icon><span data-i18n="nav_about">关于</span></mdui-button>
         </div>
+
         <div style="flex-grow: 1"></div>
-        <mdui-button-icon id="theme-btn" icon="light_mode" style="color: inherit;"></mdui-button-icon>
-        <mdui-button-icon id="edit-btn" icon="edit_note" style="color: inherit;"></mdui-button-icon>
+        
+        <mdui-button-icon id="theme-toggle" icon="light_mode"></mdui-button-icon>
+        <mdui-button-icon icon="translate" id="lang-btn"></mdui-button-icon>
+        <mdui-button-icon icon="menu" class="mobile-menu-btn" onclick="document.getElementById('drawer').open = true"></mdui-button-icon>
     </header>
-    <section class="hero-space">
-        <div class="search-container">
-            <mdui-dropdown id="engine-dropdown" trigger="click">
-                <div slot="trigger"><img id="cur-engine-img" class="engine-favicon" src="https://www.google.com/favicon.ico"></div>
-                <mdui-menu id="engine-menu">
-                    <mdui-menu-item value="google"><img class="engine-favicon" src="https://www.google.com/favicon.ico" slot="icon">Google</mdui-menu-item>
-                    <mdui-menu-item value="baidu"><img class="engine-favicon" src="https://www.baidu.com/favicon.ico" slot="icon">Baidu</mdui-menu-item>
-                    <mdui-menu-item value="bing"><img class="engine-favicon" src="https://cn.bing.com/favicon.ico" slot="icon">Bing</mdui-menu-item>
-                    <mdui-menu-item value="duckduckgo"><img class="engine-favicon" src="https://duckduckgo.com/favicon.ico" slot="icon">DuckDuckGo</mdui-menu-item>
-                    <mdui-menu-item value="yandex"><img class="engine-favicon" src="https://yandex.com/favicon.ico" slot="icon">Yandex</mdui-menu-item>
-                    <mdui-menu-item value="brave"><img class="engine-favicon" src="https://brave.com/favicon.ico" slot="icon">Brave</mdui-menu-item>
-                    <mdui-menu-item value="github"><img class="engine-favicon" src="https://github.com/favicon.ico" slot="icon">GitHub</mdui-menu-item>
-                    <mdui-divider></mdui-divider>
-                    <mdui-menu-item id="add-engine-btn"><mdui-icon name="add" slot="icon"></mdui-icon>添加搜索引擎</mdui-menu-item>
-                </mdui-menu>
-            </mdui-dropdown>
-            <input type="text" class="search-input" id="search-input" placeholder="键入内容并搜索..." autocomplete="off">
-            <div id="suggestions" class="suggestions-dropdown"></div>
+
+    <section class="hero-section">
+        <div class="photo-info-box">
+            <div class="photo-text">
+                <h4 data-i18n="photo_title">浙江丽水 · 云和梯田</h4>
+                <p data-i18n="photo_desc">摄于2023年旅行时。</p>
+            </div>
+            <mdui-button variant="tonal" style="--mdui-color-secondary-container: rgba(255,255,255,0.15); color: white;" href="https://baipin.pw/">
+                <mdui-icon slot="icon" name="arrow_forward"></mdui-icon>
+            </mdui-button>
         </div>
     </section>
-    <div class="content-layout">
-        <main class="card-glass" id="main-container">
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-                <div style="font-size: 1.3rem; font-weight: 900;">快捷访问</div>
-                <mdui-button-icon id="add-btn" icon="add" style="display:none; color: inherit;"></mdui-button-icon>
+
+    <div class="floating-container">
+        <main class="main-card">
+            <h1 style="font-size: 2.5rem; margin: 0 0 20px 0; font-weight: 800; line-height: 1.2;" data-i18n="hero_title">我欲穿花寻路，直入白云深处。</h1>
+            <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 32px;" data-i18n="hero_desc">
+                欢迎造访百品入口网站。
+            </p>
+            
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <mdui-button variant="filled" href="https://baipin.pw" data-i18n="enter_blog">进入博客</mdui-button>
+                <mdui-button variant="outlined" href="https://baipin.pw/about" data-i18n="nav_about">关于我</mdui-button>
             </div>
-            <div class="links-grid" id="links-wrapper"></div>
+
+            <mdui-divider style="margin: 40px 0;"></mdui-divider>
+
+            <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
+                <mdui-icon name="rss_feed" style="color: #f26522 !important;"></mdui-icon> 
+                <span data-i18n="news_title">最新文章</span>
+            </h3>
+            <div id="rss-feed-container">
+                <div style="padding: 20px; text-align: center;"><mdui-circular-progress></mdui-circular-progress></div>
+            </div>
         </main>
-        <aside class="side-stack" style="display:flex; flex-direction:column; gap:24px;">
-            <div class="card-glass">
-                <div style="font-size:0.7rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">拾遗</div>
-                <strong><span id="jinrishici-sentence">加载中...</span></strong>
-            </div>
-            <div class="card-glass">
-                <div style="font-size:0.7rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">本港天气</div>
-                <div class="weather-header">
-                    <img id="weather-icon-img" src="" style="display:none;">
-                    <div>
-                        <div class="temp-display"><span id="curr-temp">--</span>°C</div>
-                        <div class="hum-display">相对湿度: <span id="curr-hum">--</span>%</div>
-                    </div>
-                </div>
-                <div class="weather-details">
-                    <div id="weather-info">正在从香港天文台获取天气预报…</div>
-                    <div id="warning-info" style="color:#ff5252; font-weight:bold; margin-top:10px;"></div>
-                    <div id="i-info" style="font-size:0.85rem; opacity:0.8; border-top:1px solid rgba(128,128,128,0.2); margin-top:10px; padding-top:10px;"></div>
-                </div>
+
+        <aside class="sidebar-card">
+            <img src="/person.png" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 16px;">
+            <h2 style="margin: 0; font-weight: 700;">Baipin</h2>
+            <p style="font-size: 0.9rem;" data-i18n="bio">Student / Dennis</p>
+            
+            <mdui-divider style="margin: 20px 0;"></mdui-divider>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 24px;">
+                <mdui-button-icon icon="code" href="https://github.com/baipin"></mdui-button-icon>
+                <mdui-button-icon icon="send" href="https://t.me/baipin_pw"></mdui-button-icon>
+                <mdui-button-icon icon="mail_outline" href="mailto:root@baipin.pw"></mdui-button-icon>
+                <mdui-button-icon icon="rss_feed" href="https://baipin.pw/feed"></mdui-button-icon>
             </div>
 
-            <!-- 侧栏容器：实时时间 + Yahoo Finance 行情（按钮在右上角） -->
-            <div class="card-glass" style="position:relative;">
-                <mdui-button-icon id="fullscreen-btn" icon="fullscreen" style="position:absolute; top:12px; right:12px; color:inherit; z-index:10;"></mdui-button-icon>
-                
-                <div style="font-size:0.7rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">全球市场</div>
-                
-                <div style="margin-bottom: 16px;">
-                    <div style="font-size:0.85rem; opacity:0.8;">香港时间</div>
-                    <div id="hkt-time" style="font-size:1.35rem; font-weight:700; letter-spacing:1px;">--:--:--</div>
-                </div>
-
-                <div class="market-ticker">
-                    <marquee id="market-marquee" behavior="scroll" direction="left" scrollamount="3">
-                        恒生指数: <span id="hsi" class="flat">加载中...</span>　|　
-                        上证综指: <span id="sse" class="flat">加载中...</span>　|　
-                        纳斯达克: <span id="nasdaq" class="flat">加载中...</span>　|　
-                        道琼斯: <span id="dj" class="flat">加载中...</span>　|　
-                        伦敦金: <span id="gold" class="flat">加载中...</span>　|　
-                        港元兑人民币: <span id="hkd-cny" class="flat">加载中...</span>　|　
-                        人民币兑美元: <span id="cny-usd" class="flat">加载中...</span>　|　
-                        富时100: <span id="ftse" class="flat">加载中...</span>　|　
-                        德国DAX: <span id="dax" class="flat">加载中...</span>
-                    </marquee>
-                </div>
-
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
-                    <div id="update-time" class="update-time">更新时间: --</div>
-                    <mdui-button variant="tonal" id="refresh-market-btn" class="refresh-btn" icon="refresh">刷新行情</mdui-button>
-                </div>
-            </div>
+            <mdui-button variant="tonal" full-width style="border-radius: 12px;" href="https://baipin.pw/about" data-i18n="btn_follow">关于我</mdui-button>
         </aside>
     </div>
 
-    <!-- 全屏市场模式 -->
-    <div id="fullscreen-market">
-        <div id="fullscreen-time" style="font-size: 7rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 60px;">--:--:--</div>
-        <div id="fullscreen-marquee" style="font-size: 2rem; width: 95%; text-align: center; overflow: hidden; white-space: nowrap;">
-            <!-- 动态填充 -->
+    <footer>
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="font-weight: 900; font-size: 1.2rem; color: #fff; margin-bottom: 8px; letter-spacing: 1px;">BAIPIN.PW</div>
+            <p style="font-size: 0.8rem;">&copy; 2026 百品. All rights reserved.</p>
         </div>
-        <mdui-button variant="tonal" id="exit-fullscreen-btn" style="margin-top: 80px;" icon="fullscreen_exit">退出全屏模式</mdui-button>
-    </div>
-
-    <!-- 以下为原有对话框等结构，完全未修改 -->
-    <mdui-dialog id="edit-dialog" close-on-overlay-click>
-        <span slot="headline">管理书签</span>
-        <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
-            <mdui-text-field label="URL" id="f-url"></mdui-text-field>
-            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap: wrap;" class="button-row">
-                <mdui-text-field label="图标 (MDUI名或URL)" id="f-icon" style="flex:1; min-width: 200px;"></mdui-text-field>
-                <mdui-button variant="tonal" id="btn-get-icon">抓取图标</mdui-button>
-                <mdui-button variant="tonal" id="btn-pick-icon-bookmark">挑选图标</mdui-button>
-            </div>
-            <mdui-text-field label="显示名称" id="f-name"></mdui-text-field>
-        </div>
-        <mdui-button slot="action" variant="text" id="act-cancel">取消</mdui-button>
-        <mdui-button slot="action" variant="text" id="act-del" style="color:red">删除</mdui-button>
-        <mdui-button slot="action" variant="tonal" id="act-save">保存</mdui-button>
-    </mdui-dialog>
-
-    <mdui-dialog id="add-engine-dialog" close-on-overlay-click>
-        <span slot="headline">添加自定义搜索引擎</span>
-        <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
-            <mdui-text-field label="搜索引擎名称" id="engine-name"></mdui-text-field>
-            <mdui-text-field label="搜索 URL（用 {q} 代表关键词）" id="engine-url" placeholder="https://example.com/search?q={q}"></mdui-text-field>
-            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap: wrap;" class="button-row">
-                <mdui-text-field label="图标 URL（可选）" id="engine-icon" style="flex:1; min-width: 200px;"></mdui-text-field>
-                <mdui-button variant="tonal" id="btn-get-engine-icon">抓取图标</mdui-button>
-                <mdui-button variant="tonal" id="btn-pick-icon-engine">挑选图标</mdui-button>
-            </div>
-        </div>
-        <mdui-button slot="action" variant="text" id="engine-cancel">取消</mdui-button>
-        <mdui-button slot="action" variant="tonal" id="engine-save">添加</mdui-button>
-    </mdui-dialog>
-
-    <mdui-dialog id="icon-picker-dialog" close-on-overlay-click>
-        <span slot="headline">挑选 Material Design Icons</span>
-        <div style="padding: 10px 0;">
-            <iframe id="icon-picker-iframe" class="icon-picker-iframe" 
-                    src="https://pictogrammers.com/library/mdi/"></iframe>
-        </div>
-        <div style="text-align:center; margin: 12px 0;">
-            <a href="https://pictogrammers.com/library/mdi/" target="_blank" style="color: var(--text-main); text-decoration: underline;">
-                在新窗口打开完整图标库
-            </a>
-        </div>
-        <mdui-button slot="action" variant="text" id="icon-picker-close">关闭</mdui-button>
-    </mdui-dialog>
+    </footer>
 
     <script>
-        /* ==================== 原有全部代码（未做任何删除或修改） ==================== */
-        const initLinks = [
-            { name: "我的RSS", url: "#", icon: "rss_feed" },
-            { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
-            { name: "酷安", url: "https://www.coolapk.com", icon: "https://www.coolapk.com/favicon.ico" },
-            { name: "知乎", url: "https://www.zhihu.com", icon: "https://www.zhihu.com/favicon.ico" },
-            { name: "Now新闻", url: "https://news.now.com", icon: "newspaper" },
-            { name: "unsplash", url: "https://unsplash.com", icon: "image" },
-            { name: "豆瓣", url: "https://www.douban.com", icon: "https://www.douban.com/favicon.ico" },
-            { name: "翻译", url: "https://translate.google.com", icon: "translate" },
-            { name: "斗鱼", url: "https://www.douyu.com", icon: "https://www.douyu.com/favicon.ico" },
-            { name: "CSDN", url: "https://www.csdn.net", icon: "https://www.csdn.net/favicon.ico" },
-            { name: "XDA", url: "https://www.xda-developers.com", icon: "developer_mode" },
-            { name: "百品博客", url: "https://baipin.pw", icon: "article" },
-            { name: "AIMS", url: "https://banweb.cityu.edu.hk/", icon: "school" },
-            { name: "学校邮箱", url: "https://mail.office365.com/my.cityu.edu.hk", icon: "mail" },
-            { name: "Canvas", url: "https://canvas.cityu.edu.hk/", icon: "dashboard" },
-            { name: "应用面板", url: "https://auth.cityu.edu.hk/", icon: "apps" },
-            { name: "Github", url: "https://github.com", icon: "code" }
-        ];
-        let bookmarks = JSON.parse(localStorage.getItem('bp_v7')) || initLinks;
-        let isEdit = false, curIdx = null;
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const drawer = document.getElementById('drawer');
 
-        let customEngines = JSON.parse(localStorage.getItem('custom_engines')) || {};
-        let engines = {
-            google: 'https://www.google.com/search?q=',
-            baidu: 'https://www.baidu.com/s?wd=',
-            bing: 'https://cn.bing.com/search?q=',
-            duckduckgo: 'https://duckduckgo.com/?q=',
-            yandex: 'https://yandex.com/search/?text=',
-            brave: 'https://search.brave.com/search?q=',
-            github: 'https://github.com/search?q='
-        };
-        Object.assign(engines, customEngines);
-
-        let curEng = localStorage.getItem('last_engine') || 'google';
-
-        function restoreLastEngine() {
-            const img = document.getElementById('cur-engine-img');
-            const menuItems = document.querySelectorAll('#engine-menu mdui-menu-item');
-            for (let item of menuItems) {
-                if (item.value === curEng) {
-                    img.src = item.querySelector('img').src;
-                    break;
-                }
-            }
+        function updateIcon() {
+            const isDark = html.classList.contains('mdui-theme-dark') || 
+                          (html.classList.contains('mdui-theme-auto') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            themeToggle.icon = isDark ? 'dark_mode' : 'light_mode';
         }
 
-        function render() {
-            const wrapper = document.getElementById('links-wrapper');
-            wrapper.innerHTML = '';
-            bookmarks.forEach((item, i) => {
-                const el = document.createElement('a');
-                el.className = 'link-item';
-                el.href = isEdit ? 'javascript:void(0)' : item.url;
-                if(!isEdit) el.target = "_blank";
-                const isImg = item.icon.includes('http') || item.icon.includes('.');
-                const iconHtml = isImg ? `<img src="${item.icon}">` : `<mdui-icon name="${item.icon}"></mdui-icon>`;
-                el.innerHTML = `${iconHtml}<span>${item.name}</span>`;
-
-                if (isEdit) {
-                    const up = document.createElement('span');
-                    up.className = 'sort-btn sort-up';
-                    up.innerHTML = '↑';
-                    up.onclick = (e) => { e.stopImmediatePropagation(); moveBookmark(i, -1); };
-
-                    const down = document.createElement('span');
-                    down.className = 'sort-btn sort-down';
-                    down.innerHTML = '↓';
-                    down.onclick = (e) => { e.stopImmediatePropagation(); moveBookmark(i, 1); };
-
-                    el.appendChild(up);
-                    el.appendChild(down);
-                    el.onclick = () => openDialog(i);
-                }
-                wrapper.appendChild(el);
-            });
-            document.getElementById('main-container').classList.toggle('edit-active', isEdit);
-            document.getElementById('add-btn').style.display = isEdit ? 'inline-block' : 'none';
+        function applyTheme(theme) {
+            html.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
+            html.classList.add(`mdui-theme-${theme}`);
+            updateIcon();
         }
 
-        function moveBookmark(index, direction) {
-            const newIndex = index + direction;
-            if (newIndex < 0 || newIndex >= bookmarks.length) return;
-            [bookmarks[index], bookmarks[newIndex]] = [bookmarks[newIndex], bookmarks[index]];
-            localStorage.setItem('bp_v7', JSON.stringify(bookmarks));
-            render();
-        }
-
-        const engineMenu = document.getElementById('engine-menu');
-        const engineImg = document.getElementById('cur-engine-img');
-        engineMenu.onclick = (e) => {
-            const item = e.target.closest('mdui-menu-item');
-            if (!item) return;
-            if (item.id === 'add-engine-btn') {
-                document.getElementById('add-engine-dialog').open = true;
-                return;
-            }
-            curEng = item.value;
-            localStorage.setItem('last_engine', curEng);
-            const iconSrc = item.querySelector('img').src;
-            engineImg.src = iconSrc;
-            document.getElementById('engine-dropdown').open = false;
-        };
-
-        document.getElementById('btn-get-engine-icon').onclick = () => {
-            const url = document.getElementById('engine-url').value;
-            if (url && url.startsWith('http')) {
-                const domain = new URL(url).origin;
-                document.getElementById('engine-icon').value = `${domain}/favicon.ico`;
-            }
-        };
-
-        document.getElementById('engine-save').onclick = () => {
-            const name = document.getElementById('engine-name').value.trim();
-            let url = document.getElementById('engine-url').value.trim();
-            const icon = document.getElementById('engine-icon').value.trim();
-            if (!name || !url) { alert('名称和搜索 URL 不能为空'); return; }
-            if (!url.includes('{q}')) { alert('搜索 URL 必须包含 {q}'); return; }
-
-            const key = name.toLowerCase().replace(/\s+/g, '');
-            customEngines[key] = url;
-            engines[key] = url;
-
-            const menu = document.getElementById('engine-menu');
-            const newItem = document.createElement('mdui-menu-item');
-            newItem.value = key;
-            newItem.innerHTML = `<img class="engine-favicon" src="${icon || 'https://www.google.com/favicon.ico'}" slot="icon">${name}`;
-            menu.insertBefore(newItem, document.getElementById('add-engine-btn'));
-
-            localStorage.setItem('custom_engines', JSON.stringify(customEngines));
-            document.getElementById('add-engine-dialog').open = false;
-            document.getElementById('engine-name').value = '';
-            document.getElementById('engine-url').value = '';
-            document.getElementById('engine-icon').value = '';
-        };
-
-        document.getElementById('engine-cancel').onclick = () => {
-            document.getElementById('add-engine-dialog').open = false;
-        };
-
-        const iconPickerDialog = document.getElementById('icon-picker-dialog');
-
-        function openIconPicker() {
-            iconPickerDialog.open = true;
-        }
-
-        document.getElementById('btn-pick-icon-bookmark').onclick = openIconPicker;
-        document.getElementById('btn-pick-icon-engine').onclick = openIconPicker;
-
-        document.getElementById('icon-picker-close').onclick = () => {
-            iconPickerDialog.open = false;
-        };
-
-        const dialog = document.getElementById('edit-dialog');
-        document.getElementById('edit-btn').onclick = () => { isEdit = !isEdit; render(); };
-        document.getElementById('add-btn').onclick = () => openDialog();
-
-        function openDialog(idx = null) {
-            curIdx = idx;
-            document.getElementById('f-name').value = idx !== null ? bookmarks[idx].name : '';
-            document.getElementById('f-url').value = idx !== null ? bookmarks[idx].url : '';
-            document.getElementById('f-icon').value = idx !== null ? bookmarks[idx].icon : '';
-            document.getElementById('act-del').style.display = idx !== null ? 'block' : 'none';
-            dialog.open = true;
-        }
-
-        document.getElementById('act-save').onclick = () => {
-            const data = { name: document.getElementById('f-name').value || '未命名', url: document.getElementById('f-url').value || '#', icon: document.getElementById('f-icon').value || 'link' };
-            if(curIdx !== null) bookmarks[curIdx] = data; else bookmarks.push(data);
-            localStorage.setItem('bp_v7', JSON.stringify(bookmarks));
-            dialog.open = false; render();
-        };
-
-        document.getElementById('act-del').onclick = () => { 
-            if(curIdx !== null) { 
-                bookmarks.splice(curIdx, 1); 
-                localStorage.setItem('bp_v7', JSON.stringify(bookmarks)); 
-                dialog.open = false; 
-                render(); 
-            } 
-        };
-
-        document.getElementById('act-cancel').onclick = () => {
-            dialog.open = false;
-        };
-
-        document.getElementById('btn-get-icon').onclick = () => {
-            const url = document.getElementById('f-url').value;
-            if (url && url.startsWith('http')) {
-                const domain = new URL(url).origin;
-                document.getElementById('f-icon').value = `${domain}/favicon.ico`;
-            }
-        };
-
-        /* 实时搜索联想（保持原样） */
-        const searchInput = document.getElementById('search-input');
-        const suggestionsContainer = document.getElementById('suggestions');
-        let debounceTimer = null;
-        let selectedIndex = -1;
-
-        const suggestionConfigs = {
-            baidu: { url: "https://unionsug.baidu.com/su?wd={q}&cb=sugCallback", parse: (data) => data.s },
-            google: { url: "https://suggestqueries.google.com/complete/search?client=firefox&q={q}&callback=sugCallback", parse: (data) => data[1] },
-            bing: { url: "https://api.bing.com/qsonhs.aspx?q={q}&cb=sugCallback", parse: (data) => data.AS.Results[0].Suggests.map(item => item.Txt) }
-        };
-
-        function fetchSuggestions(query) {
-            if (!query || query.trim().length < 1) {
-                suggestionsContainer.style.display = 'none';
-                return;
-            }
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                const config = suggestionConfigs[curEng] || suggestionConfigs['baidu'];
-                const oldScript = document.getElementById('sug-script');
-                if (oldScript) oldScript.remove();
-
-                const script = document.createElement('script');
-                script.id = 'sug-script';
-                window.sugCallback = (data) => {
-                    const list = config.parse(data) || [];
-                    renderSuggestions(list);
-                    delete window.sugCallback;
-                    script.remove();
-                };
-                script.src = config.url.replace('{q}', encodeURIComponent(query));
-                document.body.appendChild(script);
-            }, 200);
-        }
-
-        function renderSuggestions(list) {
-            suggestionsContainer.innerHTML = '';
-            if (list.length === 0) { suggestionsContainer.style.display = 'none'; return; }
-            list.slice(0, 10).forEach((text) => {
-                const div = document.createElement('div');
-                div.className = 'suggestion-item';
-                div.textContent = text;
-                div.onclick = () => {
-                    searchInput.value = text;
-                    suggestionsContainer.style.display = 'none';
-                    performSearch(text);
-                };
-                suggestionsContainer.appendChild(div);
-            });
-            suggestionsContainer.style.display = 'block';
-            selectedIndex = -1;
-        }
-
-        function performSearch(query) {
-            if (!query || !query.trim()) return;
-            const engineUrl = engines[curEng] || engines['google'];
-            const finalUrl = engineUrl.includes('{q}') 
-                ? engineUrl.replace('{q}', encodeURIComponent(query))
-                : engineUrl + encodeURIComponent(query);
-            window.open(finalUrl, '_blank');
-        }
-
-        searchInput.addEventListener('input', () => fetchSuggestions(searchInput.value.trim()));
-        searchInput.addEventListener('keydown', (e) => {
-            const items = suggestionsContainer.querySelectorAll('.suggestion-item');
-            const isVisible = suggestionsContainer.style.display === 'block';
-
-            if (e.key === 'ArrowDown' && isVisible) { 
-                e.preventDefault(); 
-                selectedIndex = Math.min(selectedIndex + 1, items.length - 1); 
-                updateSelection(items); 
-            } 
-            else if (e.key === 'ArrowUp' && isVisible) { 
-                e.preventDefault(); 
-                selectedIndex = Math.max(selectedIndex - 1, -1); 
-                updateSelection(items); 
-            } 
-            else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (isVisible && selectedIndex >= 0 && items[selectedIndex]) {
-                    const text = items[selectedIndex].textContent;
-                    searchInput.value = text;
-                    suggestionsContainer.style.display = 'none';
-                    performSearch(text);
-                } else if (searchInput.value.trim()) {
-                    suggestionsContainer.style.display = 'none';
-                    performSearch(searchInput.value);
-                }
-            } 
-            else if (e.key === 'Escape') {
-                suggestionsContainer.style.display = 'none';
-            }
-        });
-        function updateSelection(items) {
-            items.forEach((item, i) => item.classList.toggle('selected', i === selectedIndex));
-        }
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
-                suggestionsContainer.style.display = 'none';
-            }
+        themeToggle.addEventListener('click', () => {
+            const isCurrentlyDark = html.classList.contains('mdui-theme-dark') || 
+                                   (html.classList.contains('mdui-theme-auto') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const nextTheme = isCurrentlyDark ? 'light' : 'dark';
+            applyTheme(nextTheme);
+            localStorage.setItem('theme', nextTheme);
         });
 
-        /* --- 天气代码逻辑（关键词匹配，保持原样） --- */
-        const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
-        const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
-        const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
+        document.getElementById('drawer-list').addEventListener('click', () => { drawer.open = false; });
 
-        async function fetchData(url, elementId, formatData) {
-            const element = document.getElementById(elementId);
+        const i18n = {
+            'zh-CN': {
+                nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
+                hero_title: '我欲穿花寻路，直入白云深处。',
+                hero_desc: '欢迎造访百品入口网站。',
+                photo_title: '浙江丽水 · 云和梯田', photo_desc: '摄于2023年旅行时。',
+                news_title: '最新文章', bio: 'Student / Dennis', btn_follow: '关于我', enter_blog: '进入博客'
+            },
+            'en': {
+                nav_home: 'Home', nav_blog: 'Blog', nav_projects: 'Projects', nav_about: 'About',
+                hero_title: 'Seeking paths through flowers, straight into the clouds.',
+                hero_desc: 'Welcome to Baipin Portal.',
+                photo_title: 'Yunhe Terraces · Lishui', photo_desc: 'Shot during travelling in 2023.',
+                news_title: 'Latest Posts', bio: 'Student / Dennis', btn_follow: 'About Me', enter_blog: 'Enter Blog'
+            }
+        };
+
+        let currentLang = 'zh-CN';
+        document.getElementById('lang-btn').addEventListener('click', () => {
+            currentLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.innerText = i18n[currentLang][key];
+            });
+        });
+
+        async function fetchRSS() {
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('网络响应不正常');
+                const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://baipin.pw/feed')}`);
                 const data = await response.json();
-                element.innerHTML = formatData(data);
-            } catch (error) { element.innerHTML = `无法加载数据：${error.message}`; }
-        }
-        function formatWeatherData(data) {
-            return `<p><strong>总体情况：</strong>${data.generalSituation}</p>
-                    <p><strong>天气预测：</strong>${data.forecastDesc}</p>
-                    <p><strong>展望：</strong>${data.outlook}</p>
-                    <p style="font-size:0.8rem; opacity:0.6;">更新时间：${data.updateTime}</p>`;
-        }
-        function formatWarningData(data) {
-            if (!data.details || data.details.length === 0) return '现时没有警告生效。';
-            return data.details.map(detail => `<p>⚠️ ${detail.contents.join(' ')}</p>`).join('');
-        }
-        function formatSpecialWeatherData(data) {
-            if (!data.swt || data.swt.length === 0) return '现时没有特别天气提示。';
-            return data.swt.map(item => `<p>ℹ️ ${item.desc}</p>`).join('');
-        }
-
-        function getIconByKeyword(text) {
-            if (!text) return 51;
-            const t = text.toLowerCase();
-            if (t.includes('雷暴') || t.includes('雷雨')) return 65;
-            if (t.includes('暴雨')) return 64;
-            if (t.includes('大雨')) return 64;
-            if (t.includes('骤雨') || t.includes('阵雨') || t.includes('有雨') || t.includes('微雨') || t.includes('毛毛雨')) return 63;
-            if (t.includes('天晴') || t.includes('阳光充沛') || t.includes('晴朗')) return 50;
-            if (t.includes('部分时间有阳光') || t.includes('间有阳光') || t.includes('短暂时间有阳光')) return 51;
-            if (t.includes('短暂阳光')) return 52;
-            if (t.includes('多云') || t.includes('天色明朗')) return 60;
-            if (t.includes('天阴') || t.includes('密云') || t.includes('阴天') || t.includes('大致多云')) return 61;
-            if (t.includes('雾') || t.includes('薄雾') || t.includes('烟霞') || t.includes('能见度低')) return 80;
-            if (t.includes('烈风') || t.includes('强风')) return 90;
-            return 51;
-        }
-
-        async function updateLiveWeather() {
-            try {
-                const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
-                const data = await res.json();
-                if (data.temperature && data.temperature.data && data.temperature.data.length > 0) {
-                    document.getElementById('curr-temp').innerText = data.temperature.data[0].value;
-                }
-                if (data.humidity && data.humidity.data && data.humidity.data.length > 0) {
-                    document.getElementById('curr-hum').innerText = data.humidity.data[0].value;
-                }
-
-                const flwRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc');
-                const flwData = await flwRes.json();
-                if (flwData.forecastDesc) {
-                    const iconCode = getIconByKeyword(flwData.forecastDesc);
-                    const img = document.getElementById('weather-icon-img');
-                    img.src = `https://www.hko.gov.hk/images/wxicon/pic${iconCode}.png`;
-                    img.style.display = 'block';
-                }
-            } catch(e) {
-                console.error('天气数据获取失败:', e);
+                const container = document.getElementById('rss-feed-container');
+                container.innerHTML = '';
+                data.items.slice(0, 5).forEach(item => {
+                    const el = document.createElement('a');
+                    el.className = 'rss-item';
+                    el.href = item.link;
+                    el.target = '_blank';
+                    el.innerHTML = `<div style="font-weight: 700;">${item.title}</div><div style="font-size: 0.8rem; color: #999; margin-top: 4px;">${new Date(item.pubDate).toLocaleDateString()}</div>`;
+                    container.appendChild(el);
+                });
+            } catch (e) {
+                document.getElementById('rss-feed-container').innerHTML = '<p>Feed 加载失败</p>';
             }
         }
 
-        /* --- 主题控制 + 记忆 --- */
-        document.getElementById('theme-btn').onclick = () => {
-            const isDark = document.documentElement.classList.toggle('mdui-theme-dark');
-            document.documentElement.classList.toggle('mdui-theme-light', !isDark);
-            document.getElementById('theme-btn').icon = isDark ? 'dark_mode' : 'light_mode';
-            localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
-        };
-
-        const savedTheme = localStorage.getItem('theme_mode');
-        if (savedTheme === 'dark') {
-            document.documentElement.classList.add('mdui-theme-dark');
-            document.getElementById('theme-btn').icon = 'dark_mode';
-        }
-
-        /* ==================== 修改部分：Yahoo Finance API + 全屏按钮位置修复 ==================== */
-        function updateHKTTime() {
-            const now = new Date().toLocaleString('zh-CN', { 
-                timeZone: 'Asia/Hong_Kong',
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
-            });
-            document.getElementById('hkt-time').textContent = now;
-        }
-        setInterval(updateHKTTime, 1000);
-        updateHKTTime();
-
-        // Yahoo Finance 行情（v7 quote + v8 chart 辅助）
-        const yahooSymbols = {
-            hsi: '^HSI',
-            sse: '000001.SS',
-            nasdaq: '^IXIC',
-            dj: '^DJI',
-            gold: 'GC=F',
-            hkd_cny: 'HKDCNY=X',
-            cny_usd: 'USDCNY=X',
-            ftse: '^FTSE',
-            dax: '^GDAXI'
-        };
-
-        async function updateMarketData() {
-            let marqueeHTML = '';
-
-            for (let [id, symbol] of Object.entries(yahooSymbols)) {
-                try {
-                    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}`;
-                    const res = await fetch(url, { 
-                        headers: { 'User-Agent': 'Mozilla/5.0' } 
-                    });
-                    const data = await res.json();
-                    const quote = data.quoteResponse.result[0];
-
-                    if (!quote) continue;
-
-                    const price = quote.regularMarketPrice ? quote.regularMarketPrice.toFixed(2) : 'N/A';
-                    const changePercent = quote.regularMarketChangePercent ? quote.regularMarketChangePercent.toFixed(2) : 0;
-
-                    let colorClass = 'flat';
-                    if (changePercent > 0) colorClass = 'up';
-                    else if (changePercent < 0) colorClass = 'down';
-
-                    document.getElementById(id).innerHTML = 
-                        `${price} <span class="${colorClass}">(${changePercent > 0 ? '+' : ''}${changePercent}%)</span>`;
-
-                    marqueeHTML += `${id.toUpperCase()}: ${price} <span class="${colorClass}">(${changePercent > 0 ? '+' : ''}${changePercent}%)</span>　|　`;
-                } catch (e) {
-                    document.getElementById(id).textContent = 'N/A';
-                }
-            }
-
-            document.getElementById('market-marquee').innerHTML = marqueeHTML;
-            document.getElementById('update-time').textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
-            document.getElementById('fullscreen-marquee').innerHTML = marqueeHTML;
-        }
-
-        document.getElementById('refresh-market-btn').onclick = updateMarketData;
-
-        // 全屏市场模式（按钮已在侧栏右上角）
-        const fullscreenMarket = document.getElementById('fullscreen-market');
-        document.getElementById('fullscreen-btn').onclick = () => {
-            fullscreenMarket.style.display = 'flex';
-            updateMarketData(); // 立即刷新
-        };
-        document.getElementById('exit-fullscreen-btn').onclick = () => {
-            fullscreenMarket.style.display = 'none';
-        };
-
-        // 初始加载
-        restoreLastEngine();
-        render();
-        updateLiveWeather();
-        fetchData(apiUrl, 'weather-info', formatWeatherData);
-        fetchData(warningApiUrl, 'warning-info', formatWarningData);
-        fetchData(iUrl, 'i-info', formatSpecialWeatherData);
-        updateMarketData();
-        setInterval(updateMarketData, 30000); // 每30秒自动刷新
+        const savedTheme = localStorage.getItem('theme') || 'auto';
+        applyTheme(savedTheme);
+        fetchRSS();
     </script>
 </body>
 </html>
