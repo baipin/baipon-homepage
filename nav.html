@@ -776,64 +776,37 @@
         }
 
         async function fetchHKNews() {
-    try async function fetchHKNews() {
-    let allTitles = [];
+    let marqueeHTML = '';
 
     for (let rssUrl of customRSS) {
         try {
-            const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=10`;
+            // 使用 RSS 转 JSON 服务（解决 CORS）
+            const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
             const res = await fetch(api);
             const data = await res.json();
 
-            // ⭐ 防止接口返回错误
-            if (data.status !== 'ok') {
-                console.warn('RSS失败:', rssUrl, data);
-                continue;
-            }
-
             if (data.items && data.items.length) {
                 data.items.forEach(item => {
                     if (item.title) {
-                        allTitles.push(item.title.trim());
+                        marqueeHTML += `${item.title}　|　`;
                     }
                 });
             }
 
-            //  防止请求过快（避免被封）
-            await new Promise(r => setTimeout(r, 300));
-
         } catch (e) {
-            console.error('RSS异常:', rssUrl, e);
+            console.error(`RSS失败: ${rssUrl}`, e);
         }
     }
 
-    //  去重
-    allTitles = [...new Set(allTitles)];
+    if (!marqueeHTML) marqueeHTML = '暂无最新新闻，请稍后刷新...';
 
-    //  限制最大数量（防止过长卡死）
-    allTitles = allTitles.slice(0, 50);
-
-    let marqueeHTML = allTitles.join('　|　');
-
-    if (!marqueeHTML) {
-        marqueeHTML = '⚠️ RSS加载失败（可能被限流），请稍后刷新';
-    }
-
-    // 普通
-    const marquee = document.getElementById('news-marquee');
-    if (marquee) marquee.innerHTML = marqueeHTML;
-
-    // 全屏
-    const full = document.getElementById('fullscreen-marquee');
-    if (full) full.innerHTML = `<span>${marqueeHTML}</span>`;
-
-    // 时间
-    const timeEl = document.getElementById('update-time');
-    if (timeEl) {
-        timeEl.textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
-    }
-                    }
+    document.getElementById('news-marquee').innerHTML = marqueeHTML;
+    document.getElementById('fullscreen-marquee').innerHTML =
+    `<span>${marqueeHTML}</span>`;
+    document.getElementById('update-time').textContent =
+        `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
+        }
 
         document.getElementById('refresh-news-btn').onclick = fetchHKNews;
 
@@ -890,9 +863,7 @@
         const fullscreenMarket = document.getElementById('fullscreen-market');
         document.getElementById('fullscreen-btn').onclick = () => {
             fullscreenMarket.style.display = 'flex';
-            document.addEventListener('DOMContentLoaded', () => {
-    fetchHKNews();
-});
+            fetchHKNews();
         };
         document.getElementById('exit-fullscreen-btn').onclick = () => {
             fullscreenMarket.style.display = 'none';
@@ -906,9 +877,7 @@
         fetchData(apiUrl, 'weather-info', formatWeatherData);
         fetchData(warningApiUrl, 'warning-info', formatWarningData);
         fetchData(iUrl, 'i-info', formatSpecialWeatherData);
-        document.addEventListener('DOMContentLoaded', () => {
-    fetchHKNews();
-});
+        fetchHKNews();
         setInterval(fetchHKNews, 180000);
         setInterval(updateHKTTime, 1000);
     </script>
