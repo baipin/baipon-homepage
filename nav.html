@@ -98,15 +98,17 @@
         .weather-details p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; }
         @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .side-stack { order: -1; } }
 
-        /* 新增侧栏行情样式 */
+        /* 行情颜色样式 */
+        .up { color: #00c853; }
+        .down { color: #ff5252; }
+        .flat { color: #9e9e9e; }
+
+        /* 侧栏行情样式 */
         .market-ticker {
             font-size: 0.95rem;
             line-height: 1.8;
             overflow: hidden;
             white-space: nowrap;
-        }
-        .market-ticker marquee {
-            color: var(--text-main);
         }
         .refresh-btn {
             font-size: 0.85rem;
@@ -192,7 +194,7 @@
                 </div>
             </div>
 
-            <!-- 新增侧栏容器：实时时间 + 真实行情滚动 -->
+            <!-- 侧栏容器：实时时间 + Google Finance 真实行情（带颜色） -->
             <div class="card-glass">
                 <div style="font-size:0.7rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">全球市场</div>
                 
@@ -203,15 +205,15 @@
 
                 <div class="market-ticker">
                     <marquee id="market-marquee" behavior="scroll" direction="left" scrollamount="3">
-                        恒生指数: <span id="hsi">加载中...</span>　|　
-                        上证综指: <span id="sse">加载中...</span>　|　
-                        纳斯达克: <span id="nasdaq">加载中...</span>　|　
-                        道琼斯: <span id="dj">加载中...</span>　|　
-                        伦敦金: <span id="gold">加载中...</span>　|　
-                        港元兑人民币: <span id="hkd-cny">加载中...</span>　|　
-                        人民币兑美元: <span id="cny-usd">加载中...</span>　|　
-                        富时100: <span id="ftse">加载中...</span>　|　
-                        德国DAX: <span id="dax">加载中...</span>
+                        恒生指数: <span id="hsi" class="flat">加载中...</span>　|　
+                        上证综指: <span id="sse" class="flat">加载中...</span>　|　
+                        纳斯达克: <span id="nasdaq" class="flat">加载中...</span>　|　
+                        道琼斯: <span id="dj" class="flat">加载中...</span>　|　
+                        伦敦金: <span id="gold" class="flat">加载中...</span>　|　
+                        港元兑人民币: <span id="hkd-cny" class="flat">加载中...</span>　|　
+                        人民币兑美元: <span id="cny-usd" class="flat">加载中...</span>　|　
+                        富时100: <span id="ftse" class="flat">加载中...</span>　|　
+                        德国DAX: <span id="dax" class="flat">加载中...</span>
                     </marquee>
                 </div>
 
@@ -463,7 +465,7 @@
             }
         };
 
-        /* 实时搜索联想 */
+        /* 实时搜索联想（保持原样） */
         const searchInput = document.getElementById('search-input');
         const suggestionsContainer = document.getElementById('suggestions');
         let debounceTimer = null;
@@ -650,7 +652,7 @@
             document.getElementById('theme-btn').icon = 'dark_mode';
         }
 
-        /* 新增侧栏：实时香港时间 + 真实行情（Alpha Vantage） */
+        /* 新增侧栏：实时香港时间 + Google Finance 真实行情（带颜色） */
         function updateHKTTime() {
             const now = new Date().toLocaleString('zh-CN', { 
                 timeZone: 'Asia/Hong_Kong',
@@ -664,29 +666,37 @@
         setInterval(updateHKTTime, 1000);
         updateHKTTime();
 
-        // 真实行情更新（使用 Alpha Vantage 免费接口）
+        // Google Finance 行情更新（真实数据 + 颜色）
         async function updateMarketData() {
-            const symbols = {
-                hsi: '^HSI',      // 恒生
-                sse: '000001.SS', // 上证
-                nasdaq: '^IXIC',  // 纳斯达克
-                dj: '^DJI',       // 道琼斯
-                gold: 'XAUUSD',   // 伦敦金（黄金）
-                hkd_cny: 'HKDCNY',// 港元兑人民币
-                cny_usd: 'USDCNY',// 人民币兑美元
-                ftse: '^FTSE',    // 富时100
-                dax: '^GDAXI'     // 德国DAX
+            const tickers = {
+                hsi: 'HSI:INDEXHANGSENG',
+                sse: '000001:SHA',
+                nasdaq: 'IXIC:INDEXNASDAQ',
+                dj: 'DJI:INDEXDJX',
+                gold: 'GC00:COMMODITY',
+                hkd_cny: 'HKDCNY',
+                cny_usd: 'USDCNY',
+                ftse: 'UKX:INDEXFTSE',
+                dax: 'GDAXI:INDEXDB'
             };
 
-            const baseUrl = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&apikey=demo&symbol=';
-
             try {
-                for (let [id, symbol] of Object.entries(symbols)) {
-                    const res = await fetch(baseUrl + symbol);
-                    const data = await res.json();
-                    const price = data['Global Quote'] ? data['Global Quote']['05. price'] || 'N/A' : 'N/A';
-                    const change = data['Global Quote'] ? data['Global Quote']['10. change percent'] || '' : '';
-                    document.getElementById(id).textContent = `${parseFloat(price).toFixed(2)} ${change}`;
+                for (let [id, symbol] of Object.entries(tickers)) {
+                    // 使用 Google Finance 公开数据源（通过代理或直接 fetch，实际可优化为可靠后端）
+                    const res = await fetch(`https://www.google.com/finance/quote/${symbol}`);
+                    const html = await res.text();
+                    // 简单解析价格和变化（实际生产中建议使用专用 scraper 或后端代理）
+                    const priceMatch = html.match(/data-last-price="([^"]+)"/);
+                    const changeMatch = html.match(/data-change-percent="([^"]+)"/);
+
+                    const price = priceMatch ? parseFloat(priceMatch[1]).toFixed(2) : 'N/A';
+                    let change = changeMatch ? parseFloat(changeMatch[1]) : 0;
+
+                    let colorClass = 'flat';
+                    if (change > 0) colorClass = 'up';
+                    else if (change < 0) colorClass = 'down';
+
+                    document.getElementById(id).innerHTML = `${price} <span class="${colorClass}">(${change > 0 ? '+' : ''}${change}%)</span>`;
                 }
                 document.getElementById('update-time').textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
             } catch (e) {
@@ -704,8 +714,8 @@
         fetchData(apiUrl, 'weather-info', formatWeatherData);
         fetchData(warningApiUrl, 'warning-info', formatWarningData);
         fetchData(iUrl, 'i-info', formatSpecialWeatherData);
-        updateMarketData();   // 初始行情加载
-        setInterval(updateMarketData, 30000); // 每30秒自动刷新（免费API友好）
+        updateMarketData();
+        setInterval(updateMarketData, 30000); // 每30秒自动刷新
     </script>
 </body>
 </html>
