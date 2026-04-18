@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>百品导航 - 新概念版</title>
+    <title>百品导航 - 123</title>
     
     <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -11,219 +11,257 @@
     <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
     
     <style>
-        :root { --nav-height: 64px; --hero-height: 42vh; }
-        html { background-color: #fff; transition: background-color 0.3s; }
+        :root { 
+            --nav-height: 64px; 
+            --hero-height: 40vh; 
+            --max-width: 1200px;
+        }
+
+        /* --- 1. 基础容器修复 --- */
+        html, body { 
+            margin: 0; padding: 0; min-height: 100vh;
+            background-color: #fff; transition: background-color 0.3s;
+        }
         html.mdui-theme-dark { background-color: #121212; }
-        body { margin: 0; padding: 0; font-family: "Product Sans", system-ui, sans-serif; padding-top: var(--nav-height); }
+
         body::before {
             content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url('/home.jpg') center/cover no-repeat; z-index: -1;
         }
         .mdui-theme-dark body::before { filter: brightness(0.6); }
 
-        /* --- 搜索区域 --- */
-        .hero-space { height: var(--hero-height); display: flex; align-items: center; justify-content: center; }
-        .search-wrapper {
-            width: 100%; max-width: 600px; background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 50px; padding: 6px 16px; display: flex; align-items: center;
+        /* --- 2. 导航栏层级 --- */
+        .app-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: var(--nav-height);
+            z-index: 1000; display: flex; align-items: center; padding: 0 5%;
+            background: rgba(255,255,255,0.7) !important; backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
-        .search-input { flex-grow: 1; border: none; background: transparent; color: white; padding: 12px; font-size: 1.1rem; outline: none; }
-        .mdui-theme-light .search-input { color: #000; }
+        .mdui-theme-dark .app-bar { 
+            background: rgba(28,27,31,0.7) !important; color: #e6e1e5;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .mdui-theme-light .app-bar { color: #000; }
 
-        /* --- 布局 --- */
-        .main-layout { max-width: 1200px; margin: 0 auto 60px; display: grid; grid-template-columns: 1fr 340px; gap: 28px; width: calc(100% - 40px); }
-        .card-base { border-radius: 28px; background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); padding: 32px; }
-        .mdui-theme-dark .card-base { background: rgba(35, 34, 40, 0.85); color: #e6e1e5; }
-        
-        /* --- 书签网格 --- */
-        .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 16px; }
-        .bookmark-item {
+        /* --- 3. Hero 搜索区 --- */
+        .hero-space { 
+            height: var(--hero-height); display: flex; align-items: center; justify-content: center; 
+            padding-top: var(--nav-height);
+        }
+        .search-container {
+            width: 90%; max-width: 600px; background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 50px; padding: 6px 16px; display: flex; align-items: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .search-input { 
+            flex: 1; border: none; background: transparent; padding: 12px; 
+            font-size: 1.1rem; outline: none; color: #000;
+        }
+        .mdui-theme-dark .search-input { color: #fff; }
+
+        /* --- 4. 主布局 Grid --- */
+        .content-layout {
+            max-width: var(--max-width); margin: 0 auto 60px;
+            display: grid; grid-template-columns: 1fr 340px; gap: 30px;
+            padding: 0 20px;
+        }
+
+        .card-main {
+            border-radius: 28px; background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(15px); padding: 32px; min-height: 400px;
+        }
+        .mdui-theme-dark .card-main { background: rgba(35, 34, 40, 0.85); color: #e6e1e5; }
+
+        /* --- 5. 书签网格 --- */
+        .links-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); 
+            gap: 16px; margin-top: 20px;
+        }
+        .link-item {
             position: relative; display: flex; flex-direction: column; align-items: center;
-            padding: 16px 8px; border-radius: 20px; background: rgba(128,128,128,0.06);
+            padding: 20px 10px; border-radius: 20px; background: rgba(128,128,128,0.08);
             text-decoration: none; color: inherit; transition: all 0.2s;
         }
-        .bookmark-item:hover { transform: translateY(-5px); background: rgba(128,128,128,0.12); }
-        .bookmark-item img, .bookmark-item mdui-icon { width: 32px; height: 32px; font-size: 32px; margin-bottom: 10px; border-radius: 6px; }
-        .bookmark-item span { font-size: 0.85rem; font-weight: 600; text-align: center; }
+        .link-item:hover { transform: translateY(-5px); background: rgba(128,128,128,0.15); }
+        .link-item img, .link-item mdui-icon { 
+            width: 32px; height: 32px; font-size: 32px; margin-bottom: 12px; border-radius: 8px;
+        }
+        .link-item span { font-size: 0.9rem; font-weight: 600; text-align: center; }
 
-        /* 管理模式样式 */
-        .edit-mode .bookmark-item::after {
-            content: "edit"; font-family: 'Material Icons'; position: absolute; top: 5px; right: 5px;
-            font-size: 14px; background: #2196f3; color: white; border-radius: 50%; padding: 4px;
+        /* 编辑模式标识 */
+        .edit-active .link-item::after {
+            content: "edit"; font-family: 'Material Icons'; position: absolute; top: 8px; right: 8px;
+            font-size: 12px; background: #2196f3; color: white; border-radius: 50%; padding: 4px;
         }
 
-        .side-module { padding: 24px; margin-bottom: 24px; }
-        @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } .side-card { order: -1; } }
+        /* --- 6. 侧栏 --- */
+        .side-stack { display: flex; flex-direction: column; gap: 24px; }
+        .side-card { 
+            border-radius: 24px; background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(15px); padding: 24px; 
+        }
+        .mdui-theme-dark .side-card { background: rgba(35, 34, 40, 0.85); }
+
+        @media (max-width: 900px) {
+            .content-layout { grid-template-columns: 1fr; }
+            .side-stack { order: -1; }
+            :root { --hero-height: 30vh; }
+        }
     </style>
 </head>
 <body class="mdui-theme-auto">
 
-    <header class="custom-app-bar" style="position:fixed; top:0; width:100%; z-index:1000; display:flex; align-items:center; padding: 0 5%; height:64px; background:rgba(255,255,255,0.7); backdrop-filter:blur(20px);">
-        <span style="font-weight:900; font-size:1.2rem;">BAIPIN</span>
+    <header class="app-bar">
+        <span style="font-weight:900; letter-spacing:1px;">BAIPIN</span>
         <div style="flex-grow: 1"></div>
-        <mdui-button-icon id="theme-toggle" icon="light_mode"></mdui-button-icon>
-        <mdui-button-icon id="edit-mode-toggle" icon="edit_note"></mdui-button-icon>
+        <mdui-button-icon id="theme-btn" icon="light_mode"></mdui-button-icon>
+        <mdui-button-icon id="edit-btn" icon="settings_suggest"></mdui-button-icon>
     </header>
 
     <section class="hero-space">
-        <div class="search-wrapper">
-            <mdui-button-icon id="current-engine-btn" icon="search"></mdui-button-icon>
-            <input type="text" class="search-input" id="search-input" placeholder="搜索一下...">
+        <div class="search-container">
+            <mdui-button-icon icon="search" id="engine-btn"></mdui-button-icon>
+            <input type="text" class="search-input" id="search-input" placeholder="键入以搜索...">
         </div>
     </section>
 
-    <div class="main-layout">
-        <main class="card-base">
-            <div style="display:flex; align-items:center; margin-bottom:24px;">
-                <div style="font-size: 1.3rem; font-weight: 900;">我的书签</div>
-                <div style="flex-grow:1"></div>
-                <mdui-button-icon id="add-bookmark-btn" icon="add" style="display:none"></mdui-button-icon>
+    <div class="content-layout">
+        <main class="card-main" id="main-container">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <h2 style="margin:0; font-size:1.4rem;">导航</h2>
+                <mdui-button-icon id="add-btn" icon="add_circle" style="display:none"></mdui-button-icon>
             </div>
-            
-            <div class="link-grid" id="bookmark-container">
-                </div>
+            <div class="links-grid" id="links-wrapper"></div>
         </main>
 
-        <aside class="side-card">
-            <div class="card-base side-module">
-                <div style="font-size:0.75rem; opacity:0.5; margin-bottom:12px; font-weight:bold;">拾遗</div>
-                <div id="jinrishici-sentence" style="font-style:italic; font-size:1.1rem;">...</div>
+        <aside class="side-stack">
+            <div class="side-card">
+                <div style="font-size:0.7rem; opacity:0.5; font-weight:bold; margin-bottom:10px;">拾遗</div>
+                <div id="jinrishici-sentence" style="font-family: serif; font-style: italic; font-size: 1.1rem; line-height: 1.6;">...</div>
             </div>
 
-            <div class="card-base side-module">
-                <div style="font-size:0.75rem; font-weight:bold; opacity:0.6; margin-bottom:12px;">香港天文台</div>
-                <div id="weather-info" style="font-size:0.9rem;">加载中...</div>
+            <div class="side-card">
+                <div style="font-size:0.7rem; opacity:0.5; font-weight:bold; margin-bottom:10px;">本港天气</div>
+                <div id="weather-info" style="font-size:0.9rem; line-height:1.6;">获取中...</div>
+                <div id="warning-info" style="color:#f44336; font-size:0.8rem; margin-top:8px;"></div>
             </div>
         </aside>
     </div>
 
-    <mdui-dialog id="bookmark-dialog" close-on-overlay-click>
-        <span slot="headline" id="dialog-title">管理书签</span>
-        <div style="display:flex; flex-direction:column; gap:16px;">
-            <mdui-text-field label="名称" id="field-name"></mdui-text-field>
-            <mdui-text-field label="链接 (URL)" id="field-url"></mdui-text-field>
-            <mdui-text-field label="图标 (MDUI图标名或图片URL)" id="field-icon" placeholder="例如: rss_feed 或 https://..."></mdui-text-field>
+    <mdui-dialog id="edit-dialog" close-on-overlay-click>
+        <span slot="headline">书签管理</span>
+        <div style="display:flex; flex-direction:column; gap:20px; padding:10px 0;">
+            <mdui-text-field label="名称" id="f-name"></mdui-text-field>
+            <mdui-text-field label="链接" id="f-url"></mdui-text-field>
+            <mdui-text-field label="图标 (MDUI图标名或URL)" id="f-icon"></mdui-text-field>
         </div>
-        <mdui-button slot="action" variant="text" id="btn-delete" style="color:red">删除</mdui-button>
-        <mdui-button slot="action" variant="tonal" id="btn-save">保存</mdui-button>
+        <mdui-button slot="action" variant="text" id="act-del" style="color:red">删除</mdui-button>
+        <mdui-button slot="action" variant="tonal" id="act-save">提交</mdui-button>
     </mdui-dialog>
 
     <script>
-        // 初始数据
-        const defaultBookmarks = [
+        // 1. 初始化数据
+        const defaultLinks = [
             { name: "我的RSS", url: "#", icon: "rss_feed" },
             { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
             { name: "酷安", url: "https://www.coolapk.com", icon: "https://www.coolapk.com/favicon.ico" },
             { name: "知乎", url: "https://www.zhihu.com", icon: "https://www.zhihu.com/favicon.ico" },
-            { name: "Now新闻", url: "#", icon: "newspaper" },
+            { name: "Now新闻", url: "https://news.now.com", icon: "newspaper" },
             { name: "unsplash", url: "https://unsplash.com", icon: "image" },
             { name: "豆瓣", url: "https://www.douban.com", icon: "https://www.douban.com/favicon.ico" },
             { name: "翻译", url: "https://translate.google.com", icon: "translate" },
-            { name: "CSDN", url: "https://www.csdn.net", icon: "https://www.csdn.net/favicon.ico" },
             { name: "Github", url: "https://github.com", icon: "code" }
         ];
 
-        let bookmarks = JSON.parse(localStorage.getItem('user_bookmarks')) || defaultBookmarks;
-        let isEditMode = false;
-        let currentEditIndex = null;
+        let bookmarks = JSON.parse(localStorage.getItem('bp_bookmarks')) || defaultLinks;
+        let editMode = false;
+        let editIdx = null;
 
-        const container = document.getElementById('bookmark-container');
-        const dialog = document.getElementById('bookmark-dialog');
+        const wrapper = document.getElementById('links-wrapper');
+        const dialog = document.getElementById('edit-dialog');
 
-        // 渲染函数
+        // 2. 渲染核心
         function render() {
-            container.innerHTML = '';
-            bookmarks.forEach((item, index) => {
-                const a = document.createElement('a');
-                a.className = 'bookmark-item';
-                a.href = isEditMode ? 'javascript:void(0)' : item.url;
-                if(!isEditMode) a.target = "_blank";
+            wrapper.innerHTML = '';
+            bookmarks.forEach((item, i) => {
+                const el = document.createElement('a');
+                el.className = 'link-item';
+                el.href = editMode ? 'javascript:void(0)' : item.url;
+                if(!editMode) el.target = "_blank";
                 
-                // 判断是图标名还是URL
-                const isImg = item.icon.includes('http') || item.icon.includes('.');
-                const iconHtml = isImg ? `<img src="${item.icon}">` : `<mdui-icon name="${item.icon}"></mdui-icon>`;
+                const isUrl = item.icon.includes('http') || item.icon.includes('.');
+                const iconContent = isUrl ? `<img src="${item.icon}">` : `<mdui-icon name="${item.icon}"></mdui-icon>`;
                 
-                a.innerHTML = `${iconHtml}<span>${item.name}</span>`;
-                a.onclick = () => { if(isEditMode) openEdit(index); };
-                container.appendChild(a);
+                el.innerHTML = `${iconContent}<span>${item.name}</span>`;
+                el.onclick = () => { if(editMode) openDialog(i); };
+                wrapper.appendChild(el);
             });
-            document.body.classList.toggle('edit-mode', isEditMode);
-            document.getElementById('add-bookmark-btn').style.display = isEditMode ? 'inline-block' : 'none';
+            document.getElementById('main-container').classList.toggle('edit-active', editMode);
+            document.getElementById('add-btn').style.display = editMode ? 'block' : 'none';
         }
 
-        // 编辑模式切换
-        document.getElementById('edit-mode-toggle').onclick = () => {
-            isEditMode = !isEditMode;
-            render();
-        };
+        // 3. 交互逻辑
+        document.getElementById('edit-btn').onclick = () => { editMode = !editMode; render(); };
+        document.getElementById('add-btn').onclick = () => openDialog();
 
-        // 打开对话框
-        function openEdit(index = null) {
-            currentEditIndex = index;
-            if(index !== null) {
-                document.getElementById('dialog-title').innerText = "修改书签";
-                document.getElementById('field-name').value = bookmarks[index].name;
-                document.getElementById('field-url').value = bookmarks[index].url;
-                document.getElementById('field-icon').value = bookmarks[index].icon;
-                document.getElementById('btn-delete').style.display = 'inline-block';
+        function openDialog(idx = null) {
+            editIdx = idx;
+            if(idx !== null) {
+                document.getElementById('f-name').value = bookmarks[idx].name;
+                document.getElementById('f-url').value = bookmarks[idx].url;
+                document.getElementById('f-icon').value = bookmarks[idx].icon;
+                document.getElementById('act-del').style.display = 'block';
             } else {
-                document.getElementById('dialog-title').innerText = "增加书签";
-                document.getElementById('field-name').value = '';
-                document.getElementById('field-url').value = '';
-                document.getElementById('field-icon').value = '';
-                document.getElementById('btn-delete').style.display = 'none';
+                document.getElementById('f-name').value = '';
+                document.getElementById('f-url').value = '';
+                document.getElementById('f-icon').value = '';
+                document.getElementById('act-del').style.display = 'none';
             }
             dialog.open = true;
         }
 
-        document.getElementById('add-bookmark-btn').onclick = () => openEdit();
-
-        // 保存逻辑
-        document.getElementById('btn-save').onclick = () => {
-            const newItem = {
-                name: document.getElementById('field-name').value,
-                url: document.getElementById('field-url').value,
-                icon: document.getElementById('field-icon').value || 'link'
+        document.getElementById('act-save').onclick = () => {
+            const data = {
+                name: document.getElementById('f-name').value || '未命名',
+                url: document.getElementById('f-url').value || '#',
+                icon: document.getElementById('f-icon').value || 'link'
             };
-            if(currentEditIndex !== null) bookmarks[currentEditIndex] = newItem;
-            else bookmarks.push(newItem);
-            saveAndRefresh();
+            if(editIdx !== null) bookmarks[editIdx] = data;
+            else bookmarks.push(data);
+            sync();
         };
 
-        // 删除逻辑
-        document.getElementById('btn-delete').onclick = () => {
-            if(currentEditIndex !== null) {
-                bookmarks.splice(currentEditIndex, 1);
-                saveAndRefresh();
-            }
+        document.getElementById('act-del').onclick = () => {
+            if(editIdx !== null) { bookmarks.splice(editIdx, 1); sync(); }
         };
 
-        function saveAndRefresh() {
-            localStorage.setItem('user_bookmarks', JSON.stringify(bookmarks));
+        function sync() {
+            localStorage.setItem('bp_bookmarks', JSON.stringify(bookmarks));
             dialog.open = false;
             render();
         }
 
-        /* 基础功能：搜索与天气 */
+        // 4. 外部 API (搜索/天气)
         document.getElementById('search-input').onkeypress = (e) => {
-            if(e.key === 'Enter') window.open('https://www.google.com/search?q=' + e.target.value, '_blank');
+            if(e.key === 'Enter') window.open('https://www.google.com/search?q=' + encodeURIComponent(e.target.value), '_blank');
         };
 
-        async function fetchWeather() {
-            const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc');
-            const data = await res.json();
-            document.getElementById('weather-info').innerHTML = `<p>${data.forecastDesc}</p>`;
+        async function getWeather() {
+            try {
+                const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc');
+                const d = await res.json();
+                document.getElementById('weather-info').innerHTML = `<p>${d.forecastDesc}</p>`;
+            } catch(e) { console.error("Weather load fail"); }
         }
 
-        const themeToggle = document.getElementById('theme-toggle');
-        themeToggle.onclick = () => {
+        document.getElementById('theme-btn').onclick = () => {
             const isDark = document.documentElement.classList.toggle('mdui-theme-dark');
-            themeToggle.icon = isDark ? 'dark_mode' : 'light_mode';
+            document.getElementById('theme-btn').icon = isDark ? 'dark_mode' : 'light_mode';
         };
 
         render();
-        fetchWeather();
+        getWeather();
     </script>
 </body>
 </html>
