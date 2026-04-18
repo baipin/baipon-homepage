@@ -14,116 +14,86 @@
         :root { 
             --nav-height: 64px; 
             --hero-height: 45vh; 
-            --max-width: 1240px;
-            /* 磨砂玻璃底层变量 */
             --glass-bg: rgba(255, 255, 255, 0.8);
             --glass-border: rgba(255, 255, 255, 0.3);
+            --text-color: #212121;
         }
 
         .mdui-theme-dark {
             --glass-bg: rgba(45, 45, 50, 0.75);
             --glass-border: rgba(255, 255, 255, 0.1);
+            --text-color: #ffffff;
         }
 
-        /* --- 1. 全局背景与布局容器 --- */
-        html, body { margin: 0; padding: 0; min-height: 100vh; background-color: transparent !important; }
-        
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('/home.jpg') center/cover no-repeat; z-index: -2;
-        }
+        html, body { margin: 0; padding: 0; min-height: 100vh; background-color: transparent !important; color: var(--text-color); }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('/home.jpg') center/cover no-repeat; z-index: -2; }
 
-        /* --- 2. 导航栏修复 (Logo + 文字) --- */
+        /* --- 导航栏 --- */
         .app-bar {
             position: fixed; top: 0; left: 0; right: 0; height: var(--nav-height);
-            z-index: 1100; display: flex; align-items: center; padding: 0 5%;
+            z-index: 1200; display: flex; align-items: center; padding: 0 5%;
             background: var(--glass-bg) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
-            color: var(--mdui-color-on-surface);
+            color: var(--text-color);
         }
-        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
-        .logo-area img { height: 28px; }
-        .logo-area span { font-weight: 900; font-size: 1.2rem; letter-spacing: 1px; }
+        .logo-area { display: flex; align-items: center; gap: 12px; font-weight: 900; font-size: 1.2rem; }
+        .logo-area img { height: 32px; }
 
-        /* --- 3. Hero 搜索区 (修复下拉框被挡住) --- */
+        /* --- 搜索区 (解决遮挡) --- */
         .hero-space { height: var(--hero-height); display: flex; align-items: center; justify-content: center; padding-top: var(--nav-height); }
         .search-container {
             width: 90%; max-width: 650px; 
             background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px; padding: 6px 18px; 
-            display: flex; align-items: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            overflow: visible; /* 关键：允许下拉菜单溢出容器 */
-            position: relative;
+            border: 1px solid var(--glass-border); border-radius: 50px; padding: 6px 16px; 
+            display: flex; align-items: center; overflow: visible; position: relative;
         }
-        .search-input { 
-            flex: 1; border: none; background: transparent; padding: 12px; 
-            font-size: 1.1rem; outline: none; color: inherit;
-        }
+        .search-input { flex: 1; border: none; background: transparent; padding: 12px; font-size: 1.1rem; outline: none; color: inherit; }
+        .engine-favicon { width: 24px; height: 24px; border-radius: 4px; }
 
-        /* --- 4. 卡片样式 (磨砂玻璃持久化) --- */
-        .card-glass {
-            border-radius: 28px; background: var(--glass-bg); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            padding: 32px; border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
-            color: var(--mdui-color-on-surface);
-        }
-
-        .content-layout {
-            max-width: var(--max-width); margin: 0 auto 80px;
-            display: grid; grid-template-columns: 1fr 360px; gap: 32px; padding: 0 20px;
-        }
-
-        /* --- 5. 书签网格 --- */
+        /* --- 布局 --- */
+        .content-layout { max-width: 1240px; margin: 0 auto 80px; display: grid; grid-template-columns: 1fr 360px; gap: 32px; padding: 0 20px; }
+        .card-glass { border-radius: 28px; background: var(--glass-bg); backdrop-filter: blur(20px); padding: 32px; border: 1px solid var(--glass-border); color: var(--text-color); }
+        
+        /* --- 书签 --- */
         .links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 18px; margin-top: 24px; }
         .link-item {
-            position: relative; display: flex; flex-direction: column; align-items: center;
-            padding: 20px 10px; border-radius: 20px; background: rgba(128,128,128,0.08);
-            text-decoration: none; color: inherit; transition: all 0.2s;
+            position: relative; display: flex; flex-direction: column; align-items: center; padding: 20px 10px; 
+            border-radius: 20px; background: rgba(128,128,128,0.1); text-decoration: none; color: inherit; transition: all 0.2s;
         }
-        .link-item:hover { transform: translateY(-5px); background: rgba(128,128,128,0.15); }
+        .link-item:hover { transform: translateY(-5px); background: rgba(128,128,128,0.2); }
         .link-item img, .link-item mdui-icon { width: 32px; height: 32px; font-size: 32px; margin-bottom: 12px; border-radius: 6px; }
-        .link-item span { font-size: 0.85rem; font-weight: 600; text-align: center; }
+        .edit-active .link-item::after { content: "edit"; font-family: 'Material Icons'; position: absolute; top: 8px; right: 8px; font-size: 10px; background: #2196f3; color: white; border-radius: 50%; padding: 4px; }
 
-        .edit-active .link-item::after {
-            content: "edit"; font-family: 'Material Icons'; position: absolute; top: 8px; right: 8px;
-            font-size: 10px; background: #2196f3; color: white; border-radius: 50%; padding: 4px;
-        }
+        /* 天气相关 */
+        .weather-info p { margin: 8px 0; font-size: 0.9rem; }
+        .alert { margin-bottom: 20px; }
 
-        /* --- 6. 天气组件 --- */
-        .weather-info p { margin: 8px 0; font-size: 0.9rem; line-height: 1.6; }
-        .weather-info strong { color: #2196f3; }
-
-        @media (max-width: 900px) {
-            .content-layout { grid-template-columns: 1fr; }
-            .side-stack { order: -1; }
-            :root { --hero-height: 35vh; }
-        }
+        @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .side-stack { order: -1; } }
     </style>
 </head>
 <body class="mdui-theme-auto">
 
     <header class="app-bar">
-        <a href="/" class="logo-area">
+        <div class="logo-area">
             <img src="/logo.png" alt="Logo">
             <span>导航</span>
-        </a>
+        </div>
         <div style="flex-grow: 1"></div>
-        <mdui-button-icon id="theme-btn" icon="light_mode"></mdui-button-icon>
-        <mdui-button-icon id="edit-btn" icon="edit_note"></mdui-button-icon>
+        <mdui-button-icon id="theme-btn" icon="light_mode" style="color: inherit;"></mdui-button-icon>
+        <mdui-button-icon id="edit-btn" icon="edit_note" style="color: inherit;"></mdui-button-icon>
     </header>
 
     <section class="hero-space">
         <div class="search-container">
             <mdui-dropdown id="engine-dropdown">
-                <mdui-button-icon slot="trigger" icon="search" id="engine-icon-display"></mdui-button-icon>
+                <div slot="trigger" style="cursor:pointer; padding: 8px;">
+                    <img id="cur-engine-img" class="engine-favicon" src="https://www.google.com/favicon.ico">
+                </div>
                 <mdui-menu id="engine-menu">
-                    <mdui-menu-item value="google">Google</mdui-menu-item>
-                    <mdui-menu-item value="baidu">Baidu</mdui-menu-item>
-                    <mdui-menu-item value="bing">Bing</mdui-menu-item>
-                    <mdui-menu-item value="github">GitHub</mdui-menu-item>
+                    <mdui-menu-item value="google"><img class="engine-favicon" src="https://www.google.com/favicon.ico" slot="icon">Google</mdui-menu-item>
+                    <mdui-menu-item value="baidu"><img class="engine-favicon" src="https://www.baidu.com/favicon.ico" slot="icon">Baidu</mdui-menu-item>
+                    <mdui-menu-item value="bing"><img class="engine-favicon" src="https://cn.bing.com/favicon.ico" slot="icon">Bing</mdui-menu-item>
+                    <mdui-menu-item value="github"><img class="engine-favicon" src="https://github.com/favicon.ico" slot="icon">GitHub</mdui-menu-item>
                 </mdui-menu>
             </mdui-dropdown>
             <input type="text" class="search-input" id="search-input" placeholder="键入以搜索...">
@@ -141,38 +111,45 @@
 
         <aside class="side-stack" style="display:flex; flex-direction:column; gap:24px;">
             <div class="card-glass" style="padding:24px;">
-                <div style="font-size:0.7rem; opacity:0.5; font-weight:bold; margin-bottom:12px; text-transform:uppercase;">拾遗</div>
-                <div id="jinrishici-sentence" style="font-family: serif; font-style: italic; font-size: 1.1rem; line-height: 1.6;">正在加载诗词...</div>
+                <div id="alert" class="alert" role="alert">
+                    <div style="font-size:0.7rem; opacity:0.5; font-weight:bold; margin-bottom:12px;">拾遗</div>
+                    <strong><span id="jinrishici-sentence">正在加载....</span></strong> 
+                </div>
             </div>
 
             <div class="card-glass" style="padding:24px;">
-                <div style="font-size:0.7rem; opacity:0.5; font-weight:bold; margin-bottom:12px;">香港天文台天气</div>
-                <div id="weather-info" class="weather-info">正在获取数据...</div>
-                <div id="warning-info" style="color:#f44336; font-size:0.85rem; margin-top:10px; font-weight:bold;"></div>
-                <div id="i-info" style="font-size:0.85rem; opacity:0.8; margin-top:8px;"></div>
+                <div id="alert2" class="alert" role="alert">
+                    <div style="font-size:0.7rem; opacity:0.5; font-weight:bold; margin-bottom:12px;">本港天气</div>
+                    <div id="weather-info">正在从香港天文台获取天气预报…</div>
+                    <div id="warning-info">正在加载警告信息…</div>
+                    <div id="i-info">正在加载特别天气提示…</div>
+                </div>
             </div>
         </aside>
     </div>
 
     <mdui-dialog id="edit-dialog" close-on-overlay-click>
         <span slot="headline">管理书签</span>
-        <div style="display:flex; flex-direction:column; gap:20px; padding:10px 0;">
+        <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
+            <mdui-text-field label="链接 (URL)" id="f-url" placeholder="https://example.com"></mdui-text-field>
+            <div style="display:flex; gap:10px; align-items:flex-end;">
+                <mdui-text-field label="图标 (MDUI名或URL)" id="f-icon" style="flex:1"></mdui-text-field>
+                <mdui-button variant="tonal" id="btn-get-icon">抓取图标</mdui-button>
+            </div>
             <mdui-text-field label="名称" id="f-name"></mdui-text-field>
-            <mdui-text-field label="链接 (URL)" id="f-url"></mdui-text-field>
-            <mdui-text-field label="图标 (MDUI名或图片URL)" id="f-icon"></mdui-text-field>
         </div>
         <mdui-button slot="action" variant="text" id="act-del" style="color:red">删除</mdui-button>
         <mdui-button slot="action" variant="tonal" id="act-save">保存</mdui-button>
     </mdui-dialog>
 
     <script>
-        /* --- 1. 数据初始化 --- */
-        const initialLinks = [
+        /* --- 1. 数据 --- */
+        const initLinks = [
             { name: "我的RSS", url: "#", icon: "rss_feed" },
             { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
             { name: "酷安", url: "https://www.coolapk.com", icon: "https://www.coolapk.com/favicon.ico" },
             { name: "知乎", url: "https://www.zhihu.com", icon: "https://www.zhihu.com/favicon.ico" },
-            { name: "Now新闻", url: "#", icon: "newspaper" },
+            { name: "Now新闻", url: "https://news.now.com", icon: "newspaper" },
             { name: "unsplash", url: "https://unsplash.com", icon: "image" },
             { name: "豆瓣", url: "https://www.douban.com", icon: "https://www.douban.com/favicon.ico" },
             { name: "翻译", url: "https://translate.google.com", icon: "translate" },
@@ -187,14 +164,12 @@
             { name: "Github", url: "https://github.com", icon: "code" }
         ];
 
-        let bookmarks = JSON.parse(localStorage.getItem('bp_data_v3')) || initialLinks;
-        let editMode = false;
-        let currentIdx = null;
+        let bookmarks = JSON.parse(localStorage.getItem('bp_v4')) || initLinks;
+        let editMode = false, curIdx = null;
 
         const wrapper = document.getElementById('links-wrapper');
         const dialog = document.getElementById('edit-dialog');
 
-        /* --- 2. 渲染引擎 --- */
         function render() {
             wrapper.innerHTML = '';
             bookmarks.forEach((item, i) => {
@@ -202,10 +177,8 @@
                 el.className = 'link-item';
                 el.href = editMode ? 'javascript:void(0)' : item.url;
                 if(!editMode) el.target = "_blank";
-                
                 const isImg = item.icon.includes('http') || item.icon.includes('.');
                 const iconHtml = isImg ? `<img src="${item.icon}">` : `<mdui-icon name="${item.icon}"></mdui-icon>`;
-                
                 el.innerHTML = `${iconHtml}<span>${item.name}</span>`;
                 el.onclick = () => { if(editMode) openDialog(i); };
                 wrapper.appendChild(el);
@@ -214,100 +187,101 @@
             document.getElementById('add-btn').style.display = editMode ? 'inline-block' : 'none';
         }
 
-        /* --- 3. 书签管理逻辑 --- */
+        /* --- 2. 管理功能 --- */
         document.getElementById('edit-btn').onclick = () => { editMode = !editMode; render(); };
         document.getElementById('add-btn').onclick = () => openDialog();
+        
+        // 自动获取图标逻辑
+        document.getElementById('btn-get-icon').onclick = () => {
+            const url = document.getElementById('f-url').value;
+            if (url && url.startsWith('http')) {
+                try {
+                    const domain = new URL(url).origin;
+                    document.getElementById('f-icon').value = `${domain}/favicon.ico`;
+                } catch(e) { 
+                    alert("URL 格式不正确");
+                }
+            } else { alert("请输入包含 http 的完整 URL"); }
+        };
 
         function openDialog(idx = null) {
-            currentIdx = idx;
-            if(idx !== null) {
-                document.getElementById('f-name').value = bookmarks[idx].name;
-                document.getElementById('f-url').value = bookmarks[idx].url;
-                document.getElementById('f-icon').value = bookmarks[idx].icon;
-                document.getElementById('act-del').style.display = 'block';
-            } else {
-                document.getElementById('f-name').value = '';
-                document.getElementById('f-url').value = '';
-                document.getElementById('f-icon').value = '';
-                document.getElementById('act-del').style.display = 'none';
-            }
+            curIdx = idx;
+            document.getElementById('f-name').value = idx !== null ? bookmarks[idx].name : '';
+            document.getElementById('f-url').value = idx !== null ? bookmarks[idx].url : '';
+            document.getElementById('f-icon').value = idx !== null ? bookmarks[idx].icon : '';
+            document.getElementById('act-del').style.display = idx !== null ? 'block' : 'none';
             dialog.open = true;
         }
 
         document.getElementById('act-save').onclick = () => {
-            const data = {
-                name: document.getElementById('f-name').value || '未命名',
-                url: document.getElementById('f-url').value || '#',
-                icon: document.getElementById('f-icon').value || 'link'
-            };
-            if(currentIdx !== null) bookmarks[currentIdx] = data;
-            else bookmarks.push(data);
-            save();
+            const data = { name: document.getElementById('f-name').value || '未命名', url: document.getElementById('f-url').value || '#', icon: document.getElementById('f-icon').value || 'link' };
+            if(curIdx !== null) bookmarks[curIdx] = data; else bookmarks.push(data);
+            localStorage.setItem('bp_v4', JSON.stringify(bookmarks));
+            dialog.open = false; render();
         };
 
-        document.getElementById('act-del').onclick = () => {
-            if(currentIdx !== null) { bookmarks.splice(currentIdx, 1); save(); }
+        document.getElementById('act-del').onclick = () => { if(curIdx !== null) { bookmarks.splice(curIdx, 1); localStorage.setItem('bp_v4', JSON.stringify(bookmarks)); dialog.open = false; render(); } };
+
+        /* --- 3. 搜索与引擎 --- */
+        let curEng = 'google';
+        const engines = { google: 'https://www.google.com/search?q=', baidu: 'https://www.baidu.com/s?wd=', bing: 'https://cn.bing.com/search?q=', github: 'https://github.com/search?q=' };
+        document.getElementById('engine-menu').onchange = (e) => {
+            curEng = e.target.value;
+            document.getElementById('cur-engine-img').src = `https://${curEng === 'bing' ? 'cn.bing.com' : (curEng === 'baidu' ? 'www.baidu.com' : (curEng === 'google' ? 'www.google.com' : 'github.com'))}/favicon.ico`;
         };
+        document.getElementById('search-input').onkeypress = (e) => { if(e.key === 'Enter') window.open(engines[curEng] + encodeURIComponent(e.target.value), '_blank'); };
 
-        function save() {
-            localStorage.setItem('bp_data_v3', JSON.stringify(bookmarks));
-            dialog.open = false;
-            render();
-        }
-
-        /* --- 4. 搜索功能与引擎切换 --- */
-        let activeEngine = 'google';
-        const engines = {
-            google: 'https://www.google.com/search?q=',
-            baidu: 'https://www.baidu.com/s?wd=',
-            bing: 'https://cn.bing.com/search?q=',
-            github: 'https://github.com/search?q='
-        };
-
-        document.getElementById('engine-menu').addEventListener('change', (e) => {
-            activeEngine = e.target.value;
-            const iconMap = { google: 'search', baidu: 'language', bing: 'cloud', github: 'code' };
-            document.getElementById('engine-icon-display').icon = iconMap[activeEngine];
-        });
-
-        document.getElementById('search-input').onkeypress = (e) => {
-            if(e.key === 'Enter') {
-                const query = e.target.value.trim();
-                if(query) window.open(engines[activeEngine] + encodeURIComponent(query), '_blank');
-            }
-        };
-
-        /* --- 5. 香港天文台天气 API --- */
+        /* --- 4. 香港天文台代码 (完全遵循原文逻辑) --- */
         const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
         const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
         const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
 
-        async function fetchWeather() {
+        async function fetchData(url, elementId, formatData) {
+            const element = document.getElementById(elementId);
             try {
-                const [wRes, wrRes, iRes] = await Promise.all([fetch(apiUrl), fetch(warningApiUrl), fetch(iUrl)]);
-                const w = await wRes.json();
-                const wr = await wrRes.json();
-                const i = await iRes.json();
-
-                document.getElementById('weather-info').innerHTML = `
-                    <p><strong>总体情况：</strong>${w.generalSituation}</p>
-                    <p><strong>天气预测：</strong>${w.forecastDesc}</p>
-                `;
-                if(wr.details) document.getElementById('warning-info').innerHTML = wr.details.map(d => `<p>⚠️ ${d.contents.join(' ')}</p>`).join('');
-                if(i.swt) document.getElementById('i-info').innerHTML = i.swt.map(s => `<p>ℹ️ ${s.desc}</p>`).join('');
-            } catch (err) { console.error("Weather failed to load"); }
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('网络响应不正常');
+                const data = await response.json();
+                element.innerHTML = formatData(data);
+            } catch (error) { element.innerHTML = `无法加载数据：${error.message}`; }
         }
 
-        /* --- 6. 主题切换 --- */
+        function formatWeatherData(data) {
+            let html = `<p><strong>总体情况：</strong>${data.generalSituation}</p>
+                        <p><strong>天气预测：</strong>${data.forecastDesc}</p>
+                        <p><strong>展望：</strong>${data.outlook}</p>
+                        <p><strong>更新时间：</strong>${data.updateTime}</p>`;
+            if (data.tcInfo && data.tcInfo.length !== 0) html += `<p><strong>热带气旋资讯：</strong>${data.tcInfo}</p>`;
+            return html;
+        }
+
+        function formatWarningData(data) {
+            if (!data.details || data.details.length === 0) return '现时没有警告生效。';
+            return data.details.map(detail => `
+                <p><strong>天气警告 ${detail.warningStatementCode}：</strong>${detail.contents.join(' ')}</p>
+                <p><strong>警告更新时间：</strong>${detail.updateTime}</p>
+            `).join('');
+        }
+
+        function formatSpecialWeatherData(data) {
+            if (!data.swt || data.swt.length === 0) return '现时没有特别天气提示。';
+            return data.swt.map(item => `
+                <p><strong>特别天气提示：</strong>${item.desc}</p>
+                <p><strong>天气提示更新时间：</strong>${item.updateTime}</p>
+            `).join('');
+        }
+
+        /* --- 5. 初始化 --- */
         document.getElementById('theme-btn').onclick = () => {
-            const html = document.documentElement;
-            const isDark = html.classList.toggle('mdui-theme-dark');
-            html.classList.toggle('mdui-theme-light', !isDark);
+            const isDark = document.documentElement.classList.toggle('mdui-theme-dark');
+            document.documentElement.classList.toggle('mdui-theme-light', !isDark);
             document.getElementById('theme-btn').icon = isDark ? 'dark_mode' : 'light_mode';
         };
 
         render();
-        fetchWeather();
+        fetchData(apiUrl, 'weather-info', formatWeatherData);
+        fetchData(warningApiUrl, 'warning-info', formatWarningData);
+        fetchData(iUrl, 'i-info', formatSpecialWeatherData);
     </script>
 </body>
 </html>
