@@ -12,9 +12,10 @@
     <style>
         :root {
             --nav-height: 64px;
+            --content-max-width: 1200px; /* 定义统一的对齐宽度 */
         }
 
-        /* 核心修复：全局固定背景 */
+        /* 修复：确保背景在暗黑模式下不全黑 */
         body::before {
             content: "";
             position: fixed;
@@ -25,7 +26,7 @@
             transition: filter 0.5s ease;
         }
 
-        /* 修复遮罩：精准匹配暗黑模式，防止手机版变黑 */
+        /* 暗黑模式遮罩 */
         .mdui-theme-dark body::before {
             filter: brightness(0.4) contrast(1.1);
         }
@@ -36,10 +37,7 @@
         }
 
         /* 暗黑模式组件适配 */
-        .mdui-theme-dark .custom-app-bar {
-            background-color: rgba(28, 27, 31, 0.85) !important;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
+        .mdui-theme-dark .custom-app-bar { background-color: rgba(28, 27, 31, 0.85) !important; }
         .mdui-theme-dark .main-card { background: #1c1b1f !important; color: #e6e1e5; }
         .mdui-theme-dark .sidebar-card { background: #2b2930 !important; }
         .mdui-theme-dark .rss-item { background: #2b2930; border-color: #49454f; }
@@ -47,11 +45,11 @@
         html, body {
             margin: 0; padding: 0;
             width: 100%; overflow-x: hidden;
-            background-color: #000;
+            background-color: #000; /* 仅作为极速加载前的底色 */
             font-family: "Product Sans", system-ui, -apple-system, sans-serif;
         }
 
-        body { padding-top: var(--nav-height); background-color: transparent; }
+        body { padding-top: var(--nav-height); background-color: transparent !important; }
 
         .custom-app-bar {
             height: var(--nav-height) !important;
@@ -61,8 +59,7 @@
             border-bottom: 1px solid rgba(0,0,0,0.08);
             padding: 0 5%;
             display: flex; align-items: center;
-            position: fixed;
-            top: 0; left: 0; right: 0;
+            position: fixed; top: 0; left: 0; right: 0;
             z-index: 1000;
             box-sizing: border-box;
         }
@@ -75,6 +72,7 @@
             display: flex; align-items: flex-end; justify-content: center;
         }
 
+        /* 修复：简介容器与下方容器对齐 */
         .photo-info-box {
             background: rgba(0, 0, 0, 0.35);
             backdrop-filter: blur(15px);
@@ -83,24 +81,29 @@
             border-radius: 20px;
             padding: 24px 32px;
             margin-bottom: 130px; 
-            width: 90%; max-width: 1160px;
+            width: calc(100% - 40px); /* 减去 margin 间距 */
+            max-width: var(--content-max-width);
             display: flex; align-items: center; justify-content: space-between;
             color: white;
             box-shadow: 0 12px 40px rgba(0,0,0,0.25);
             z-index: 20;
+            box-sizing: border-box; /* 关键：确保 padding 不增加宽度 */
         }
 
         .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; }
         .photo-text p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.85; }
 
+        /* 修复：主体容器对齐 */
         .floating-container {
-            max-width: 1200px;
+            max-width: var(--content-max-width);
             margin: -100px auto 60px;
             position: relative;
             z-index: 30;
             display: grid;
             grid-template-columns: 1fr 350px;
-            gap: 32px; padding: 0 20px;
+            gap: 32px; 
+            padding: 0; /* 移除 padding，由子元素或 max-width 控制 */
+            width: calc(100% - 40px);
             box-sizing: border-box;
         }
 
@@ -118,9 +121,18 @@
         @media (max-width: 900px) {
             .nav-links-container { display: none; }
             .mobile-menu-btn { display: inline-flex !important; }
-            .floating-container { grid-template-columns: 1fr; margin-top: -60px; }
+            .floating-container { 
+                grid-template-columns: 1fr; 
+                margin-top: -60px; 
+                width: calc(100% - 32px); /* 移动端稍窄一点的间距 */
+            }
+            .photo-info-box { 
+                width: calc(100% - 32px); 
+                margin-bottom: 85px; 
+                padding: 16px 20px; 
+            }
             .sidebar-card { order: -1; }
-            .photo-info-box { margin-bottom: 85px; padding: 16px 20px; }
+            /* 手机端背景不全黑的保障 */
             body::before { background-attachment: scroll; } 
         }
 
@@ -217,7 +229,6 @@
     </footer>
 
     <script>
-        // 1. 主题控制（含图标跟随系统）
         const themeToggle = document.getElementById('theme-toggle');
         const html = document.documentElement;
 
@@ -246,7 +257,6 @@
         const savedTheme = localStorage.getItem('theme') || 'auto';
         applyTheme(savedTheme);
 
-        // 2. 多语言配置
         const i18n = {
             'zh-CN': {
                 nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
@@ -273,7 +283,6 @@
             });
         });
 
-        // 3. RSS 获取
         async function fetchRSS() {
             try {
                 const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://baipin.pw/feed')}`);
