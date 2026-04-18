@@ -42,6 +42,10 @@
         }
         .search-input { flex: 1; border: none; background: transparent; padding: 12px; font-size: 1.1rem; outline: none; color: var(--text-main); }
         .engine-favicon { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; display: block; }
+        /* 改进：让搜索引擎选择框紧贴输入框左侧 */
+        .search-container mdui-dropdown {
+            margin-right: 8px;
+        }
         .content-layout { max-width: 1240px; margin: 0 auto 80px; display: grid; grid-template-columns: 1fr 360px; gap: 32px; padding: 0 20px; }
         .card-glass { border-radius: 28px; background: var(--glass-bg); backdrop-filter: blur(20px); padding: 32px; border: 1px solid var(--glass-border); color: var(--text-main); }
         .links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 18px; margin-top: 24px; }
@@ -61,7 +65,6 @@
     </style>
 </head>
 <body class="mdui-theme-auto">
-    <!-- 头部、搜索、书签等部分完全不变（省略以节省篇幅，实际使用时请保留原代码中的对应部分） -->
     <header class="app-bar">
         <div class="logo-area">
             <img src="/logo.png" alt="Logo">
@@ -115,16 +118,113 @@
             </div>
         </aside>
     </div>
-
-    <!-- 书签对话框等部分保持不变 -->
-
+    <mdui-dialog id="edit-dialog" close-on-overlay-click>
+        <span slot="headline">管理书签</span>
+        <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
+            <mdui-text-field label="URL" id="f-url"></mdui-text-field>
+            <div style="display:flex; gap:10px; align-items:flex-end;">
+                <mdui-text-field label="图标 (MDUI名或URL)" id="f-icon" style="flex:1"></mdui-text-field>
+                <mdui-button variant="tonal" id="btn-get-icon">抓取图标</mdui-button>
+            </div>
+            <mdui-text-field label="显示名称" id="f-name"></mdui-text-field>
+        </div>
+        <mdui-button slot="action" variant="text" id="act-del" style="color:red">删除</mdui-button>
+        <mdui-button slot="action" variant="tonal" id="act-save">保存</mdui-button>
+    </mdui-dialog>
     <script>
-        // ...（initLinks、bookmarks、render、搜索、书签管理等代码完全不变，请保留原代码中的对应部分）...
-
+        const initLinks = [
+            { name: "我的RSS", url: "#", icon: "rss_feed" },
+            { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
+            { name: "酷安", url: "https://www.coolapk.com", icon: "https://www.coolapk.com/favicon.ico" },
+            { name: "知乎", url: "https://www.zhihu.com", icon: "https://www.zhihu.com/favicon.ico" },
+            { name: "Now新闻", url: "https://news.now.com", icon: "newspaper" },
+            { name: "unsplash", url: "https://unsplash.com", icon: "image" },
+            { name: "豆瓣", url: "https://www.douban.com", icon: "https://www.douban.com/favicon.ico" },
+            { name: "翻译", url: "https://translate.google.com", icon: "translate" },
+            { name: "斗鱼", url: "https://www.douyu.com", icon: "https://www.douyu.com/favicon.ico" },
+            { name: "CSDN", url: "https://www.csdn.net", icon: "https://www.csdn.net/favicon.ico" },
+            { name: "XDA", url: "https://www.xda-developers.com", icon: "developer_mode" },
+            { name: "百品博客", url: "https://baipin.pw", icon: "article" },
+            { name: "AIMS", url: "https://banweb.cityu.edu.hk/", icon: "school" },
+            { name: "学校邮箱", url: "https://mail.office365.com/my.cityu.edu.hk", icon: "mail" },
+            { name: "Canvas", url: "https://canvas.cityu.edu.hk/", icon: "dashboard" },
+            { name: "应用面板", url: "https://auth.cityu.edu.hk/", icon: "apps" },
+            { name: "Github", url: "https://github.com", icon: "code" }
+        ];
+        let bookmarks = JSON.parse(localStorage.getItem('bp_v7')) || initLinks;
+        let isEdit = false, curIdx = null;
+        function render() {
+            const wrapper = document.getElementById('links-wrapper');
+            wrapper.innerHTML = '';
+            bookmarks.forEach((item, i) => {
+                const el = document.createElement('a');
+                el.className = 'link-item';
+                el.href = isEdit ? 'javascript:void(0)' : item.url;
+                if(!isEdit) el.target = "_blank";
+                const isImg = item.icon.includes('http') || item.icon.includes('.');
+                const iconHtml = isImg ? `<img src="${item.icon}">` : `<mdui-icon name="${item.icon}"></mdui-icon>`;
+                el.innerHTML = `${iconHtml}<span>${item.name}</span>`;
+                el.onclick = () => { if(isEdit) openDialog(i); };
+                wrapper.appendChild(el);
+            });
+            document.getElementById('main-container').classList.toggle('edit-active', isEdit);
+            document.getElementById('add-btn').style.display = isEdit ? 'inline-block' : 'none';
+        }
+        /* --- 搜索切换核心修复 --- */
+        let curEng = 'google';
+        const engines = {
+            google: 'https://www.google.com/search?q=',
+            baidu: 'https://www.baidu.com/s?wd=',
+            bing: 'https://cn.bing.com/search?q=',
+            github: 'https://github.com/search?q='
+        };
+        const engineMenu = document.getElementById('engine-menu');
+        const engineImg = document.getElementById('cur-engine-img');
+        engineMenu.onclick = (e) => {
+            const item = e.target.closest('mdui-menu-item');
+            if (item) {
+                curEng = item.value;
+                const iconSrc = item.querySelector('img').src;
+                engineImg.src = iconSrc;
+                document.getElementById('engine-dropdown').open = false;
+            }
+        };
+        document.getElementById('search-input').onkeypress = (e) => {
+            if(e.key === 'Enter' && e.target.value.trim()) {
+                window.open(engines[curEng] + encodeURIComponent(e.target.value), '_blank');
+            }
+        };
+        /* --- 书签管理 --- */
+        const dialog = document.getElementById('edit-dialog');
+        document.getElementById('edit-btn').onclick = () => { isEdit = !isEdit; render(); };
+        document.getElementById('add-btn').onclick = () => openDialog();
+        document.getElementById('btn-get-icon').onclick = () => {
+            const url = document.getElementById('f-url').value;
+            if (url && url.startsWith('http')) {
+                const domain = new URL(url).origin;
+                document.getElementById('f-icon').value = `${domain}/favicon.ico`;
+            }
+        };
+        function openDialog(idx = null) {
+            curIdx = idx;
+            document.getElementById('f-name').value = idx !== null ? bookmarks[idx].name : '';
+            document.getElementById('f-url').value = idx !== null ? bookmarks[idx].url : '';
+            document.getElementById('f-icon').value = idx !== null ? bookmarks[idx].icon : '';
+            document.getElementById('act-del').style.display = idx !== null ? 'block' : 'none';
+            dialog.open = true;
+        }
+        document.getElementById('act-save').onclick = () => {
+            const data = { name: document.getElementById('f-name').value || '未命名', url: document.getElementById('f-url').value || '#', icon: document.getElementById('f-icon').value || 'link' };
+            if(curIdx !== null) bookmarks[curIdx] = data; else bookmarks.push(data);
+            localStorage.setItem('bp_v7', JSON.stringify(bookmarks));
+            dialog.open = false; render();
+        };
+        document.getElementById('act-del').onclick = () => { if(curIdx !== null) { bookmarks.splice(curIdx, 1); localStorage.setItem('bp_v7', JSON.stringify(bookmarks)); dialog.open = false; render(); } };
         /* --- 天气代码逻辑 --- */
         const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
         const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
         const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
+        const rthUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rth&lang=sc';
 
         async function fetchData(url, elementId, formatData) {
             const element = document.getElementById(elementId);
@@ -135,74 +235,79 @@
                 element.innerHTML = formatData(data);
             } catch (error) { element.innerHTML = `无法加载数据：${error.message}`; }
         }
-
-        function formatWeatherData(data) { /* 原函数保持不变 */ 
+        function formatWeatherData(data) {
             return `<p><strong>总体情况：</strong>${data.generalSituation}</p>
                     <p><strong>天气预测：</strong>${data.forecastDesc}</p>
                     <p><strong>展望：</strong>${data.outlook}</p>
                     <p style="font-size:0.8rem; opacity:0.6;">更新时间：${data.updateTime}</p>`;
         }
-
-        function formatWarningData(data) { /* 原函数保持不变 */ 
+        function formatWarningData(data) {
             if (!data.details || data.details.length === 0) return '现时没有警告生效。';
             return data.details.map(detail => `<p>⚠️ ${detail.contents.join(' ')}</p>`).join('');
         }
-
-        function formatSpecialWeatherData(data) { /* 原函数保持不变 */ 
+        function formatSpecialWeatherData(data) {
             if (!data.swt || data.swt.length === 0) return '现时没有特别天气提示。';
             return data.swt.map(item => `<p>ℹ️ ${item.desc}</p>`).join('');
         }
 
-        /* 关键词到图标编号的映射（优先级从高到低） */
+        /* 优化后的简体中文关键词匹配函数（基于 HKO flw 返回的简体中文 forecastDesc） */
         function getIconByKeyword(text) {
-            const lowerText = text.toLowerCase();
-            if (lowerText.includes('雷暴') || lowerText.includes('雷雨')) return 65;
-            if (lowerText.includes('大雨') || lowerText.includes('暴雨')) return 64;
-            if (lowerText.includes('驟雨') || lowerText.includes('陣雨') || lowerText.includes('雨')) return 63;
-            if (lowerText.includes('天晴') || lowerText.includes('阳光充沛') || lowerText.includes('晴朗')) return 50;
-            if (lowerText.includes('部分時間有陽光') || lowerText.includes('短暫時間有陽光')) return 51;
-            if (lowerText.includes('多雲') || lowerText.includes('天色明朗')) return 60;
-            if (lowerText.includes('天陰') || lowerText.includes('密雲') || lowerText.includes('陰天')) return 61;
-            if (lowerText.includes('霧') || lowerText.includes('薄霧') || lowerText.includes('煙霞')) return 80;
-            if (lowerText.includes('風')) return 90; // 强风相关
-            return 51; // 默认：多云/晴间（最常见）
+            if (!text) return 51;
+            const t = text.toLowerCase();
+            
+            // 最高优先级：雷暴相关
+            if (t.includes('雷暴') || t.includes('雷雨')) return 65;
+            
+            // 暴雨 / 大雨
+            if (t.includes('暴雨')) return 64;
+            if (t.includes('大雨')) return 64;
+            
+            // 雨 / 骤雨 / 阵雨
+            if (t.includes('骤雨') || t.includes('阵雨') || t.includes('有雨') || t.includes('微雨') || t.includes('毛毛雨')) return 63;
+            
+            // 晴朗系列
+            if (t.includes('天晴') || t.includes('阳光充沛') || t.includes('晴朗')) return 50;
+            if (t.includes('部分时间有阳光') || t.includes('间有阳光') || t.includes('短暂时间有阳光')) return 51;
+            if (t.includes('短暂阳光')) return 52;
+            
+            // 多云 / 阴天系列
+            if (t.includes('多云') || t.includes('天色明朗')) return 60;
+            if (t.includes('天阴') || t.includes('密云') || t.includes('阴天') || t.includes('大致多云')) return 61;
+            
+            // 雾 / 烟霞 / 薄雾
+            if (t.includes('雾') || t.includes('薄雾') || t.includes('烟霞') || t.includes('能见度低')) return 80;
+            
+            // 强风相关
+            if (t.includes('烈风') || t.includes('强风')) return 90;
+            
+            // 默认（最常见情况）
+            return 51;
         }
 
-        /* 更新实时温度和湿度（rhrread） */
+        /* 更新实时温度和湿度 + 根据预测文本更新图标 */
         async function updateLiveWeather() {
-            const liveUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc';
             try {
-                const res = await fetch(liveUrl);
-                if (!res.ok) throw new Error('无法获取实时天气');
+                // 实时温度和湿度
+                const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
                 const data = await res.json();
-
                 if (data.temperature && data.temperature.data && data.temperature.data.length > 0) {
                     document.getElementById('curr-temp').innerText = data.temperature.data[0].value;
                 }
                 if (data.humidity && data.humidity.data && data.humidity.data.length > 0) {
                     document.getElementById('curr-hum').innerText = data.humidity.data[0].value;
                 }
-            } catch(e) {
-                console.error('实时天气获取失败:', e);
-            }
-        }
 
-        /* 新增：根据天气预测关键词更新图标 */
-        async function updateForecastIcon() {
-            const flwUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=tc';
-            try {
-                const res = await fetch(flwUrl);
-                if (!res.ok) return;
-                const data = await res.json();
-
-                if (data.forecastDesc) {
-                    const iconCode = getIconByKeyword(data.forecastDesc);
+                // 根据 flw 天气预测文本匹配图标（使用简体中文）
+                const flwRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc');
+                const flwData = await flwRes.json();
+                if (flwData.forecastDesc) {
+                    const iconCode = getIconByKeyword(flwData.forecastDesc);
                     const img = document.getElementById('weather-icon-img');
                     img.src = `https://www.hko.gov.hk/images/wxicon/pic${iconCode}.png`;
                     img.style.display = 'block';
                 }
             } catch(e) {
-                console.error('预测图标获取失败:', e);
+                console.error('天气数据获取失败:', e);
             }
         }
 
@@ -213,10 +318,8 @@
             document.getElementById('theme-btn').icon = isDark ? 'dark_mode' : 'light_mode';
         };
 
-        // 初始化
         render();
-        updateLiveWeather();      // 实时温度 + 湿度
-        updateForecastIcon();     // 根据预测文本显示图标（新增）
+        updateLiveWeather();
         fetchData(apiUrl, 'weather-info', formatWeatherData);
         fetchData(warningApiUrl, 'warning-info', formatWarningData);
         fetchData(iUrl, 'i-info', formatSpecialWeatherData);
