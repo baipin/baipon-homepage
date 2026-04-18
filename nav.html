@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>百品导航 - 新概念版</title>
+    <title>百品导航 - 123</title>
    
     <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -98,10 +98,30 @@
         .weather-details p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; }
         @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .side-stack { order: -1; } }
 
+        /* 新增侧栏行情样式 */
+        .market-ticker {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .market-ticker marquee {
+            color: var(--text-main);
+        }
+        .refresh-btn {
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        .update-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
         /* iframe 样式 */
         .icon-picker-iframe { width: 100%; height: 560px; border: none; border-radius: 12px; }
 
-        /* 按钮单独一行，避免手机端盖住输入框 */
+        /* 按钮单独一行 */
         @media (max-width: 600px) {
             .button-row {
                 flex-direction: column !important;
@@ -169,6 +189,35 @@
                     <div id="weather-info">正在从香港天文台获取天气预报…</div>
                     <div id="warning-info" style="color:#ff5252; font-weight:bold; margin-top:10px;"></div>
                     <div id="i-info" style="font-size:0.85rem; opacity:0.8; border-top:1px solid rgba(128,128,128,0.2); margin-top:10px; padding-top:10px;"></div>
+                </div>
+            </div>
+
+            <!-- 新增侧栏容器：实时时间 + 真实行情滚动 -->
+            <div class="card-glass">
+                <div style="font-size:0.7rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">全球市场</div>
+                
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size:0.85rem; opacity:0.8;">香港时间</div>
+                    <div id="hkt-time" style="font-size:1.35rem; font-weight:700; letter-spacing:1px;">--:--:--</div>
+                </div>
+
+                <div class="market-ticker">
+                    <marquee id="market-marquee" behavior="scroll" direction="left" scrollamount="3">
+                        恒生指数: <span id="hsi">加载中...</span>　|　
+                        上证综指: <span id="sse">加载中...</span>　|　
+                        纳斯达克: <span id="nasdaq">加载中...</span>　|　
+                        道琼斯: <span id="dj">加载中...</span>　|　
+                        伦敦金: <span id="gold">加载中...</span>　|　
+                        港元兑人民币: <span id="hkd-cny">加载中...</span>　|　
+                        人民币兑美元: <span id="cny-usd">加载中...</span>　|　
+                        富时100: <span id="ftse">加载中...</span>　|　
+                        德国DAX: <span id="dax">加载中...</span>
+                    </marquee>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+                    <div id="update-time" class="update-time">更新时间: --</div>
+                    <mdui-button variant="tonal" id="refresh-market-btn" class="refresh-btn" icon="refresh">刷新行情</mdui-button>
                 </div>
             </div>
         </aside>
@@ -517,7 +566,7 @@
             }
         });
 
-        /* --- 天气代码逻辑（恢复为原本的关键词匹配逻辑） --- */
+        /* --- 天气代码逻辑（关键词匹配，保持原样） --- */
         const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
         const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
         const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
@@ -601,12 +650,62 @@
             document.getElementById('theme-btn').icon = 'dark_mode';
         }
 
+        /* 新增侧栏：实时香港时间 + 真实行情（Alpha Vantage） */
+        function updateHKTTime() {
+            const now = new Date().toLocaleString('zh-CN', { 
+                timeZone: 'Asia/Hong_Kong',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            document.getElementById('hkt-time').textContent = now;
+        }
+        setInterval(updateHKTTime, 1000);
+        updateHKTTime();
+
+        // 真实行情更新（使用 Alpha Vantage 免费接口）
+        async function updateMarketData() {
+            const symbols = {
+                hsi: '^HSI',      // 恒生
+                sse: '000001.SS', // 上证
+                nasdaq: '^IXIC',  // 纳斯达克
+                dj: '^DJI',       // 道琼斯
+                gold: 'XAUUSD',   // 伦敦金（黄金）
+                hkd_cny: 'HKDCNY',// 港元兑人民币
+                cny_usd: 'USDCNY',// 人民币兑美元
+                ftse: '^FTSE',    // 富时100
+                dax: '^GDAXI'     // 德国DAX
+            };
+
+            const baseUrl = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&apikey=demo&symbol=';
+
+            try {
+                for (let [id, symbol] of Object.entries(symbols)) {
+                    const res = await fetch(baseUrl + symbol);
+                    const data = await res.json();
+                    const price = data['Global Quote'] ? data['Global Quote']['05. price'] || 'N/A' : 'N/A';
+                    const change = data['Global Quote'] ? data['Global Quote']['10. change percent'] || '' : '';
+                    document.getElementById(id).textContent = `${parseFloat(price).toFixed(2)} ${change}`;
+                }
+                document.getElementById('update-time').textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
+            } catch (e) {
+                console.error('行情更新失败:', e);
+                document.getElementById('update-time').textContent = '更新失败，请稍后重试';
+            }
+        }
+
+        document.getElementById('refresh-market-btn').onclick = updateMarketData;
+
+        // 初始加载
         restoreLastEngine();
         render();
         updateLiveWeather();
         fetchData(apiUrl, 'weather-info', formatWeatherData);
         fetchData(warningApiUrl, 'warning-info', formatWarningData);
         fetchData(iUrl, 'i-info', formatSpecialWeatherData);
+        updateMarketData();   // 初始行情加载
+        setInterval(updateMarketData, 30000); // 每30秒自动刷新（免费API友好）
     </script>
 </body>
 </html>
