@@ -437,18 +437,22 @@
         };
 
         function renderEngineMenu() {
-            const menu = document.getElementById('engine-menu');
-            // 保留预设引擎，只清除之前动态添加的自定义项
-            const dynamicItems = menu.querySelectorAll('mdui-menu-item[value]');
-            dynamicItems.forEach(item => item.remove());
+    const menu = document.getElementById('engine-menu');
 
-            Object.keys(customEngines).forEach(key => {
-                const data = customEngines[key];
-                const newItem = document.createElement('mdui-menu-item');
-                newItem.value = key;
-                newItem.innerHTML = `<img class="engine-favicon" src="${data.icon}" slot="icon">${key}`;
-                menu.insertBefore(newItem, document.getElementById('add-engine-btn'));
-            });
+    // ❗只删除自定义项（带 data-custom 标记）
+    const dynamicItems = menu.querySelectorAll('mdui-menu-item[data-custom="1"]');
+    dynamicItems.forEach(item => item.remove());
+
+    Object.keys(customEngines).forEach(key => {
+        const data = customEngines[key];
+        const newItem = document.createElement('mdui-menu-item');
+
+        newItem.value = key;
+        newItem.setAttribute('data-custom', '1'); // ⭐关键标记
+        newItem.innerHTML = `<img class="engine-favicon" src="${data.icon}" slot="icon">${key}`;
+
+        menu.insertBefore(newItem, document.getElementById('add-engine-btn'));
+    });
         }
 
         function showManageEngineDialog() {
@@ -754,31 +758,35 @@
         }
 
         async function fetchHKNews() {
-            let marqueeHTML = '';
-            for (let rssUrl of customRSS) {
-                try {
-                    const res = await fetch(rssUrl, { cache: 'no-cache' });
-                    if (!res.ok) continue;
-                    const xmlText = await res.text();
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                    const items = xmlDoc.getElementsByTagName("item");
+    let marqueeHTML = '';
 
-                    for (let item of items) {
-                        const titleNode = item.getElementsByTagName("title")[0];
-                        if (titleNode) {
-                            const title = titleNode.textContent.trim();
-                            if (title) marqueeHTML += `${title}　|　`;
-                        }
+    for (let rssUrl of customRSS) {
+        try {
+            // 使用 RSS 转 JSON 服务（解决 CORS）
+            const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+            const res = await fetch(api);
+            const data = await res.json();
+
+            if (data.items && data.items.length) {
+                data.items.forEach(item => {
+                    if (item.title) {
+                        marqueeHTML += `${item.title}　|　`;
                     }
-                } catch (e) {
-                    console.error(`RSS ${rssUrl} 加载失败:`, e);
-                }
+                });
             }
-            if (!marqueeHTML) marqueeHTML = '暂无最新香港新闻，请稍后刷新...';
-            document.getElementById('news-marquee').innerHTML = marqueeHTML;
-            document.getElementById('fullscreen-marquee').innerHTML = marqueeHTML;
-            document.getElementById('update-time').textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
+
+        } catch (e) {
+            console.error(`RSS失败: ${rssUrl}`, e);
+        }
+    }
+
+    if (!marqueeHTML) marqueeHTML = '暂无最新香港新闻，请稍后刷新...';
+
+    document.getElementById('news-marquee').innerHTML = marqueeHTML;
+    document.getElementById('fullscreen-marquee').innerHTML = marqueeHTML;
+    document.getElementById('update-time').textContent =
+        `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
         }
 
         document.getElementById('refresh-news-btn').onclick = fetchHKNews;
