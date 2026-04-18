@@ -26,40 +26,41 @@
             transition: filter 0.5s ease;
         }
 
-        /* 修复遮罩：暗黑模式下调整亮度 */
-        .mdui-theme-dark body::before {
-            filter: brightness(0.7) contrast(1.1);
-        }
+        .mdui-theme-dark body::before { filter: brightness(0.7) contrast(1.1); }
         @media (prefers-color-scheme: dark) {
-            .mdui-theme-auto body::before {
-                filter: brightness(0.7) contrast(1.1);
-            }
+            .mdui-theme-auto body::before { filter: brightness(0.7) contrast(1.1); }
         }
 
-        /* --- 核心修复：显式定义白天/暗黑模式的文字与卡片颜色 --- */
+        /* --- 核心修复：Icon 与文字颜色显式定义 --- */
+        .mdui-theme-light {
+            --mdui-color-on-surface: rgba(0,0,0,0.87);
+            --mdui-color-on-surface-variant: rgba(0,0,0,0.6);
+        }
         
-        /* 浅色模式强制重置 (解决手机端点击切换文字颜色不变的问题) */
-        .mdui-theme-light .main-card { background: white !important; color: rgba(0,0,0,0.87) !important; }
-        .mdui-theme-light .sidebar-card { background: #fafafa !important; color: rgba(0,0,0,0.87) !important; }
-        .mdui-theme-light .custom-app-bar { background-color: rgba(255, 255, 255, 0.85) !important; }
+        .mdui-theme-light .main-card, 
+        .mdui-theme-light .sidebar-card { color: rgba(0,0,0,0.87) !important; }
+
+        /* 强制修复 Icon 在白天模式下的颜色 */
+        .mdui-theme-light mdui-icon,
+        .mdui-theme-light mdui-button-icon {
+            color: rgba(0,0,0,0.7) !important;
+        }
 
         /* 暗黑模式组件适配 */
         .mdui-theme-dark .custom-app-bar { background-color: rgba(28, 27, 31, 0.85) !important; }
         .mdui-theme-dark .main-card { background: #1c1b1f !important; color: #e6e1e5 !important; }
         .mdui-theme-dark .sidebar-card { background: #2b2930 !important; color: #e6e1e5 !important; }
-        .mdui-theme-dark .rss-item { background: #2b2930; border-color: #49454f; }
+        .mdui-theme-dark mdui-icon,
+        .mdui-theme-dark mdui-button-icon { color: #e6e1e5 !important; }
 
         html, body {
             margin: 0; padding: 0;
             width: 100%; overflow-x: hidden;
             font-family: "Product Sans", system-ui, -apple-system, sans-serif;
-            /* 修复：移除全局黑色兜底，防止白天模式透黑 */
             background-color: white; 
         }
 
-        /* 暗黑模式下才允许 html/body 变黑 */
         .mdui-theme-dark, .mdui-theme-dark body { background-color: #121212 !important; }
-
         body { padding-top: var(--nav-height); background-color: transparent !important; }
 
         .custom-app-bar {
@@ -72,7 +73,7 @@
             position: fixed; top: 0; left: 0; right: 0;
             z-index: 1000;
             box-sizing: border-box;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .nav-logo { height: 28px; cursor: pointer; }
@@ -83,7 +84,6 @@
             display: flex; align-items: flex-end; justify-content: center;
         }
 
-        /* 修复：简介容器对齐 */
         .photo-info-box {
             background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(15px);
@@ -101,10 +101,12 @@
             box-sizing: border-box;
         }
 
+        /* 确保简介里的图标始终是白的 */
+        .photo-info-box mdui-icon { color: white !important; }
+
         .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; }
         .photo-text p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.85; }
 
-        /* 修复：主体容器对齐 */
         .floating-container {
             max-width: var(--content-max-width);
             margin: -100px auto 60px;
@@ -132,16 +134,8 @@
         @media (max-width: 900px) {
             .nav-links-container { display: none; }
             .mobile-menu-btn { display: inline-flex !important; }
-            .floating-container { 
-                grid-template-columns: 1fr; 
-                margin-top: -60px; 
-                width: calc(100% - 32px);
-            }
-            .photo-info-box { 
-                width: calc(100% - 32px); 
-                margin-bottom: 85px; 
-                padding: 16px 20px; 
-            }
+            .floating-container { grid-template-columns: 1fr; margin-top: -60px; width: calc(100% - 32px); }
+            .photo-info-box { width: calc(100% - 32px); margin-bottom: 85px; padding: 16px 20px; }
             .sidebar-card { order: -1; }
             body::before { background-attachment: scroll; } 
         }
@@ -151,9 +145,9 @@
 </head>
 <body class="mdui-theme-auto">
 
-    <mdui-navigation-drawer id="drawer" placement="right">
+    <mdui-navigation-drawer id="drawer" placement="right" close-on-overlay-click close-on-esc>
         <div style="padding: 24px;"><h2 style="margin:0; font-weight:900; color:var(--mdui-color-primary);">MENU</h2></div>
-        <mdui-list>
+        <mdui-list id="drawer-list">
             <mdui-list-item icon="home" href="#">首页</mdui-list-item>
             <mdui-list-item icon="auto_stories" href="https://baipin.pw">博客</mdui-list-item>
             <mdui-list-item icon="terminal" href="#projects">项目</mdui-list-item>
@@ -175,7 +169,7 @@
         
         <mdui-button-icon id="theme-toggle" icon="light_mode"></mdui-button-icon>
         <mdui-button-icon icon="translate" id="lang-btn"></mdui-button-icon>
-        <mdui-button-icon icon="menu" class="mobile-menu-btn" onclick="document.getElementById('drawer').open = true"></mdui-button-icon>
+        <mdui-button-icon icon="menu" class="mobile-menu-btn" id="open-drawer"></mdui-button-icon>
     </header>
 
     <section class="hero-section">
@@ -241,11 +235,25 @@
     <script>
         const themeToggle = document.getElementById('theme-toggle');
         const html = document.documentElement;
+        const drawer = document.getElementById('drawer');
+
+        // 抽屉逻辑修复
+        document.getElementById('open-drawer').addEventListener('click', () => drawer.open = true);
+        
+        // 点击列表项后自动关闭抽屉
+        document.getElementById('drawer-list').addEventListener('click', () => drawer.open = false);
 
         function updateIcon() {
             const isDark = html.classList.contains('mdui-theme-dark') || 
                           (html.classList.contains('mdui-theme-auto') && window.matchMedia('(prefers-color-scheme: dark)').matches);
             themeToggle.icon = isDark ? 'dark_mode' : 'light_mode';
+            
+            // 修复：手动触发 Icon 颜色重置逻辑（针对部分浏览器不自动更新 CSS 变量）
+            document.querySelectorAll('mdui-icon, mdui-button-icon').forEach(icon => {
+                if(!icon.closest('.photo-info-box')) { // 不影响简介里的白色图标
+                    icon.style.color = ''; 
+                }
+            });
         }
 
         function applyTheme(theme) {
@@ -267,7 +275,7 @@
         const savedTheme = localStorage.getItem('theme') || 'auto';
         applyTheme(savedTheme);
 
-        // --- 多语言与 RSS 逻辑保持不变 ---
+        // --- 多语言与 RSS 逻辑 ---
         const i18n = {
             'zh-CN': {
                 nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
