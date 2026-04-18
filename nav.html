@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>百品导航 - 概念版</title>
+    <title>百品导航 - 123</title>
    
     <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -374,3 +374,197 @@
             dialog.open = true;
         }
 
+        document.getElementById('act-save').onclick = () => {
+            const data = { name: document.getElementById('f-name').value || '未命名', url: document.getElementById('f-url').value || '#', icon: document.getElementById('f-icon').value || 'link' };
+            if(curIdx !== null) bookmarks[curIdx] = data; else bookmarks.push(data);
+            localStorage.setItem('bp_v7', JSON.stringify(bookmarks));
+            dialog.open = false; render();
+        };
+
+        document.getElementById('act-del').onclick = () => { 
+            if(curIdx !== null) { 
+                bookmarks.splice(curIdx, 1); 
+                localStorage.setItem('bp_v7', JSON.stringify(bookmarks)); 
+                dialog.open = false; 
+                render(); 
+            } 
+        };
+
+        document.getElementById('act-cancel').onclick = () => {
+            dialog.open = false;
+        };
+
+        /* 书签抓取图标 */
+        document.getElementById('btn-get-icon').onclick = () => {
+            const url = document.getElementById('f-url').value;
+            if (url && url.startsWith('http')) {
+                const domain = new URL(url).origin;
+                document.getElementById('f-icon').value = `${domain}/favicon.ico`;
+            }
+        };
+
+        /* 实时搜索联想 */
+        const searchInput = document.getElementById('search-input');
+        const suggestionsContainer = document.getElementById('suggestions');
+        let debounceTimer = null;
+        let selectedIndex = -1;
+
+        async function fetchSuggestions(query) {
+            if (!query || query.length < 1) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const q = encodeURIComponent(query);
+                    const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${q}`);
+                    const data = await res.json();
+                    const suggestions = data[1] || [];
+                    suggestionsContainer.innerHTML = '';
+                    if (suggestions.length === 0) {
+                        suggestionsContainer.style.display = 'none';
+                        return;
+                    }
+                    suggestions.slice(0, 10).forEach((sug) => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.textContent = sug;
+                        div.onclick = () => {
+                            searchInput.value = sug;
+                            suggestionsContainer.style.display = 'none';
+                            performSearch(sug);
+                        };
+                        suggestionsContainer.appendChild(div);
+                    });
+                    suggestionsContainer.style.display = 'block';
+                    selectedIndex = -1;
+                } catch (e) {
+                    suggestionsContainer.style.display = 'none';
+                }
+            }, 250);
+        }
+
+        function performSearch(query) {
+            if (query && query.trim()) {
+                window.open(engines[curEng] + encodeURIComponent(query), '_blank');
+            }
+        }
+
+        searchInput.addEventListener('input', () => fetchSuggestions(searchInput.value.trim()));
+        searchInput.addEventListener('keydown', (e) => {
+            const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+            if (suggestionsContainer.style.display !== 'block' || items.length === 0) return;
+            if (e.key === 'ArrowDown') { e.preventDefault(); selectedIndex = Math.min(selectedIndex + 1, items.length - 1); updateSelection(items); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); selectedIndex = Math.max(selectedIndex - 1, -1); updateSelection(items); }
+            else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                    const text = items[selectedIndex].textContent;
+                    searchInput.value = text; suggestionsContainer.style.display = 'none'; performSearch(text);
+                } else if (searchInput.value.trim()) {
+                    suggestionsContainer.style.display = 'none'; performSearch(searchInput.value);
+                }
+            } else if (e.key === 'Escape') {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+        function updateSelection(items) {
+            items.forEach((item, i) => item.classList.toggle('selected', i === selectedIndex));
+        }
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) suggestionsContainer.style.display = 'none';
+        });
+        searchInput.onkeypress = (e) => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                suggestionsContainer.style.display = 'none';
+                performSearch(e.target.value);
+            }
+        };
+
+        /* --- 天气代码逻辑（完全未修改） --- */
+        const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
+        const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
+        const iUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=sc';
+
+        async function fetchData(url, elementId, formatData) {
+            const element = document.getElementById(elementId);
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('网络响应不正常');
+                const data = await response.json();
+                element.innerHTML = formatData(data);
+            } catch (error) { element.innerHTML = `无法加载数据：${error.message}`; }
+        }
+        function formatWeatherData(data) {
+            return `<p><strong>总体情况：</strong>${data.generalSituation}</p>
+                    <p><strong>天气预测：</strong>${data.forecastDesc}</p>
+                    <p><strong>展望：</strong>${data.outlook}</p>
+                    <p style="font-size:0.8rem; opacity:0.6;">更新时间：${data.updateTime}</p>`;
+        }
+        function formatWarningData(data) {
+            if (!data.details || data.details.length === 0) return '现时没有警告生效。';
+            return data.details.map(detail => `<p>⚠️ ${detail.contents.join(' ')}</p>`).join('');
+        }
+        function formatSpecialWeatherData(data) {
+            if (!data.swt || data.swt.length === 0) return '现时没有特别天气提示。';
+            return data.swt.map(item => `<p>ℹ️ ${item.desc}</p>`).join('');
+        }
+
+        function getIconByKeyword(text) {
+            if (!text) return 51;
+            const t = text.toLowerCase();
+            if (t.includes('雷暴') || t.includes('雷雨')) return 65;
+            if (t.includes('暴雨')) return 64;
+            if (t.includes('大雨')) return 64;
+            if (t.includes('骤雨') || t.includes('阵雨') || t.includes('有雨') || t.includes('微雨') || t.includes('毛毛雨')) return 63;
+            if (t.includes('天晴') || t.includes('阳光充沛') || t.includes('晴朗')) return 50;
+            if (t.includes('部分时间有阳光') || t.includes('间有阳光') || t.includes('短暂时间有阳光')) return 51;
+            if (t.includes('短暂阳光')) return 52;
+            if (t.includes('多云') || t.includes('天色明朗')) return 60;
+            if (t.includes('天阴') || t.includes('密云') || t.includes('阴天') || t.includes('大致多云')) return 61;
+            if (t.includes('雾') || t.includes('薄雾') || t.includes('烟霞') || t.includes('能见度低')) return 80;
+            if (t.includes('烈风') || t.includes('强风')) return 90;
+            return 51;
+        }
+
+        async function updateLiveWeather() {
+            try {
+                const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
+                const data = await res.json();
+                if (data.temperature && data.temperature.data && data.temperature.data.length > 0) {
+                    document.getElementById('curr-temp').innerText = data.temperature.data[0].value;
+                }
+                if (data.humidity && data.humidity.data && data.humidity.data.length > 0) {
+                    document.getElementById('curr-hum').innerText = data.humidity.data[0].value;
+                }
+
+                const flwRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc');
+                const flwData = await flwRes.json();
+                if (flwData.forecastDesc) {
+                    const iconCode = getIconByKeyword(flwData.forecastDesc);
+                    const img = document.getElementById('weather-icon-img');
+                    img.src = `https://www.hko.gov.hk/images/wxicon/pic${iconCode}.png`;
+                    img.style.display = 'block';
+                }
+            } catch(e) {
+                console.error('天气数据获取失败:', e);
+            }
+        }
+
+        /* --- 主题控制 --- */
+        document.getElementById('theme-btn').onclick = () => {
+            const isDark = document.documentElement.classList.toggle('mdui-theme-dark');
+            document.documentElement.classList.toggle('mdui-theme-light', !isDark);
+            document.getElementById('theme-btn').icon = isDark ? 'dark_mode' : 'light_mode';
+        };
+
+        restoreLastEngine();
+        render();
+        updateLiveWeather();
+        fetchData(apiUrl, 'weather-info', formatWeatherData);
+        fetchData(warningApiUrl, 'warning-info', formatWarningData);
+        fetchData(iUrl, 'i-info', formatSpecialWeatherData);
+    </script>
+</body>
+</html>
