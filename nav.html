@@ -409,79 +409,193 @@
         let debounceTimer = null;
         let selectedIndex = -1;
 
-        async function fetchSuggestions(query) {
-            if (!query || query.length < 1) {
-                suggestionsContainer.style.display = 'none';
-                return;
-            }
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(async () => {
-                try {
-                    const q = encodeURIComponent(query);
-                    const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${q}`);
-                    const data = await res.json();
-                    const suggestions = data[1] || [];
-                    suggestionsContainer.innerHTML = '';
-                    if (suggestions.length === 0) {
-                        suggestionsContainer.style.display = 'none';
-                        return;
-                    }
-                    suggestions.slice(0, 10).forEach((sug) => {
-                        const div = document.createElement('div');
-                        div.className = 'suggestion-item';
-                        div.textContent = sug;
-                        div.onclick = () => {
-                            searchInput.value = sug;
-                            suggestionsContainer.style.display = 'none';
-                            performSearch(sug);
-                        };
-                        suggestionsContainer.appendChild(div);
-                    });
-                    suggestionsContainer.style.display = 'block';
-                    selectedIndex = -1;
-                } catch (e) {
-                    suggestionsContainer.style.display = 'none';
-                }
-            }, 250);
-        }
+        /* --- 实时搜索联想：搜索引擎精准适配版 --- */
+        const searchInput = document.getElementById('search-input');
+        const suggestionsContainer = document.getElementById('suggestions');
+        let debounceTimer = null;
+        let selectedIndex = -1;
 
-        function performSearch(query) {
-            if (query && query.trim()) {
-                window.open(engines[curEng] + encodeURIComponent(query), '_blank');
-            }
-        }
-
-        searchInput.addEventListener('input', () => fetchSuggestions(searchInput.value.trim()));
-        searchInput.addEventListener('keydown', (e) => {
-            const items = suggestionsContainer.querySelectorAll('.suggestion-item');
-            if (suggestionsContainer.style.display !== 'block' || items.length === 0) return;
-            if (e.key === 'ArrowDown') { e.preventDefault(); selectedIndex = Math.min(selectedIndex + 1, items.length - 1); updateSelection(items); }
-            else if (e.key === 'ArrowUp') { e.preventDefault(); selectedIndex = Math.max(selectedIndex - 1, -1); updateSelection(items); }
-            else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (selectedIndex >= 0 && items[selectedIndex]) {
-                    const text = items[selectedIndex].textContent;
-                    searchInput.value = text; suggestionsContainer.style.display = 'none'; performSearch(text);
-                } else if (searchInput.value.trim()) {
-                    suggestionsContainer.style.display = 'none'; performSearch(searchInput.value);
-                }
-            } else if (e.key === 'Escape') {
-                suggestionsContainer.style.display = 'none';
-            }
-        });
-        function updateSelection(items) {
-            items.forEach((item, i) => item.classList.toggle('selected', i === selectedIndex));
-        }
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) suggestionsContainer.style.display = 'none';
-        });
-        searchInput.onkeypress = (e) => {
-            if (e.key === 'Enter' && e.target.value.trim()) {
-                suggestionsContainer.style.display = 'none';
-                performSearch(e.target.value);
+        // 联想源配置表
+        const suggestionConfigs = {
+            baidu: {
+                url: "https://unionsug.baidu.com/su?wd={q}&cb=sugCallback",
+                parse: (data) => data.s
+            },
+            google: {
+                // Google JSONP 备用地址
+                url: "https://suggestqueries.google.com/complete/search?client=youtube&q={q}&callback=sugCallback",
+                parse: (data) => data[1].map(item => item[0])
+            },
+            bing: {
+                url: "https://api.bing.com/qsonhs.aspx?q={q}&cb=sugCallback",
+                parse: (data) => data.AS.Results[0].Suggests.map(item => item.Txt)
             }
         };
 
+        function fetchSuggestions(query) {
+            if (!query || query.trim().length < 1) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                // 1. 确定联想源：如果当前引擎有对应配置则使用，否则默认用百度
+                const config = suggestionConfigs[curEng] || suggestionConfigs['baidu'];
+                
+                // 清理旧脚本
+                const oldScript = document.getElementById('sug-script');
+                if (oldScript) oldScript.remove();
+
+                const script = document.createElement('script');
+                script.id = 'sug-script';
+
+                // 2. 定义回调逻辑
+                window.sugCallback = (data) => {
+                    const suggestions = config.parse(data) || [];
+                    renderSuggestions(suggestions);
+                    delete window.sugCallback;
+                    script.remove();
+                };
+
+                // 3. 发送请求
+                script.src = config.url.replace('{q}', encodeURIComponent(query));
+                document.body.appendChild(script);
+            }, 200);
+        }
+
+        function renderSuggestions(list) {
+            suggestionsContainer.innerHTML = '';
+            if (list.length === 0) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+
+            list.slice(0, 10).forEach((text) => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = text;
+                div.onclick = () => {
+                    searchInput.value = text;
+                    suggestionsContainer.style.display = 'none';
+                    performSearch(text);
+                };
+                suggestionsContainer.appendChild(div);
+            });
+            suggestionsContainer.style.display = 'block';
+            selectedIndex = -1;
+        }
+
+        // 增强版搜索跳转
+        function performSearch(query) {
+            if (!query || !query.trim()) return;
+            const engineUrl = engines[curEng] || engines['google'];
+            const finalUrl = engineUrl.includes('{q}') 
+                ? engineUrl.replace('{q}', encodeURIComponent(query))
+                : engineUrl + encodeURIComponent(query);
+            window.open(finalUrl, '_blank');
+        }
+
+        /* --- 事件监听保持逻辑 --- */
+        searchInput.addEventListener('input', () => fetchSuggestions(searchInput.value.trim()));
+
+        searchInput.addEventListener('keydown', (e) => {
+            const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+            if (suggestionsContainer.style.display !== 'block' || items.length === 0) return;
+            
+            if (e.key === 'ArrowDown') { 
+                e.preventDefault(); 
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1); 
+                updateSelection(items); 
+            } else if (e.key === 'ArrowUp') { 
+                e.preventDefault(); 
+                selectedIndex = Math.max(selectedIndex - 1, -1); 
+                updateSelection(items); 
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0) {
+                    const text = items[selectedIndex].textContent;
+                    searchInput.value = text;
+                    suggestionsContainer.style.display = 'none';
+                    performSearch(text);
+                } else {
+                    performSearch(searchInput.value);
+                }
+            }
+        });
+
+        function updateSelection(items) {
+            items.forEach((item, i) => item.classList.toggle('selected', i === selectedIndex));
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+        /* --- 搜索交互逻辑 (保留并优化) --- */
+        
+
+        // 统一的搜索执行函数 (支持占位符和普通拼接)
+        function performSearch(query) {
+            if (!query || !query.trim()) return;
+            const engineUrl = engines[curEng] || engines['google'];
+            // 如果 URL 里包含 {q} 则替换，否则直接在末尾拼接
+            const finalUrl = engineUrl.includes('{q}') 
+                ? engineUrl.replace('{q}', encodeURIComponent(query))
+                : engineUrl + encodeURIComponent(query);
+            window.open(finalUrl, '_blank');
+        }
+
+        // 输入监听
+        searchInput.addEventListener('input', () => fetchSuggestions(searchInput.value.trim()));
+
+        // 键盘交互：上下键选择，回车搜索
+        searchInput.addEventListener('keydown', (e) => {
+            const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+            const isVisible = suggestionsContainer.style.display === 'block';
+
+            if (e.key === 'ArrowDown' && isVisible) { 
+                e.preventDefault(); 
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1); 
+                updateSelection(items); 
+            } 
+            else if (e.key === 'ArrowUp' && isVisible) { 
+                e.preventDefault(); 
+                selectedIndex = Math.max(selectedIndex - 1, -1); 
+                updateSelection(items); 
+            } 
+            else if (e.key === 'Enter') {
+                e.preventDefault();
+                // 如果有选中的联想项，搜联想词；否则搜输入框内容
+                if (isVisible && selectedIndex >= 0 && items[selectedIndex]) {
+                    const text = items[selectedIndex].textContent;
+                    searchInput.value = text;
+                    suggestionsContainer.style.display = 'none';
+                    performSearch(text);
+                } else if (searchInput.value.trim()) {
+                    suggestionsContainer.style.display = 'none';
+                    performSearch(searchInput.value);
+                }
+            } 
+            else if (e.key === 'Escape') {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+
+        // 点击页面其他地方隐藏联想框
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+
+        // 兼容原有的 keypress 监听（如果有的话可保留，也可统一使用上面的 keydown）
+        searchInput.onkeypress = (e) => {
+            if (e.key === 'Enter' && !suggestionsContainer.querySelectorAll('.selected').length) {
+                performSearch(e.target.value);
+            }
+        };
         /* --- 天气代码逻辑（完全未修改） --- */
         const apiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=sc';
         const warningApiUrl = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
