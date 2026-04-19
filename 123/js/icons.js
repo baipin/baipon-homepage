@@ -1,5 +1,5 @@
 // icons.js - Material Design Icons 列表（约 450+ 个常用图标）
-const materialIcons = [
+var materialIcons = [
     "home","search","settings","favorite","star","person","menu","close","arrow_back","arrow_forward",
     "add","delete","edit","save","refresh","download","upload","share","link","visibility","visibility_off",
     "notifications","email","phone","location_on","map","calendar_today","access_time","alarm","light_mode","dark_mode",
@@ -202,3 +202,5 @@ const materialIcons = [
     "work_off","work_outline","workspace_premium","workspaces","wrap_text","wrong_location","wysiwyg","yard","youtube_searched_for","zoom_in",
     "zoom_in_map","zoom_out","zoom_out_map"
 ];
+
+console.log("icons.js 已成功运行，图标数量：", materialIcons.length);
