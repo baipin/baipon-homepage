@@ -202,5 +202,3 @@ const materialIcons = [
     "work_off","work_outline","workspace_premium","workspaces","wrap_text","wrong_location","wysiwyg","yard","youtube_searched_for","zoom_in",
     "zoom_in_map","zoom_out","zoom_out_map"
 ];
-
-export default materialIcons;
