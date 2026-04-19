@@ -232,7 +232,7 @@
 
                 <div class="news-ticker">
                     <marquee id="news-marquee" behavior="scroll" direction="left" scrollamount="3">
-                        正在加载香港新闻标题...
+                        正在加新闻...
                     </marquee>
                 </div>
 
@@ -316,23 +316,23 @@
     <script>
         /* ==================== 原有代码完全保留 ==================== */
         const initLinks = [
-            { name: "我的RSS", url: "#", icon: "rss_feed" },
+            { name: "Youtube", url: "https://www.youtube.com/", icon: "youtube" },
             { name: "香港01", url: "https://www.hk01.com", icon: "https://www.hk01.com/favicon.ico" },
-            { name: "酷安", url: "https://www.coolapk.com", icon: "https://www.coolapk.com/favicon.ico" },
+            { name: "Wikipedia", url: "https://www.wikipedia.org/", icon: "https://www.wikipedia.org/favicon.ico" },
             { name: "知乎", url: "https://www.zhihu.com", icon: "https://www.zhihu.com/favicon.ico" },
             { name: "Now新闻", url: "https://news.now.com", icon: "newspaper" },
-            { name: "unsplash", url: "https://unsplash.com", icon: "image" },
+            { name: "Unsplash", url: "https://unsplash.com", icon: "image" },
             { name: "豆瓣", url: "https://www.douban.com", icon: "https://www.douban.com/favicon.ico" },
             { name: "翻译", url: "https://translate.google.com", icon: "translate" },
             { name: "斗鱼", url: "https://www.douyu.com", icon: "https://www.douyu.com/favicon.ico" },
             { name: "CSDN", url: "https://www.csdn.net", icon: "https://www.csdn.net/favicon.ico" },
-            { name: "XDA", url: "https://www.xda-developers.com", icon: "developer_mode" },
+            { name: "Bilibili", url: "https://www.bilibili.com/", icon: "https://www.bilibili.com/favicon.ico" },
             { name: "百品博客", url: "https://baipin.pw", icon: "article" },
-            { name: "AIMS", url: "https://banweb.cityu.edu.hk/", icon: "school" },
+            { name: "AIMS", url: "https://banweb.cityu.edu.hk/", icon: "https://banweb.cityu.edu.hk/favicon.ico" },
             { name: "学校邮箱", url: "https://mail.office365.com/my.cityu.edu.hk", icon: "mail" },
             { name: "Canvas", url: "https://canvas.cityu.edu.hk/", icon: "dashboard" },
             { name: "应用面板", url: "https://auth.cityu.edu.hk/", icon: "apps" },
-            { name: "Github", url: "https://github.com", icon: "code" }
+            { name: "Github", url: "https://github.com", icon: "https://github.com/favicon.ico" }
         ];
         let bookmarks = JSON.parse(localStorage.getItem('bp_v7')) || initLinks;
         let isEdit = false, curIdx = null;
