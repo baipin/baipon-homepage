@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>百品导航 - 123</title>
-   
+  
     <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://unpkg.com/mdui@2.0.3/mdui.global.js"></script>
     <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
-   
+  
     <style>
         :root {
             --nav-height: 64px;
@@ -43,11 +43,9 @@
         .search-input { flex: 1; border: none; background: transparent; padding: 12px; font-size: 1.1rem; outline: none; color: var(--text-main); }
         .engine-favicon { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; display: block; }
         .search-container mdui-dropdown { margin-right: 8px; }
-
         @media (max-width: 900px) {
             .search-container { width: 95%; margin: 0 auto; padding: 8px 16px; }
         }
-
         .suggestions-dropdown {
             position: absolute; top: 100%; left: 0; right: 0;
             background: var(--glass-bg); backdrop-filter: blur(25px);
@@ -65,7 +63,6 @@
         .mdui-theme-dark .suggestion-item:hover, .mdui-theme-dark .suggestion-item.selected {
             background: rgba(255, 255, 255, 0.12);
         }
-
         .sort-btn {
             position: absolute; right: 12px; font-size: 20px;
             color: var(--text-main); opacity: 0.7; cursor: pointer; z-index: 10;
@@ -75,13 +72,12 @@
         .sort-down { top: 38px; }
         .sort-btn:hover { opacity: 1; transform: scale(1.1); }
         .edit-active .link-item { padding-right: 58px; }
-        .edit-active .link-item::after { 
-            content: "edit"; font-family: 'Material Icons'; 
-            position: absolute; top: 8px; right: 38px; 
-            font-size: 10px; background: #0081ff; color: white; 
-            border-radius: 50%; padding: 4px; 
+        .edit-active .link-item::after {
+            content: "edit"; font-family: 'Material Icons';
+            position: absolute; top: 8px; right: 38px;
+            font-size: 10px; background: #0081ff; color: white;
+            border-radius: 50%; padding: 4px;
         }
-
         .content-layout { max-width: 1240px; margin: 0 auto 80px; display: grid; grid-template-columns: 1fr 360px; gap: 32px; padding: 0 20px; }
         .card-glass { border-radius: 28px; background: var(--glass-bg); backdrop-filter: blur(20px); padding: 32px; border: 1px solid var(--glass-border); color: var(--text-main); }
         .links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 18px; margin-top: 24px; }
@@ -97,7 +93,6 @@
         .hum-display { font-size: 0.85rem; opacity: 0.8; }
         .weather-details p { margin: 8px 0; font-size: 0.95rem; line-height: 1.6; }
         @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .side-stack { order: -1; } }
-
         .news-ticker {
             font-size: 0.95rem;
             line-height: 1.8;
@@ -113,7 +108,6 @@
             opacity: 0.7;
             margin-top: 4px;
         }
-
         #fullscreen-market {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--glass-bg);
             z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -125,9 +119,6 @@
         #fullscreen-marquee {
             font-size: 2rem; width: 95%; text-align: center; overflow: hidden; white-space: nowrap;
         }
-
-        .icon-picker-iframe { width: 100%; height: 560px; border: none; border-radius: 12px; }
-
         @media (max-width: 600px) {
             .button-row {
                 flex-direction: column !important;
@@ -137,24 +128,33 @@
                 width: 100%;
             }
         }
-        .fullscreen-marquee {
-    font-size: 2rem;
-    width: 95%;
-    overflow: hidden;
-    white-space: nowrap;
-    position: relative;
-}
 
-.fullscreen-marquee span {
-    display: inline-block;
-    padding-left: 100%;
-    animation: marqueeScroll 25s linear infinite;
-}
-
-@keyframes marqueeScroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
-}
+        /* 本地 MDUI Material Icons 选择器样式 */
+        #local-icon-picker {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+            gap: 12px;
+            max-height: 420px;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .icon-option {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .icon-option:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+        .mdui-theme-dark .icon-option:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
     </style>
 </head>
 <body class="mdui-theme-auto">
@@ -217,25 +217,22 @@
                     <div id="i-info" style="font-size:0.85rem; opacity:0.8; border-top:1px solid rgba(128,128,128,0.2); margin-top:10px; padding-top:10px;"></div>
                 </div>
             </div>
-
             <!-- 侧栏容器：香港新闻标题滚动 -->
             <div class="card-glass" style="position:relative;">
                 <mdui-button-icon id="fullscreen-btn" icon="fullscreen" style="position:absolute; top:12px; right:52px; color:inherit; z-index:10;"></mdui-button-icon>
                 <mdui-button-icon id="manage-rss-btn" icon="rss_feed" style="position:absolute; top:12px; right:12px; color:inherit; z-index:10;"></mdui-button-icon>
-                
+               
                 <div style="font-size:0.7rem; opacity:0.6; font-weight:bold; margin-bottom:12px; letter-spacing:1px;">香港新闻</div>
-                
+               
                 <div style="margin-bottom: 16px;">
                     <div style="font-size:0.85rem; opacity:0.8;">香港时间</div>
                     <div id="hkt-time" style="font-size:1.35rem; font-weight:700; letter-spacing:1px;">--:--:--</div>
                 </div>
-
                 <div class="news-ticker">
                     <marquee id="news-marquee" behavior="scroll" direction="left" scrollamount="3">
-                        正在加新闻...
+                        正在加载香港新闻标题...
                     </marquee>
                 </div>
-
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
                     <div id="update-time" class="update-time">更新时间: --</div>
                     <mdui-button variant="tonal" id="refresh-news-btn" class="refresh-btn" icon="refresh">刷新新闻</mdui-button>
@@ -243,16 +240,14 @@
             </div>
         </aside>
     </div>
-
     <!-- 全屏模式 -->
     <div id="fullscreen-market">
         <div id="fullscreen-time" style="font-size: 7rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 60px;">--:--:--</div>
-        <div id="fullscreen-marquee" class="fullscreen-marquee">
-            正在加载新闻...
+        <div id="fullscreen-marquee" style="font-size: 2rem; width: 95%; text-align: center; overflow: hidden; white-space: nowrap;">
+            正在加载香港新闻...
         </div>
         <mdui-button variant="tonal" id="exit-fullscreen-btn" style="margin-top: 80px;" icon="fullscreen_exit">退出全屏模式</mdui-button>
     </div>
-
     <!-- 原有对话框（完全保留） -->
     <mdui-dialog id="edit-dialog" close-on-overlay-click>
         <span slot="headline">管理书签</span>
@@ -269,7 +264,6 @@
         <mdui-button slot="action" variant="text" id="act-del" style="color:red">删除</mdui-button>
         <mdui-button slot="action" variant="tonal" id="act-save">保存</mdui-button>
     </mdui-dialog>
-
     <mdui-dialog id="add-engine-dialog" close-on-overlay-click>
         <span slot="headline">添加自定义搜索引擎</span>
         <div style="display:flex; flex-direction:column; gap:15px; padding:10px 0;">
@@ -284,14 +278,12 @@
         <mdui-button slot="action" variant="text" id="engine-cancel">取消</mdui-button>
         <mdui-button slot="action" variant="tonal" id="engine-save">添加</mdui-button>
     </mdui-dialog>
-
     <mdui-dialog id="manage-engine-dialog" close-on-overlay-click>
         <span slot="headline">管理自定义搜索引擎</span>
         <div id="custom-engine-list" style="max-height: 400px; overflow-y: auto; padding: 8px 0;"></div>
         <mdui-button slot="action" variant="text" id="manage-engine-close">关闭</mdui-button>
         <mdui-button slot="action" variant="tonal" id="manage-engine-add">添加新引擎</mdui-button>
     </mdui-dialog>
-
     <mdui-dialog id="manage-rss-dialog" close-on-overlay-click>
         <span slot="headline">管理新闻RSS源</span>
         <div id="custom-rss-list" style="max-height: 400px; overflow-y: auto; padding: 8px 0;"></div>
@@ -299,18 +291,14 @@
         <mdui-button slot="action" variant="tonal" id="manage-rss-add">添加RSS源</mdui-button>
     </mdui-dialog>
 
-    <mdui-dialog id="icon-picker-dialog" close-on-overlay-click>
-        <span slot="headline">挑选 Material Design Icons</span>
-        <div style="padding: 10px 0;">
-            <iframe id="icon-picker-iframe" class="icon-picker-iframe" 
-                    src="https://pictogrammers.com/library/mdi/"></iframe>
+    <!-- 本地 MDUI Icon 选择对话框（替换原来的 iframe） -->
+    <mdui-dialog id="local-icon-picker-dialog" close-on-overlay-click>
+        <span slot="headline">选择 Material Design Icon</span>
+        <div style="padding: 16px;">
+            <mdui-text-field id="icon-search-input" placeholder="搜索图标名称..." variant="outlined" style="width:100%; margin-bottom:16px;"></mdui-text-field>
+            <div id="local-icon-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 12px; max-height: 420px; overflow-y: auto; padding: 8px;"></div>
         </div>
-        <div style="text-align:center; margin: 12px 0;">
-            <a href="https://pictogrammers.com/library/mdi/" target="_blank" style="color: var(--text-main); text-decoration: underline;">
-                在新窗口打开完整图标库
-            </a>
-        </div>
-        <mdui-button slot="action" variant="text" id="icon-picker-close">关闭</mdui-button>
+        <mdui-button slot="action" variant="text" id="local-icon-close">关闭</mdui-button>
     </mdui-dialog>
 
     <script>
@@ -336,7 +324,6 @@
         ];
         let bookmarks = JSON.parse(localStorage.getItem('bp_v7')) || initLinks;
         let isEdit = false, curIdx = null;
-
         let customEngines = JSON.parse(localStorage.getItem('custom_engines')) || {};
         let engines = {
             google: 'https://www.google.com/search?q=',
@@ -348,7 +335,6 @@
             github: 'https://github.com/search?q='
         };
         Object.assign(engines, customEngines);
-
         let curEng = localStorage.getItem('last_engine') || 'google';
 
         function restoreLastEngine() {
@@ -373,18 +359,15 @@
                 const isImg = item.icon.includes('http') || item.icon.includes('.');
                 const iconHtml = isImg ? `<img src="${item.icon}">` : `<mdui-icon name="${item.icon}"></mdui-icon>`;
                 el.innerHTML = `${iconHtml}<span>${item.name}</span>`;
-
                 if (isEdit) {
                     const up = document.createElement('span');
                     up.className = 'sort-btn sort-up';
                     up.innerHTML = '↑';
                     up.onclick = (e) => { e.stopImmediatePropagation(); moveBookmark(i, -1); };
-
                     const down = document.createElement('span');
                     down.className = 'sort-btn sort-down';
                     down.innerHTML = '↓';
                     down.onclick = (e) => { e.stopImmediatePropagation(); moveBookmark(i, 1); };
-
                     el.appendChild(up);
                     el.appendChild(down);
                     el.onclick = () => openDialog(i);
@@ -437,11 +420,9 @@
             const icon = document.getElementById('engine-icon').value.trim();
             if (!name || !url) { alert('名称和搜索 URL 不能为空'); return; }
             if (!url.includes('{q}')) { alert('搜索 URL 必须包含 {q}'); return; }
-
             const key = name.toLowerCase().replace(/\s+/g, '');
             customEngines[key] = { url: url, icon: icon || 'https://www.google.com/favicon.ico' };
             engines[key] = url;
-
             localStorage.setItem('custom_engines', JSON.stringify(customEngines));
             document.getElementById('add-engine-dialog').open = false;
             document.getElementById('engine-name').value = '';
@@ -455,22 +436,17 @@
         };
 
         function renderEngineMenu() {
-    const menu = document.getElementById('engine-menu');
-
-    // ❗只删除自定义项（带 data-custom 标记）
-    const dynamicItems = menu.querySelectorAll('mdui-menu-item[data-custom="1"]');
-    dynamicItems.forEach(item => item.remove());
-
-    Object.keys(customEngines).forEach(key => {
-        const data = customEngines[key];
-        const newItem = document.createElement('mdui-menu-item');
-
-        newItem.value = key;
-        newItem.setAttribute('data-custom', '1'); // ⭐关键标记
-        newItem.innerHTML = `<img class="engine-favicon" src="${data.icon}" slot="icon">${key}`;
-
-        menu.insertBefore(newItem, document.getElementById('add-engine-btn'));
-    });
+            const menu = document.getElementById('engine-menu');
+            const dynamicItems = menu.querySelectorAll('mdui-menu-item[data-custom="1"]');
+            dynamicItems.forEach(item => item.remove());
+            Object.keys(customEngines).forEach(key => {
+                const data = customEngines[key];
+                const newItem = document.createElement('mdui-menu-item');
+                newItem.value = key;
+                newItem.setAttribute('data-custom', '1');
+                newItem.innerHTML = `<img class="engine-favicon" src="${data.icon}" slot="icon">${key}`;
+                menu.insertBefore(newItem, document.getElementById('add-engine-btn'));
+            });
         }
 
         function showManageEngineDialog() {
@@ -520,50 +496,58 @@
             document.getElementById('add-engine-dialog').open = true;
         };
 
-        const iconPickerDialog = document.getElementById('icon-picker-dialog');
-        function openIconPicker() { iconPickerDialog.open = true; }
-        document.getElementById('btn-pick-icon-bookmark').onclick = openIconPicker;
-        document.getElementById('btn-pick-icon-engine').onclick = openIconPicker;
-        document.getElementById('icon-picker-close').onclick = () => iconPickerDialog.open = false;
+        /* 本地 MDUI Icon 选择器实现 */
+        const localIconDialog = document.getElementById('local-icon-picker-dialog');
+        const localIconList = document.getElementById('local-icon-list');
+        const iconSearchInput = document.getElementById('icon-search-input');
 
-        const dialog = document.getElementById('edit-dialog');
-        document.getElementById('edit-btn').onclick = () => { isEdit = !isEdit; render(); };
-        document.getElementById('add-btn').onclick = () => openDialog();
+        // 常用 MDUI Material Icons 列表（约 150 个常用图标，覆盖大多数使用场景）
+        const commonIcons = [
+            "home","search","settings","favorite","star","person","menu","close","arrow_back","arrow_forward",
+            "add","delete","edit","save","refresh","download","upload","share","link","visibility","visibility_off",
+            "notifications","email","phone","location_on","map","calendar_today","access_time","alarm","light_mode","dark_mode",
+            "article","book","library_books","newspaper","rss_feed","language","translate","code","bug_report","cloud",
+            "image","photo","videocam","music_note","play_arrow","pause","stop","volume_up","volume_off","mic",
+            "school","work","business","group","people","public","flag","thumb_up","thumb_down","check","close",
+            "warning","error","info","help","question_mark","priority_high","check_circle","cancel","block","lock",
+            "vpn_key","security","shield","folder","folder_open","insert_drive_file","attach_file","cloud_download","cloud_upload","backup"
+        ];
 
-        function openDialog(idx = null) {
-            curIdx = idx;
-            document.getElementById('f-name').value = idx !== null ? bookmarks[idx].name : '';
-            document.getElementById('f-url').value = idx !== null ? bookmarks[idx].url : '';
-            document.getElementById('f-icon').value = idx !== null ? bookmarks[idx].icon : '';
-            document.getElementById('act-del').style.display = idx !== null ? 'block' : 'none';
-            dialog.open = true;
+        function renderLocalIconList(filter = '') {
+            localIconList.innerHTML = '';
+            const filtered = commonIcons.filter(name => name.toLowerCase().includes(filter.toLowerCase()));
+            filtered.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'icon-option';
+                div.innerHTML = `<mdui-icon name="${name}"></mdui-icon>`;
+                div.title = name;
+                div.onclick = () => {
+                    // 自动填充到当前打开的输入框（书签或引擎）
+                    const activeInput = document.querySelector('#f-icon, #engine-icon');
+                    if (activeInput) activeInput.value = name;
+                    localIconDialog.open = false;
+                };
+                localIconList.appendChild(div);
+            });
         }
 
-        document.getElementById('act-save').onclick = () => {
-            const data = { name: document.getElementById('f-name').value || '未命名', url: document.getElementById('f-url').value || '#', icon: document.getElementById('f-icon').value || 'link' };
-            if(curIdx !== null) bookmarks[curIdx] = data; else bookmarks.push(data);
-            localStorage.setItem('bp_v7', JSON.stringify(bookmarks));
-            dialog.open = false; render();
+        // 打开本地图标选择器（替换原来的 iframe）
+        function openLocalIconPicker() {
+            renderLocalIconList('');
+            localIconDialog.open = true;
+        }
+
+        iconSearchInput.addEventListener('input', () => {
+            renderLocalIconList(iconSearchInput.value);
+        });
+
+        document.getElementById('local-icon-close').onclick = () => {
+            localIconDialog.open = false;
         };
 
-        document.getElementById('act-del').onclick = () => { 
-            if(curIdx !== null) { 
-                bookmarks.splice(curIdx, 1); 
-                localStorage.setItem('bp_v7', JSON.stringify(bookmarks)); 
-                dialog.open = false; 
-                render(); 
-            } 
-        };
-
-        document.getElementById('act-cancel').onclick = () => dialog.open = false;
-
-        document.getElementById('btn-get-icon').onclick = () => {
-            const url = document.getElementById('f-url').value;
-            if (url && url.startsWith('http')) {
-                const domain = new URL(url).origin;
-                document.getElementById('f-icon').value = `${domain}/favicon.ico`;
-            }
-        };
+        // 替换原来的挑选图标按钮
+        document.getElementById('btn-pick-icon-bookmark').onclick = openLocalIconPicker;
+        document.getElementById('btn-pick-icon-engine').onclick = openLocalIconPicker;
 
         /* 实时搜索联想（保持原样） */
         const searchInput = document.getElementById('search-input');
@@ -752,7 +736,7 @@
             document.getElementById('theme-btn').icon = 'dark_mode';
         }
 
-        /* ==================== 修复后的时间 + RSS（仅保留指定三个源 + 优化解析） ==================== */
+        /* ==================== 时间 + RSS（仅保留指定三个源） ==================== */
         function updateHKTTime() {
             const now = new Date().toLocaleString('zh-CN', { 
                 timeZone: 'Asia/Hong_Kong',
@@ -764,11 +748,10 @@
         setInterval(updateHKTTime, 1000);
         updateHKTTime();
 
-        // 只保留你指定的三个源
         let customRSS = JSON.parse(localStorage.getItem('custom_rss')) || [
-            "https://hk.news.yahoo.com/rss/hong-kong",
-            "https://rthk.hk/rthk/news/rss/c_expressnews_elocal.xml",
-            "https://rthk.hk/rthk/news/rss/c_expressnews_efinance.xml"
+            "https://hongkongfp.com/feed/",
+            "https://rthk.hk/rthk/news/rss/e_expressnews_elocal.xml",
+            "https://rthk.hk/rthk/news/rss/e_expressnews_efinance.xml"
         ];
 
         function saveCustomRSS() {
@@ -776,41 +759,29 @@
         }
 
         async function fetchHKNews() {
-    let marqueeHTML = '';
-
-    for (let rssUrl of customRSS) {
-        try {
-            // 使用 RSS 转 JSON 服务（解决 CORS）
-            const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
-
-            const res = await fetch(api);
-            const data = await res.json();
-
-            if (data.items && data.items.length) {
-                data.items.forEach(item => {
-                    if (item.title) {
-                        marqueeHTML += `${item.title}　|　`;
+            let marqueeHTML = '';
+            for (let rssUrl of customRSS) {
+                try {
+                    const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+                    const res = await fetch(api);
+                    const data = await res.json();
+                    if (data.items && data.items.length) {
+                        data.items.forEach(item => {
+                            if (item.title) marqueeHTML += `${item.title}　|　`;
+                        });
                     }
-                });
+                } catch (e) {
+                    console.error(`RSS失败: ${rssUrl}`, e);
+                }
             }
-
-        } catch (e) {
-            console.error(`RSS失败: ${rssUrl}`, e);
-        }
-    }
-
-    if (!marqueeHTML) marqueeHTML = '暂无最新新闻，请稍后刷新...';
-
-    document.getElementById('news-marquee').innerHTML = marqueeHTML;
-    document.getElementById('fullscreen-marquee').innerHTML =
-    `<span>${marqueeHTML}</span>`;
-    document.getElementById('update-time').textContent =
-        `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
+            if (!marqueeHTML) marqueeHTML = '暂无最新新闻，请稍后刷新...';
+            document.getElementById('news-marquee').innerHTML = marqueeHTML;
+            document.getElementById('fullscreen-marquee').innerHTML = `<span>${marqueeHTML}</span>`;
+            document.getElementById('update-time').textContent = `更新时间: ${new Date().toLocaleTimeString('zh-CN')}`;
         }
 
         document.getElementById('refresh-news-btn').onclick = fetchHKNews;
 
-        // 管理RSS源对话框（保留原有逻辑）
         function showManageRSSDialog() {
             const list = document.getElementById('custom-rss-list');
             list.innerHTML = '';
@@ -871,7 +842,7 @@
 
         /* ==================== 初始化 ==================== */
         restoreLastEngine();
-        renderEngineMenu();   // 确保预设 + 自定义都显示
+        renderEngineMenu();
         render();
         updateLiveWeather();
         fetchData(apiUrl, 'weather-info', formatWeatherData);
