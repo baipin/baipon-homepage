@@ -197,35 +197,39 @@
             <a href="https://radio.baipon.com" class="project-link-item">
                 <div class="project-icon"><mdui-icon name="radio"></mdui-icon></div>
                 <div class="project-text">
-                    <h4 data-i18n="p1_title">百品电台</h4>
-                    <p data-i18n="p1_desc">轻量化在线客制化电台，支持批量导入电台源。</p>
+                    <h4 data-i18n="p2_title">百品电台</h4>
+                    <p data-i18n="p2_desc">轻量化在线客制化电台，支持批量导入电台源。</p>
                 </div>
             </a>
 
             <a href="https://radio.baipon.com" class="project-link-item">
                 <div class="project-icon"><mdui-icon name="local_florist"></mdui-icon></div>
                 <div class="project-text">
-                    <h4 data-i18n="p2_title">知识花园</h4>
-                    <p data-i18n="p2_desc">使用AI Agent自动整理日常想法及知识点，生成思维导图和PPT。</p>
+                    <h4 data-i18n="p3_title">知识花园</h4>
+                    <p data-i18n="p3_desc">使用AI Agent自动整理日常想法及知识点，生成思维导图和PPT。</p>
                 </div>
             </a>
 
            <a href="https://bbs.baipin.pw" class="project-link-item card-disabled">
                 <div class="project-icon" style="background: #444;"><mdui-icon name="forum"></mdui-icon></div>
                 <div class="project-text">
-                    <h4 style="color: #888;">百品论坛</h4>
-                <p>该项目已于2018年停止。</p>
+                    <h4 style="color: #888;" data-i18n="p4_title">百品论坛</h4>
+                <p data-i18n="p4_desc">该项目已于2018年停止。</p>
+                    </div>
+</a>
            <a href="https://tv.baipin.pw" class="project-link-item card-disabled">
                 <div class="project-icon" style="background: #444;"><mdui-icon name="live_tv"></mdui-icon></div>
                 <div class="project-text">
-                    <h4 style="color: #888;">百品网络电视</h4>
-                <p>该项目已于2026年4月21日正式停止。</p>
+                    <h4 style="color: #888;" data-i18n="p5_title">百品网络电视</h4>
+                <p data-i18n="p5_desc">该项目已于2026年4月21日正式停止。</p>
+                    </div>
+</a>
             <a href="javascript:void(0);" class="project-link-item card-disabled">
                 <div class="project-icon" style="background: #444;"><mdui-icon name="live_tv"></mdui-icon></div>
                 <div class="project-text">
-                    <h4 style="color: #888;">百品MC助手</h4>
-                <p>我的世界（Minecraft）资讯站，该项目已于2018年终止。</p>
-    </div>
+                    <h4 style="color: #888;" data-i18n="p6_title">百品MC助手</h4>
+                <p data-i18n="p6_desc">我的世界（Minecraft）资讯站，该项目已于2018年终止。</p>
+                    </div>
 </a>
         </main>
     </div>
@@ -263,14 +267,42 @@
         // --- 多语言逻辑 (i18n) ---
         const i18n = {
             'zh-CN': {
-                nav_home: '首页', nav_blog: '博客', nav_projects: '项目', nav_about: '关于',
-                p1_title: '个人网站源码', p1_desc: '本站点的开源前端代码实现。',
-                p2_title: '自动化脚本', p2_desc: '用于处理日常任务的 Python 工具集。'
+                nav_home: '首页', 
+                nav_blog: '博客', 
+                nav_projects: '项目', 
+                nav_about: '关于',
+                // 项目标题
+                p1_title: '百品博客',
+                p2_title: '百品导航',
+                p3_title: '百品电台',
+                p4_title: '知识花园',
+                // 项目描述
+                p1_desc: '站长的个人博客。',
+                p2_desc: '简洁的客制化上网首页。包含RSS订阅、自定义书签、自定义搜索引擎、自定义背景、夜间模式。同时支持导入导出所有自定义设置。',
+                p3_desc: '轻量化在线客制化电台，支持批量导入电台源。',
+                p4_desc: '使用AI Agent自动整理日常想法及知识点，生成思维导图和PPT。',
+                p5_title: '百品论坛', p5_desc: '该项目已于2018年停止。',
+                p6_title: '百品网络电视', p6_desc: '该项目已于2026年4月21日正式停止。',
+                p7_title: '百品MC助手', p7_desc: '我的世界（Minecraft）资讯站，该项目已于2018年终止。'
             },
             'en': {
-                nav_home: 'Home', nav_blog: 'Blog', nav_projects: 'Projects', nav_about: 'About',
-                p1_title: 'Site Source Code', p1_desc: 'The open source implementation of this site.',
-                p2_title: 'Auto Scripts', p2_desc: 'Python toolset for daily tasks.'
+                nav_home: 'Home', 
+                nav_blog: 'Blog', 
+                nav_projects: 'Projects', 
+                nav_about: 'About',
+                // Project Titles
+                p1_title: 'Baipin Blog',
+                p2_title: 'Baipin Navigation',
+                p3_title: 'Baipin Radio',
+                p4_title: 'Knowledge Garden',
+                // Project Descs
+                p1_desc: 'The personal blog of the site owner.',
+                p2_desc: 'A concise customized homepage. Features RSS, custom bookmarks, search engines, backgrounds, and dark mode. Supports full settings export/import.',
+                p3_desc: 'Lightweight online customized radio, supports batch importing station sources.',
+                p4_desc: 'Using AI Agents to organize daily thoughts and knowledge points, generating mind maps and PPTs.',
+                p5_title: 'Baipin Forum', p5_desc: 'This project was discontinued in 2018.',
+                p6_title: 'Baipin Web TV', p6_desc: 'This project officially ended on April 21, 2026.',
+                p7_title: 'Baipin MC Helper', p7_desc: 'Minecraft info station, discontinued in 2018.'
             }
         };
 
