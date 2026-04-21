@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>项目 - 百品</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/mdui@2.0.3/mdui.global.js"></script>
+    
+    <style>
+        :root {
+            --nav-height: 64px;
+            --content-max-width: 1000px;
+        }
+
+        /* --- 核心背景逻辑 (修复透明问题) --- */
+        html {
+            background-color: rgb(var(--mdui-color-background));
+            transition: background-color 0.3s;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            width: 100%; overflow-x: hidden;
+            font-family: "Product Sans", system-ui, -apple-system, sans-serif;
+            background-color: transparent !important;
+            padding-top: var(--nav-height);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('/home.jpg') center/cover no-repeat;
+            z-index: -1;
+            transition: filter 0.5s ease;
+        }
+        .mdui-theme-dark body::before { filter: brightness(0.5); }
+
+        /* --- 导航栏 --- */
+        .custom-app-bar {
+            height: var(--nav-height) !important;
+            background-color: rgba(var(--mdui-color-surface-container), 0.8) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(var(--mdui-color-outline-variant), 0.5);
+            padding: 0 5%;
+            display: flex; align-items: center;
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        /* --- 项目容器 --- */
+        .project-container {
+            max-width: var(--content-max-width);
+            margin: 40px auto 80px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 30;
+        }
+
+        .main-card {
+            background-color: rgb(var(--mdui-color-surface-container)) !important;
+            color: rgb(var(--mdui-color-on-surface));
+            border-radius: 28px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+
+        /* --- 项目卡片链接样式 --- */
+        .project-link-card {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            text-decoration: none;
+            color: inherit;
+            background: rgba(var(--mdui-color-secondary-container), 0.3);
+            border: 1px solid rgba(var(--mdui-color-outline), 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .project-link-card:hover {
+            background: rgba(var(--mdui-color-secondary-container), 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: rgb(var(--mdui-color-primary-container));
+            color: rgb(var(--mdui-color-on-primary-container));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .icon-box mdui-icon { font-size: 28px; }
+
+        .project-info { flex-grow: 1; }
+        .project-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+        .project-desc { font-size: 0.9rem; opacity: 0.7; line-height: 1.4; }
+
+        footer { padding: 40px; text-align: center; color: #777; font-size: 0.9rem; }
+
+        @media (max-width: 600px) {
+            .main-card { padding: 24px; }
+            .project-link-card { padding: 16px; }
+        }
+    </style>
+</head>
+<body class="mdui-theme-auto">
+
+    <header class="custom-app-bar">
+        <mdui-button-icon icon="arrow_back" onclick="history.back()"></mdui-button-icon>
+        <div style="margin-left: 12px; font-weight: 700; font-size: 1.2rem;">我的项目</div>
+        <div style="flex-grow: 1"></div>
+        <mdui-button-icon id="theme-toggle" icon="light_mode"></mdui-button-icon>
+    </header>
+
+    <div class="project-container">
+        <main class="main-card">
+            <h2 style="margin-top: 0; margin-bottom: 32px; font-weight: 800; font-size: 2rem;">Projects</h2>
+            
+            <a href="https://github.com/yourname/project1" class="project-link-card" target="_blank">
+                <div class="icon-box">
+                    <mdui-icon name="code"></mdui-icon>
+                </div>
+                <div class="project-info">
+                    <div class="project-title">个人博客系统</div>
+                    <div class="project-desc">基于 MDUI 2.0 构建的响应式静态博客主题。</div>
+                </div>
+                <mdui-icon name="chevron_right"></mdui-icon>
+            </a>
+
+            <a href="#" class="project-link-card">
+                <div class="icon-box">
+                    <mdui-icon name="terminal"></mdui-icon>
+                </div>
+                <div class="project-info">
+                    <div class="project-title">自动部署脚本</div>
+                    <div class="project-desc">一套用于 Linux 服务器的一键化 Web 环境搭建工具。</div>
+                </div>
+                <mdui-icon name="chevron_right"></mdui-icon>
+            </a>
+
+            <a href="#" class="project-link-card">
+                <div class="icon-box">
+                    <mdui-icon name="auto_awesome"></mdui-icon>
+                </div>
+                <div class="project-info">
+                    <div class="project-title">AI 辅助工具</div>
+                    <div class="project-desc">调用大语言模型 API 实现的自动化文本润色插件。</div>
+                </div>
+                <mdui-icon name="chevron_right"></mdui-icon>
+            </a>
+
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 百品</p>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        function updateIcon() {
+            const isDark = html.classList.contains('mdui-theme-dark') || 
+                          (html.classList.contains('mdui-theme-auto') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            themeToggle.icon = isDark ? 'dark_mode' : 'light_mode';
+        }
+
+        function applyTheme(theme) {
+            html.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
+            html.classList.add(`mdui-theme-${theme}`);
+            updateIcon();
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isCurrentlyDark = html.classList.contains('mdui-theme-dark') || 
+                                   (html.classList.contains('mdui-theme-auto') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const nextTheme = isCurrentlyDark ? 'light' : 'dark';
+            applyTheme(nextTheme);
+            localStorage.setItem('theme', nextTheme);
+        });
+
+        const savedTheme = localStorage.getItem('theme') || 'auto';
+        applyTheme(savedTheme);
+    </script>
+</body>
+</html>
