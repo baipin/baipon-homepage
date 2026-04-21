@@ -120,6 +120,9 @@
         .main-card, .sidebar-card {
             transition: background 0.3s, color 0.3s;
             box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+            /* 使用 MDUI 的标准表面颜色变量，它会自动随主题切换 */
+            background-color: rgb(var(--mdui-color-surface-container)) !important;
+            color: rgb(var(--mdui-color-on-surface));
         }
 
         /* 白天模式卡片内部文字与图标颜色 */
