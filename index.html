@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>百品 - 入口网站</title>
+
+    <script>
+        // Resolve the saved/system theme before the first paint.
+        (() => {
+            const savedTheme = localStorage.getItem('theme') || 'auto';
+            const isDark = savedTheme === 'dark' ||
+                (savedTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.dataset.themeResolved = isDark ? 'dark' : 'light';
+        })();
+    </script>
     
     <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -320,6 +330,85 @@
 
         .mobile-menu-btn { display: none; }
         footer { background: #121212; color: #777; padding: 60px 20px; text-align: center; }
+
+        /* Final resolved-theme colors for buttons, cards and project icons. */
+        html[data-theme-resolved="light"] .custom-app-bar,
+        html[data-theme-resolved="light"] .custom-app-bar mdui-button,
+        html[data-theme-resolved="light"] .custom-app-bar mdui-button-icon,
+        html[data-theme-resolved="light"] .custom-app-bar mdui-icon {
+            color: #111827 !important;
+        }
+        html[data-theme-resolved="dark"] .custom-app-bar {
+            background-color: rgba(28, 27, 31, 0.85) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.1);
+        }
+        html[data-theme-resolved="dark"] .custom-app-bar,
+        html[data-theme-resolved="dark"] .custom-app-bar mdui-button,
+        html[data-theme-resolved="dark"] .custom-app-bar mdui-button-icon,
+        html[data-theme-resolved="dark"] .custom-app-bar mdui-icon {
+            color: #f3f4f6 !important;
+        }
+        html[data-theme-resolved="light"] mdui-button[variant="text"],
+        html[data-theme-resolved="light"] mdui-button[variant="outlined"],
+        html[data-theme-resolved="light"] mdui-button[variant="tonal"],
+        html[data-theme-resolved="light"] mdui-button-icon,
+        html[data-theme-resolved="light"] mdui-icon {
+            color: #111827 !important;
+        }
+        html[data-theme-resolved="light"] mdui-button[variant="filled"] {
+            background: #1f2937 !important;
+            color: #ffffff !important;
+        }
+        html[data-theme-resolved="dark"] mdui-button[variant="text"],
+        html[data-theme-resolved="dark"] mdui-button[variant="outlined"],
+        html[data-theme-resolved="dark"] mdui-button[variant="tonal"],
+        html[data-theme-resolved="dark"] mdui-button-icon,
+        html[data-theme-resolved="dark"] mdui-icon {
+            color: #f3f4f6 !important;
+        }
+        html[data-theme-resolved="dark"] mdui-button[variant="filled"] {
+            background: #e5e7eb !important;
+            color: #111827 !important;
+        }
+        html[data-theme-resolved="light"] .project-showcase-card {
+            color: #171717;
+            background: #ffffff;
+        }
+        html[data-theme-resolved="light"] .project-showcase-content p {
+            color: #5c6265;
+        }
+        html[data-theme-resolved="dark"] .project-showcase-card {
+            color: #f3f4f6;
+            background: #25252c;
+        }
+        html[data-theme-resolved="light"] .main-card,
+        html[data-theme-resolved="light"] .sidebar-card {
+            background: #ffffff !important;
+            color: #111827 !important;
+        }
+        html[data-theme-resolved="dark"] .main-card {
+            background: #1c1b1f !important;
+            color: #e6e1e5 !important;
+        }
+        html[data-theme-resolved="dark"] .sidebar-card {
+            background: #2b2930 !important;
+            color: #e6e1e5 !important;
+        }
+        html[data-theme-resolved="dark"] .rss-item {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        html[data-theme-resolved="dark"] .project-showcase-content p {
+            color: #c7c9d1;
+        }
+        html[data-theme-resolved="light"] .project-showcase-link { color: #0f7b6e; }
+        html[data-theme-resolved="dark"] .project-showcase-link { color: #7dd3c7; }
+        html[data-theme-resolved="light"] .project-showcase-icon,
+        html[data-theme-resolved="light"] .project-showcase-icon mdui-icon,
+        html[data-theme-resolved="dark"] .project-showcase-icon,
+        html[data-theme-resolved="dark"] .project-showcase-icon mdui-icon {
+            color: #ffffff !important;
+        }
     </style>
 </head>
 <body class="mdui-theme-auto">
@@ -441,6 +530,9 @@
         function applyTheme(theme) {
             html.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
             html.classList.add(`mdui-theme-${theme}`);
+            const isDark = theme === 'dark' ||
+                (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            html.dataset.themeResolved = isDark ? 'dark' : 'light';
             updateIcon();
         }
 
@@ -544,6 +636,10 @@
         applyTheme(savedTheme);
         renderHomepageProjects();
         fetchRSS();
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (localStorage.getItem('theme') === 'auto') applyTheme('auto');
+        });
     </script>
 </body>
 </html>
