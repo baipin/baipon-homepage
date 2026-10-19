@@ -478,19 +478,20 @@
         let currentLang = 'zh-CN';
         function renderHomepageProjects() {
             const track = document.getElementById('homepage-projects-track');
+            const projectLang = currentLang === 'zh-CN' ? 'zh' : 'en';
             track.innerHTML = window.BAIPIN_HOME_PROJECTS.map((project) => {
                 const isActive = project.status !== 'inactive';
                 const href = isActive ? project.url : '#';
                 const target = isActive ? ' target="_blank" rel="noopener noreferrer"' : '';
                 const statusKey = isActive ? 'project_visit' : 'project_unavailable';
                 return `
-                    <a class="project-showcase-card${isActive ? '' : ' is-inactive'}" href="${href}"${target} aria-label="${project.title[currentLang]}">
+                    <a class="project-showcase-card${isActive ? '' : ' is-inactive'}" href="${href}"${target} aria-label="${project.title[projectLang]}">
                         <div class="project-showcase-image" style="background-image: url('${project.image}'); background-position: ${project.imagePosition};">
                             <span class="project-showcase-icon"><mdui-icon name="${project.icon}"></mdui-icon></span>
                         </div>
                         <div class="project-showcase-content">
-                            <h3 data-project-title>${project.title[currentLang]}</h3>
-                            <p data-project-description>${project.description[currentLang]}</p>
+                            <h3 data-project-title>${project.title[projectLang]}</h3>
+                            <p data-project-description>${project.description[projectLang]}</p>
                             <span class="project-showcase-link" data-project-status>
                                 ${i18n[currentLang][statusKey]} <mdui-icon name="${isActive ? 'arrow_forward' : 'block'}" style="font-size: 18px;"></mdui-icon>
                             </span>
