@@ -1,0 +1,81 @@
+/*
+ * 首页项目导航的展示内容。
+ * 后续只需要编辑这个数组，就可以调整首页项目卡片的顺序、文字、链接和图片。
+ */
+window.BAIPIN_HOME_PROJECTS = [
+    {
+        title: { zh: '百品博客', en: 'Baipin Blog' },
+        description: { zh: '站长的个人博客。', en: 'The personal blog of the site owner.' },
+        url: 'https://baipin.pw',
+        icon: 'book_ribbon',
+        image: 'home.jpg',
+        imagePosition: 'center',
+        status: 'active'
+    },
+    {
+        title: { zh: '百品导航', en: 'Baipin Navigation' },
+        description: {
+            zh: '简洁的客制化上网首页，支持 RSS、书签、搜索引擎、背景和夜间模式。',
+            en: 'A customizable homepage with RSS, bookmarks, search engines, backgrounds and dark mode.'
+        },
+        url: 'https://123.baipon.com',
+        icon: 'assistant_navigation',
+        image: '123/home.jpg',
+        imagePosition: 'center',
+        status: 'active'
+    },
+    {
+        title: { zh: '百品电台', en: 'Baipin Radio' },
+        description: { zh: '轻量化在线客制化电台，支持批量导入电台源。', en: 'A lightweight customizable online radio with batch station import.' },
+        url: 'https://radio.baipon.com',
+        icon: 'radio',
+        image: 'home.jpg',
+        imagePosition: 'left center',
+        status: 'active'
+    },
+    {
+        title: { zh: '知识花园', en: 'Knowledge Garden' },
+        description: { zh: '使用 AI Agent 整理想法及知识点，生成思维导图和 PPT。', en: 'An AI-powered knowledge garden for mind maps and presentations.' },
+        url: 'https://kg.baipon.com',
+        icon: 'local_florist',
+        image: 'home.jpg',
+        imagePosition: 'right center',
+        status: 'active'
+    },
+    {
+        title: { zh: '都市天际线 2 模组', en: 'Cities: Skylines II Mods' },
+        description: { zh: '由我制作的都市天际线 2 模组。', en: 'Cities: Skylines II mods created by me.' },
+        url: 'https://mods.paradoxplaza.com/authors/baipin',
+        icon: 'add_to_photos',
+        image: 'home.jpg',
+        imagePosition: 'center bottom',
+        status: 'active'
+    },
+    {
+        title: { zh: '百品论坛', en: 'Baipin Forum' },
+        description: { zh: '该项目已于 2018 年停止。', en: 'This project was discontinued in 2018.' },
+        url: 'https://bbs.baipin.pw',
+        icon: 'forum',
+        image: 'home.jpg',
+        imagePosition: 'center top',
+        status: 'inactive'
+    },
+    {
+        title: { zh: '百品网络电视', en: 'Baipin Web TV' },
+        description: { zh: '该项目已于 2026 年 4 月 21 日正式停止。', en: 'This project officially ended on April 21, 2026.' },
+        url: 'https://tv.baipin.pw',
+        icon: 'live_tv',
+        image: 'home.jpg',
+        imagePosition: 'center 25%',
+        status: 'inactive'
+    },
+    {
+        title: { zh: '百品 MC 助手', en: 'Baipin MC Helper' },
+        description: { zh: '我的世界资讯站，该项目已于 2018 年终止。', en: 'A Minecraft information site, discontinued in 2018.' },
+        url: '#',
+        icon: 'sports_esports',
+        image: 'home.jpg',
+        imagePosition: 'center 75%',
+        status: 'inactive'
+    }
+];

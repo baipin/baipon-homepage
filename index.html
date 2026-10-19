@@ -115,10 +115,158 @@
         .photo-text h4 { margin: 0; font-size: 1.3rem; font-weight: 800; color: white !important; }
         .photo-text p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.85; color: white !important; }
 
-        /* --- 4. 卡片容器 --- */
+        /* --- 4. 首页项目导航 --- */
+        .project-showcase {
+            max-width: var(--content-max-width);
+            width: calc(100% - 40px);
+            margin: -54px auto 72px;
+            position: relative;
+            z-index: 40;
+        }
+
+        .project-showcase-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+            color: #fff;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+        }
+
+        .project-showcase-heading {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 850;
+        }
+
+        .project-showcase-subtitle {
+            margin: 4px 0 0;
+            font-size: 0.88rem;
+            opacity: 0.88;
+        }
+
+        .project-showcase-controls {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .project-showcase-controls mdui-button-icon {
+            --mdui-color-on-surface: 255, 255, 255;
+            --mdui-color-surface-container: 255, 255, 255;
+            background: rgba(0, 0, 0, 0.32);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+        }
+
+        .project-showcase-track {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: minmax(245px, 1fr);
+            gap: 18px;
+            overflow-x: auto;
+            overscroll-behavior-inline: contain;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            padding: 2px 2px 12px;
+        }
+
+        .project-showcase-track::-webkit-scrollbar { display: none; }
+
+        .project-showcase-card {
+            min-width: 0;
+            min-height: 310px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            color: #171717;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.16);
+            text-decoration: none;
+            transition: transform 0.24s ease, box-shadow 0.24s ease;
+        }
+
+        .project-showcase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 38px rgba(0, 0, 0, 0.24);
+        }
+
+        .project-showcase-card.is-inactive {
+            filter: saturate(0.35);
+            opacity: 0.8;
+        }
+
+        .project-showcase-image {
+            height: 142px;
+            flex-shrink: 0;
+            position: relative;
+            background: #d9e4e8 center/cover no-repeat;
+        }
+
+        .project-showcase-image::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.42));
+        }
+
+        .project-showcase-icon {
+            position: absolute;
+            right: 14px;
+            bottom: 12px;
+            z-index: 1;
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.48);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 50%;
+            backdrop-filter: blur(8px);
+        }
+
+        .project-showcase-content {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            padding: 18px 18px 20px;
+        }
+
+        .project-showcase-content h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            line-height: 1.35;
+        }
+
+        .project-showcase-content p {
+            margin: 8px 0 0;
+            color: #5c6265;
+            font-size: 0.86rem;
+            line-height: 1.55;
+        }
+
+        .project-showcase-link {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: auto;
+            padding-top: 18px;
+            color: #006b70;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .project-showcase-card.is-inactive .project-showcase-link {
+            color: #777;
+        }
+
+        /* --- 5. 卡片容器 --- */
         .floating-container {
             max-width: var(--content-max-width);
-            margin: -100px auto 60px;
+            margin: 0 auto 60px;
             position: relative;
             z-index: 30;
             display: grid;
@@ -161,7 +309,11 @@
         @media (max-width: 900px) {
             .nav-links-container { display: none; }
             .mobile-menu-btn { display: inline-flex !important; }
-            .floating-container { grid-template-columns: 1fr; margin-top: -60px; width: calc(100% - 32px); }
+            .project-showcase { width: calc(100% - 32px); margin-top: -36px; margin-bottom: 52px; }
+            .project-showcase-header { align-items: flex-end; }
+            .project-showcase-subtitle { max-width: 230px; }
+            .project-showcase-track { grid-auto-columns: minmax(250px, 82vw); }
+            .floating-container { grid-template-columns: 1fr; margin-top: 0; width: calc(100% - 32px); }
             .photo-info-box { width: calc(100% - 32px); margin-bottom: 85px; padding: 16px 20px; }
             .sidebar-card { order: -1; }
         }
@@ -209,6 +361,20 @@
                 <mdui-icon slot="icon" name="arrow_forward"></mdui-icon>
             </mdui-button>
         </div>
+    </section>
+
+    <section class="project-showcase" aria-labelledby="homepage-projects-title">
+        <div class="project-showcase-header">
+            <div>
+                <h2 class="project-showcase-heading" id="homepage-projects-title" data-i18n="showcase_title">项目导航</h2>
+                <p class="project-showcase-subtitle" data-i18n="showcase_desc">探索百品正在运行和曾经制作的项目</p>
+            </div>
+            <div class="project-showcase-controls">
+                <mdui-button-icon id="project-scroll-prev" icon="arrow_back" title="向左浏览" aria-label="向左浏览"></mdui-button-icon>
+                <mdui-button-icon id="project-scroll-next" icon="arrow_forward" title="向右浏览" aria-label="向右浏览"></mdui-button-icon>
+            </div>
+        </div>
+        <div class="project-showcase-track" id="homepage-projects-track"></div>
     </section>
 
     <div class="floating-container">
@@ -260,6 +426,7 @@
         </div>
     </footer>
 
+    <script src="homepage-projects.js"></script>
     <script>
         const themeToggle = document.getElementById('theme-toggle');
         const html = document.documentElement;
@@ -293,24 +460,64 @@
                 hero_title: '我欲穿花寻路，直入白云深处。',
                 hero_desc: '欢迎造访百品入口网站。',
                 photo_title: '浙江丽水 · 云和梯田', photo_desc: '摄于2023年旅行时。',
-                news_title: '最新文章', bio: 'Student / Dennis', btn_follow: '关于我', enter_blog: '进入博客', projects: '查看项目', pp:'私隐政策'
+                news_title: '最新文章', bio: 'Student / Dennis', btn_follow: '关于我', enter_blog: '进入博客', projects: '查看项目', pp:'私隐政策',
+                showcase_title: '项目导航', showcase_desc: '探索百品正在运行和曾经制作的项目',
+                project_visit: '访问项目', project_unavailable: '项目已停止'
             },
             'en': {
                 nav_home: 'Home', nav_blog: 'Blog', nav_projects: 'Projects', nav_about: 'About',
                 hero_title: 'Seeking paths through flowers, straight into the clouds.',
                 hero_desc: 'Welcome to Baipin Portal.',
                 photo_title: 'Yunhe Terraces · Lishui', photo_desc: 'Shot during travelling in 2023.',
-                news_title: 'Latest Posts', bio: 'Student / Dennis', btn_follow: 'About Me', enter_blog: 'Enter Blog', projects: 'View Projects', pp:'Privacy Policy'
+                news_title: 'Latest Posts', bio: 'Student / Dennis', btn_follow: 'About Me', enter_blog: 'Enter Blog', projects: 'View Projects', pp:'Privacy Policy',
+                showcase_title: 'Project Directory', showcase_desc: 'Explore current and past Baipin projects',
+                project_visit: 'Visit project', project_unavailable: 'Project discontinued'
             }
         };
 
         let currentLang = 'zh-CN';
-        document.getElementById('lang-btn').addEventListener('click', () => {
-            currentLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
+        function renderHomepageProjects() {
+            const track = document.getElementById('homepage-projects-track');
+            track.innerHTML = window.BAIPIN_HOME_PROJECTS.map((project) => {
+                const isActive = project.status !== 'inactive';
+                const href = isActive ? project.url : '#';
+                const target = isActive ? ' target="_blank" rel="noopener noreferrer"' : '';
+                const statusKey = isActive ? 'project_visit' : 'project_unavailable';
+                return `
+                    <a class="project-showcase-card${isActive ? '' : ' is-inactive'}" href="${href}"${target} aria-label="${project.title[currentLang]}">
+                        <div class="project-showcase-image" style="background-image: url('${project.image}'); background-position: ${project.imagePosition};">
+                            <span class="project-showcase-icon"><mdui-icon name="${project.icon}"></mdui-icon></span>
+                        </div>
+                        <div class="project-showcase-content">
+                            <h3 data-project-title>${project.title[currentLang]}</h3>
+                            <p data-project-description>${project.description[currentLang]}</p>
+                            <span class="project-showcase-link" data-project-status>
+                                ${i18n[currentLang][statusKey]} <mdui-icon name="${isActive ? 'arrow_forward' : 'block'}" style="font-size: 18px;"></mdui-icon>
+                            </span>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        function applyLanguage(lang) {
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                el.innerText = i18n[currentLang][key];
+                if (i18n[lang][key]) el.innerText = i18n[lang][key];
             });
+            renderHomepageProjects();
+        }
+
+        document.getElementById('lang-btn').addEventListener('click', () => {
+            currentLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
+            applyLanguage(currentLang);
+        });
+
+        document.getElementById('project-scroll-prev').addEventListener('click', () => {
+            document.getElementById('homepage-projects-track').scrollBy({ left: -340, behavior: 'smooth' });
+        });
+        document.getElementById('project-scroll-next').addEventListener('click', () => {
+            document.getElementById('homepage-projects-track').scrollBy({ left: 340, behavior: 'smooth' });
         });
 
         async function fetchRSS() {
@@ -334,6 +541,7 @@
 
         const savedTheme = localStorage.getItem('theme') || 'auto';
         applyTheme(savedTheme);
+        renderHomepageProjects();
         fetchRSS();
     </script>
 </body>
