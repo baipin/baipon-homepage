@@ -38,7 +38,7 @@ window.BAIPIN_HOME_PROJECTS = [
         description: { zh: '使用 AI Agent 整理想法及知识点，生成思维导图和 PPT。', en: 'An AI-powered knowledge garden for mind maps and presentations.' },
         url: 'https://kg.baipon.com',
         icon: 'local_florist',
-        image: 'img/lg.jpg',
+        image: 'img/kg.jpg',
         imagePosition: 'right center',
         status: 'active'
     },
