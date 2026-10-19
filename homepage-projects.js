@@ -8,7 +8,7 @@ window.BAIPIN_HOME_PROJECTS = [
         description: { zh: '站长的个人博客。', en: 'The personal blog of the site owner.' },
         url: 'https://baipin.pw',
         icon: 'book_ribbon',
-        image: 'home.jpg',
+        image: 'img/blog.jpeg',
         imagePosition: 'center',
         status: 'active'
     },
@@ -20,7 +20,7 @@ window.BAIPIN_HOME_PROJECTS = [
         },
         url: 'https://123.baipon.com',
         icon: 'assistant_navigation',
-        image: '123/home.jpg',
+        image: 'img/navi.jpg',
         imagePosition: 'center',
         status: 'active'
     },
@@ -29,7 +29,7 @@ window.BAIPIN_HOME_PROJECTS = [
         description: { zh: '轻量化在线客制化电台，支持批量导入电台源。', en: 'A lightweight customizable online radio with batch station import.' },
         url: 'https://radio.baipon.com',
         icon: 'radio',
-        image: 'home.jpg',
+        image: 'img/radio.jpg',
         imagePosition: 'left center',
         status: 'active'
     },
@@ -38,7 +38,7 @@ window.BAIPIN_HOME_PROJECTS = [
         description: { zh: '使用 AI Agent 整理想法及知识点，生成思维导图和 PPT。', en: 'An AI-powered knowledge garden for mind maps and presentations.' },
         url: 'https://kg.baipon.com',
         icon: 'local_florist',
-        image: 'home.jpg',
+        image: 'img/lg.jpg',
         imagePosition: 'right center',
         status: 'active'
     },
@@ -47,7 +47,7 @@ window.BAIPIN_HOME_PROJECTS = [
         description: { zh: '由我制作的都市天际线 2 模组。', en: 'Cities: Skylines II mods created by me.' },
         url: 'https://mods.paradoxplaza.com/authors/baipin',
         icon: 'add_to_photos',
-        image: 'home.jpg',
+        image: 'img/mods.jpg',
         imagePosition: 'center bottom',
         status: 'active'
     },
